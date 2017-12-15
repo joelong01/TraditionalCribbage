@@ -1,0 +1,62 @@
+﻿<UserControl x:Name="userControl"
+    x:Class="Cribbage.PegControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Cribbage"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="15"
+    d:DesignWidth="15" 
+    VerticalAlignment="Top"
+    HorizontalAlignment="Left"
+    RenderTransformOrigin="0.5,0.5"  >
+    <UserControl.Resources>
+        <Storyboard x:Name="_rotate">
+            <DoubleAnimation x:Name="_animation" Duration="0" To="0" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.Rotation)" Storyboard.TargetName="userControl"/>
+        </Storyboard>
+        <Storyboard x:Name="_sbSetScore">
+            <DoubleAnimation x:Name="_daRotate"     Duration="0:0:1" To="360" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.Rotation)" Storyboard.TargetName="userControl" d:IsOptimized="True"/>
+        </Storyboard>
+        <Storyboard x:Name="_sbTranslate">
+            <DoubleAnimation x:Name="_daTranslateX" Duration="0:0:2"  To="0" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)" Storyboard.TargetName="grid"/>
+            <DoubleAnimation x:Name="_daTranslateY" Duration="0:0:2"  To="0" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateY)" Storyboard.TargetName="grid"/>
+        </Storyboard>
+    </UserControl.Resources>
+
+    <UserControl.RenderTransform>
+        <CompositeTransform/>
+    </UserControl.RenderTransform>
+
+
+
+    <Grid x:Name="grid"  >
+        <Grid.RenderTransform>
+            <CompositeTransform x:Name="_compositeTransform"/>
+        </Grid.RenderTransform>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="5*"/>
+            <RowDefinition Height="5*"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="5*"/>
+            <ColumnDefinition Width="5*"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+
+
+        <Ellipse Name="_ellipse" Grid.ColumnSpan="4" Grid.RowSpan="4" Grid.Row="0" Grid.Column="0" Stroke="White"
+            VerticalAlignment="Stretch"  Margin="0"  HorizontalAlignment="Stretch" Fill="{StaticResource bmRuby}">        
+            <Ellipse.RenderTransform>
+                <CompositeTransform Rotation="0"/>
+            </Ellipse.RenderTransform>            
+        </Ellipse>
+
+
+
+    </Grid>
+
+</UserControl>
