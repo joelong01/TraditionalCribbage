@@ -2,7 +2,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Cribbage"
-    xmlns:card="using:Cards"
+    xmlns:cardView="using:CardView"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"    
     xmlns:CribbageBoard="using:Cribbage"    
@@ -16,7 +16,7 @@
         <CribbageBoard:DoubleToDoubleConverter x:Key="DoubleToDoubleConverter" />
 
 
-        <Style x:Key="CardGridStyle" TargetType="card:CardGrid">
+        <Style x:Key="CardGridStyle" TargetType="cardView:CardGrid">
             <Setter Property="BorderBrush" Value="{StaticResource LineBrush}" />
             <Setter Property="BorderThickness" Value="2"/>
             <Setter Property="CornerRadius" Value="3" />
@@ -135,10 +135,10 @@
 
 
 
-                        <card:CardGrid x:Name="_cgComputer" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="5" Style="{StaticResource CardGridStyle}" MaxSelectedCards="0" Location="Computer"
+                        <cardView:CardGrid x:Name="_cgComputer" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="5" Style="{StaticResource CardGridStyle}" MaxSelectedCards="0" Location="Computer"
                                        HorizontalAlignment="Center"
                                        DropTarget="{Binding ElementName=_cgDiscarded}" ParentGrid="{Binding ElementName=LayoutRoot}" >
-                            <card:CardGrid.ColumnDefinitions>
+                            <cardView:CardGrid.ColumnDefinitions>
                                 <ColumnDefinition Width="0"/>
                                 <ColumnDefinition Width="125"/>
                                 <ColumnDefinition Width="125"/>
@@ -147,18 +147,18 @@
                                 <ColumnDefinition Width="125"/>
                                 <ColumnDefinition Width="125"/>
                                 <ColumnDefinition Width="0"/>
-                            </card:CardGrid.ColumnDefinitions>
-                            <card:CardCtrl Suit="Spades" CardOrdinal="Five"    Grid.Column="1" Orientation="FaceUp" />
-                            <card:CardCtrl Suit="Spades" CardOrdinal="Ten"     Grid.Column="2"      />
-                            <card:CardCtrl Suit="Spades" CardOrdinal="Jack"    Grid.Column="3"     />
-                            <card:CardCtrl Suit="Spades" CardOrdinal="Queen"   Grid.Column="4"   />
-                            <card:CardCtrl Suit="Spades" CardOrdinal="King"    Grid.Column="5"     />
-                            <card:CardCtrl Suit="Clubs"  CardOrdinal="King"    Grid.Column="6"     />
-                        </card:CardGrid>
-                        <card:CardGrid x:Name="_cgPlayer"   Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="5" AllowDrop="True" MaxSelectedCards="2"  Location="Player"
+                            </cardView:CardGrid.ColumnDefinitions>
+                            <cardView:CardCtrl CardName="FiveOfSpades"   Grid.Column="1" Orientation="FaceUp" />
+                            <cardView:CardCtrl CardName="JackOfClubs"   Grid.Column="2"      />
+                            <cardView:CardCtrl CardName="JackOfSpades"   Grid.Column="3"     />
+                            <cardView:CardCtrl CardName="QueenOfSpades"  Grid.Column="4"   />
+                            <cardView:CardCtrl CardName="KingOfSpades"    Grid.Column="5"     />
+                            <cardView:CardCtrl CardName="KingOfClubs"     Grid.Column="6"     />
+                        </cardView:CardGrid>
+                        <cardView:CardGrid x:Name="_cgPlayer"   Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="5" AllowDrop="True" MaxSelectedCards="2"  Location="Player"
                                         HorizontalAlignment="Center"
                                        DropTarget="{Binding ElementName=_cgDiscarded}"  CardLayout="Normal"  Style="{StaticResource CardGridStyle}" ParentGrid="{Binding ElementName=LayoutRoot}" >
-                            <card:CardGrid.ColumnDefinitions>
+                            <cardView:CardGrid.ColumnDefinitions>
                                 <ColumnDefinition Width="0" />
                                 <ColumnDefinition Width="125" />
                                 <ColumnDefinition Width="125" />
@@ -167,20 +167,20 @@
                                 <ColumnDefinition Width="125" />
                                 <ColumnDefinition Width="125" />
                                 <ColumnDefinition Width="0"/>
-                            </card:CardGrid.ColumnDefinitions>
-                            <card:CardCtrl Suit="Spades" CardOrdinal="Five"    Grid.Column="1"  HighlightCards="True" />
-                            <card:CardCtrl Suit="Spades" CardOrdinal="Two"     Grid.Column="2"  HighlightCards="True" />
-                            <card:CardCtrl Suit="Spades" CardOrdinal="Eight"    Grid.Column="3"  HighlightCards="True" />
-                            <card:CardCtrl Suit="Spades" CardOrdinal="Queen"   Grid.Column="4"  HighlightCards="True" />
-                            <card:CardCtrl Suit="Spades" CardOrdinal="King"    Grid.Column="5"  HighlightCards="True" />
-                            <card:CardCtrl Suit="Clubs"  CardOrdinal="King"     Grid.Column="6"  HighlightCards="True" />
-                        </card:CardGrid>
+                            </cardView:CardGrid.ColumnDefinitions>
+                            <cardView:CardCtrl CardName="FiveOfSpades"    Grid.Column="1"  HighlightCards="True" />
+                            <cardView:CardCtrl CardName="JackOfClubs"     Grid.Column="2"  HighlightCards="True" />
+                            <cardView:CardCtrl CardName="JackOfSpades"     Grid.Column="3"  HighlightCards="True" />
+                            <cardView:CardCtrl CardName="QueenOfSpades"   Grid.Column="4"  HighlightCards="True" />
+                            <cardView:CardCtrl CardName="KingOfSpades"    Grid.Column="5"  HighlightCards="True" />
+                            <cardView:CardCtrl CardName="KingOfClubs"      Grid.Column="6"  HighlightCards="True" />
+                        </cardView:CardGrid>
 
-                        <card:CardGrid x:Name="_cgDiscarded"   Grid.Row="3" Grid.Column="3" Grid.ColumnSpan="1" AllowDrop="True" MaxSelectedCards="0" Location="Discarded"                                        
+                        <cardView:CardGrid x:Name="_cgDiscarded"   Grid.Row="3" Grid.Column="3" Grid.ColumnSpan="1" AllowDrop="True" MaxSelectedCards="0" Location="Discarded"                                        
                                        DropTarget="{Binding ElementName=_cgCrib}"  CardLayout="Overlapped"  
                                        Style="{StaticResource CardGridStyle}" ParentGrid="{Binding ElementName=LayoutRoot}"
 					                   HorizontalAlignment="Center" VerticalAlignment="Stretch">
-                            <card:CardGrid.ColumnDefinitions>
+                            <cardView:CardGrid.ColumnDefinitions>
                                 <ColumnDefinition Width="3"/>
                                 <ColumnDefinition Width="62.5" />
                                 <ColumnDefinition Width="62.5" />
@@ -192,26 +192,26 @@
                                 <ColumnDefinition Width="62.5" />
                                 <ColumnDefinition Width="62.5" />
                                 <ColumnDefinition Width="0"/>
-                            </card:CardGrid.ColumnDefinitions>
-                            <card:CardCtrl Suit="Spades" CardOrdinal="Ace"    Grid.Column="1" Grid.ColumnSpan="2" HighlightCards="True" Canvas.ZIndex="1" />
-                            <card:CardCtrl Suit="Spades" CardOrdinal="Two"    Grid.Column="2" Grid.ColumnSpan="2" HighlightCards="True" Canvas.ZIndex="2"/>
-                            <card:CardCtrl Suit="Spades" CardOrdinal="Three"  Grid.Column="3" Grid.ColumnSpan="2" HighlightCards="True" Canvas.ZIndex="3"/>
-                            <card:CardCtrl Suit="Spades" CardOrdinal="Four"   Grid.Column="4" Grid.ColumnSpan="2" HighlightCards="True" Canvas.ZIndex="4"/>
-                            <card:CardCtrl Suit="Spades" CardOrdinal="Five"   Grid.Column="5" Grid.ColumnSpan="2" HighlightCards="True" Canvas.ZIndex="5"/>
-                            <card:CardCtrl Suit="Clubs"  CardOrdinal="Six"    Grid.Column="6" Grid.ColumnSpan="2" HighlightCards="True" Canvas.ZIndex="6"/>
-                            <card:CardCtrl Suit="Spades" CardOrdinal="Seven"  Grid.Column="7" Grid.ColumnSpan="2" HighlightCards="True" Canvas.ZIndex="7"/>
-                            <card:CardCtrl Suit="Clubs"  CardOrdinal="Eight"  Grid.Column="8" Grid.ColumnSpan="2" HighlightCards="True" Canvas.ZIndex="8"/>
-                        </card:CardGrid>
+                            </cardView:CardGrid.ColumnDefinitions>
+                            <cardView:CardCtrl CardName="FiveOfSpades"   Grid.Column="1" Grid.ColumnSpan="2" HighlightCards="True" Canvas.ZIndex="1" />
+                            <cardView:CardCtrl CardName="JackOfClubs"    Grid.Column="2" Grid.ColumnSpan="2" HighlightCards="True" Canvas.ZIndex="2"/>
+                            <cardView:CardCtrl CardName="JackOfSpades"   Grid.Column="3" Grid.ColumnSpan="2" HighlightCards="True" Canvas.ZIndex="3"/>
+                            <cardView:CardCtrl CardName="QueenOfSpades"  Grid.Column="4" Grid.ColumnSpan="2" HighlightCards="True" Canvas.ZIndex="4"/>
+                            <cardView:CardCtrl CardName="KingOfSpades"   Grid.Column="5" Grid.ColumnSpan="2" HighlightCards="True" Canvas.ZIndex="5"/>
+                            <cardView:CardCtrl CardName="KingOfClubs"    Grid.Column="6" Grid.ColumnSpan="2" HighlightCards="True" Canvas.ZIndex="6"/>
+                            <cardView:CardCtrl   Grid.Column="7" Grid.ColumnSpan="2" HighlightCards="True" Canvas.ZIndex="7"/>
+                            <cardView:CardCtrl   Grid.Column="8" Grid.ColumnSpan="2" HighlightCards="True" Canvas.ZIndex="8"/>
+                        </cardView:CardGrid>
 
-                        <card:CardGrid x:Name="_cgCrib" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="1" Location="Crib" CardLayout="Stacked" Margin="0" Grid.RowSpan="1" Style="{StaticResource CardGridStyle}" MaxSelectedCards="0" ParentGrid="{Binding ElementName=LayoutRoot}" >
-                            <card:CardCtrl Suit="Spades" CardOrdinal="Five"    Grid.Column="1"  HighlightCards="True" FaceDown="True" />
-                        </card:CardGrid>
+                        <cardView:CardGrid x:Name="_cgCrib" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="1" Location="Crib" CardLayout="Stacked" Margin="0" Grid.RowSpan="1" Style="{StaticResource CardGridStyle}" MaxSelectedCards="0" ParentGrid="{Binding ElementName=LayoutRoot}" >
+                            <cardView:CardCtrl CardName="AceOfHearts"   Grid.Column="1"  HighlightCards="True" FaceDown="True" />
+                        </cardView:CardGrid>
 
                         <local:CountCtrl x:Name="_ctrlCount" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="1"  Grid.RowSpan="1" Visibility="Collapsed" Canvas.ZIndex="54" />
 
-                        <card:CardGrid x:Name="_cgDeck" Grid.Row="3" Grid.Column="5" CardLayout="Stacked" Location="Deck" Margin="0" Grid.RowSpan="1"  Style="{StaticResource CardGridStyle}" Canvas.ZIndex="0" ParentGrid="{Binding ElementName=LayoutRoot}" MaxSelectedCards="0" >
-                            <card:CardCtrl  Suit="Spades" CardOrdinal="Five"    Grid.Column="1"  HighlightCards="True" FaceDown="True" />
-                        </card:CardGrid>
+                        <cardView:CardGrid x:Name="_cgDeck" Grid.Row="3" Grid.Column="5" CardLayout="Stacked" Location="Deck" Margin="0" Grid.RowSpan="1"  Style="{StaticResource CardGridStyle}" Canvas.ZIndex="0" ParentGrid="{Binding ElementName=LayoutRoot}" MaxSelectedCards="0" >
+                            <cardView:CardCtrl  CardName="FiveOfSpades"    Grid.Column="1"  HighlightCards="True" FaceDown="True" />
+                        </cardView:CardGrid>
 
                         <Grid Name="_gridInfo" Grid.Row="7" Grid.ColumnSpan="6" Background="Transparent">
                             <Grid.ColumnDefinitions>

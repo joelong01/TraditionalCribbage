@@ -1,8 +1,8 @@
 ﻿using Cards;
+using CardView;
+using CribbagePlayers;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Cribbage
@@ -89,6 +89,8 @@ namespace Cribbage
         List<CardCtrl> _countedCards = new List<CardCtrl>();
         IGameView _gameView;
 
+        DefaultPlayer _computer = new DefaultPlayer(true);
+
         public PlayerType Dealer { get; set; } = PlayerType.Computer;
         public PlayerType PlayerTurn { get; set; } = PlayerType.Computer;
 
@@ -104,6 +106,28 @@ namespace Cribbage
         private void ToggleDealer()
         {
             Dealer = (Dealer == PlayerType.Computer) ? PlayerType.Player : PlayerType.Computer;
+        }
+
+        public static (List<CardCtrl> computerCards, List<CardCtrl> playerCards, List<CardCtrl> sharedCard) GetHands()
+        {
+            List<CardCtrl> dealtCards = CardCtrl.GetCards(13, Owner.Uninitialized);
+            List<CardCtrl> playerCards = new List<CardCtrl>();
+            List<CardCtrl> computerCards = new List<CardCtrl>();
+            List<CardCtrl> sharedCards = new List<CardCtrl>();
+
+            var ret = (computerCards: computerCards, playerCards: playerCards, sharedCard: sharedCards);
+
+            for (int i = 0; i < 12; i += 2)
+            {
+                dealtCards[i].Owner = Owner.Player;
+                ret.playerCards.Add(dealtCards[i]);
+                dealtCards[i + 1].Owner = Owner.Computer;
+                ret.computerCards.Add(dealtCards[i + 1]);
+            }
+            dealtCards[12].Owner = Owner.Shared;
+            ret.sharedCard.Add(dealtCards[12]);
+            return ret;
+
         }
 
         public async Task SetState(GameState newState)
@@ -125,11 +149,12 @@ namespace Cribbage
                     case GameState.Deal:
                         ToggleDealer();
                         PlayerTurn = (Dealer == PlayerType.Computer) ? PlayerType.Player : PlayerType.Computer;
-                        Deck d = new Deck();
-                        _playerCards = d.GetCards(6, Owner.Player);
-                        _computerCards = d.GetCards(6, Owner.Computer);
-                        _sharedCard = d.GetCards(1, Owner.Shared);
-                        _crib = GetBestCribCards(_computerCards);
+                        var (computerCards, playerCards, sharedCard) = Game.GetHands();
+                        _computerCards = computerCards;
+                        _playerCards = playerCards;
+                        _sharedCard = sharedCard;
+
+                        _crib = ComputerSelectCrib(_computerCards, Dealer == PlayerType.Computer);
 
                         await _gameView.Deal(_playerCards, _computerCards, _sharedCard, _crib, Dealer);
                         _countedCards.Clear();
@@ -386,16 +411,16 @@ namespace Cribbage
 
         private CardCtrl PickCountingCard(List<CardCtrl> countedCards, List<CardCtrl> heldCards, int currentCount)
         {
-            foreach (var card in heldCards)
+
+            Card card = _computer.GetCountCard(CardCtrlToCards(countedCards), CardCtrlToCards(heldCards), currentCount);
+            if (card == null) return null;
+            foreach (var uiCard in heldCards)
             {
-
-                if (card.Location == Location.Discarded) continue;
-                if (card.Location == Location.Crib) continue;
-
-                if (currentCount + card.Value <= 31)
-                    return card;
+                if (uiCard.CardName == card.CardName)
+                    return uiCard;
             }
 
+            
             return null;
         }
 
@@ -433,12 +458,39 @@ namespace Cribbage
             return null;
         }
 
-        private List<CardCtrl> GetBestCribCards(List<CardCtrl> cards)
+        private List<CardCtrl> ComputerSelectCrib(List<CardCtrl> cards, bool computerCrib)
         {
-            List<CardCtrl> list = new List<CardCtrl>();
-            list.Add(cards[0]);
-            list.Add(cards[3]);
-            return list;
+            List<Card> hand = CardCtrlToCards(cards);
+            List<Card> crib =  _computer.SelectCribCards(hand, computerCrib);
+            return CardsToCardCtrl(cards, crib);
+        }
+
+        private List<Card> CardCtrlToCards(List<CardCtrl> uiCards)
+        {
+            List<Card> cards = new List<Card>();
+            foreach (var uiCard in uiCards)
+            {
+                cards.Add(uiCard.Card);
+            }
+
+            return cards;
+        }
+
+        private List<CardCtrl> CardsToCardCtrl(List<CardCtrl> hand, List<Card> cards)
+        {
+            List<CardCtrl> newHand = new List<CardCtrl>();
+            foreach (var card in cards)
+            {
+                foreach (var uiCard in hand)
+                {
+                    if (card.CardName == uiCard.CardName)
+                    {
+                        newHand.Add(uiCard);
+                        break;
+                    }
+                }
+            }
+            return newHand;
         }
 
         internal void SetPlayableCards()

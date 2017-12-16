@@ -18,30 +18,14 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Cribbage;
 using System.Diagnostics;
+using Cards;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
-namespace Cards
+namespace CardView
 {
-
-    public delegate void CardSelectionChangedDelegate(CardCtrl card, bool selected);
-
-    public enum Suit { Uninitialized = 0, Clubs = 1, Diamonds = 2, Hearts = 3, Spades = 4 };
     public enum CardOrientation { FaceDown, FaceUp };
-    public enum CardNames
-    {
-        AceOfClubs = 0, TwoOfClubs = 1, ThreeOfClubs = 2, FourOfClubs = 3, FiveOfClubs = 4, SixOfClubs = 5, SevenOfClubs = 6, EightOfClubs = 7, NineOfClubs = 8, TenOfClubs = 9, JackOfClubs = 10, QueenOfClubs = 11, KingOfClubs = 12,
-        AceOfDiamonds = 13, TwoOfDiamonds = 14, ThreeOfDiamonds = 15, FourOfDiamonds = 16, FiveOfDiamonds = 17, SixOfDiamonds = 18, SevenOfDiamonds = 19, EightOfDiamonds = 20, NineOfDiamonds = 21, TenOfDiamonds = 22, JackOfDiamonds = 23, QueenOfDiamonds = 24, KingOfDiamonds = 25,
-        AceOfHearts = 26, TwoOfHearts = 27, ThreeOfHearts = 28, FourOfHearts = 29, FiveOfHearts = 30, SixOfHearts = 31, SevenOfHearts = 32, EightOfHearts = 33, NineOfHearts = 34, TenOfHearts = 35, JackOfHearts = 36, QueenOfHearts = 37, KingOfHearts = 38,
-        AceOfSpades = 39, TwoOfSpades = 40, ThreeOfSpades = 41, FourOfSpades = 42, FiveOfSpades = 43, SixOfSpades = 44, SevenOfSpades = 45, EightOfSpades = 46, NineOfSpades = 47, TenOfSpades = 48, JackOfSpades = 49, QueenOfSpades = 50, KingOfSpades = 51,
-        BlackJoker = 52, RedJoker = 53, BackOfCard = 54
-    };
-
-    public enum CardOrdinal
-    {
-        Uninitialized = 0, Ace = 1, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King
-    };
-
+    public delegate void CardSelectionChangedDelegate(CardCtrl card, bool selected);
     public enum Location { Unintialized, Deck, Discarded, Computer, Player, Crib };
 
     public sealed partial class CardCtrl : UserControl, INotifyPropertyChanged
@@ -55,18 +39,116 @@ namespace Cards
         string _sSpade = "ª";
 
         CardOrientation _myOrientation = CardOrientation.FaceUp;
-        private int _index = 0;         // the index into the array of 52 cars (0...51)        
-        private int _rank = 0;          // the number of the card in the suit -- e.g. 1...13 for A...K - used for counting runs and sorting                
         SolidColorBrush _red = new SolidColorBrush(Colors.DarkRed);
         SolidColorBrush _black = new SolidColorBrush(Colors.Black);
-        CardOrdinal _cardOrdinal = CardOrdinal.Uninitialized;
-        Suit _suit = Suit.Uninitialized;
-
-        //public static readonly DependencyProperty GlyphProperty = DependencyProperty.Register("Suit", typeof(Suit), typeof(CardCtrl), null);
-        //public static readonly DependencyProperty CardOrdinalProperty = DependencyProperty.Register("CardOrdinal", typeof(CardOrdinal), typeof(CardCtrl), null);
         private bool _highlightCards = false;
-
         Location _location = Location.Unintialized;
+
+        Card _card = null;
+
+        public Card Card
+        {
+            get
+            {
+                return _card;
+            }
+        }
+        
+
+        public static readonly DependencyProperty CardNameProperty = DependencyProperty.Register("CardName", typeof(CardNames), typeof(Card), new PropertyMetadata(CardNames.AceOfSpades, CardNameChanged));
+        public CardNames CardName
+        {
+            get
+            {
+                if (_card != null)
+                {
+                    if ((CardNames)GetValue(CardNameProperty) != _card.CardName)
+                    {
+                        CardName = _card.CardName;
+                        SetSuit(_card.Suit);
+                        UpdateCardLayout(_card.CardOrdinal);
+                    }
+                }
+
+                return (CardNames)GetValue(CardNameProperty);
+
+
+            }
+            set { SetValue(CardNameProperty, value); }
+        }
+        private static void CardNameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            CardCtrl depPropClass = d as CardCtrl;
+            CardNames depPropValue = (CardNames)e.NewValue;
+            depPropClass.SetCardName(depPropValue);
+        }
+        private void SetCardName(CardNames value)
+        {
+            if (_card == null)
+            {
+                _card = new Card(value);
+                SetSuit(_card.Suit);
+                UpdateCardLayout(_card.CardOrdinal);
+            }
+            else
+            {
+                _card.CardName = value;
+            }
+        }
+
+
+
+        public int Rank
+        {
+            get
+            {
+                if (_card == null)
+                    return 0;
+
+                return _card.Rank;
+            }
+        }
+
+        public int Index
+        {
+            get
+            {
+                if (_card == null)
+                    return 0;
+
+                return _card.Index;
+            }
+        }
+
+        public int Value
+        {
+            get
+            {
+                if (_card == null)
+                    return 0;
+
+                return _card.Value;
+            }
+        }
+
+        public CardCtrl(Card card)
+        {
+            this.InitializeComponent();
+            this.DataContext = this;
+            _card = card;
+            CardName = _card.CardName;
+            SetSuit(_card.Suit);
+            UpdateCardLayout(_card.CardOrdinal);
+
+        }
+
+        public CardCtrl()
+        {
+            this.InitializeComponent();
+            this.DataContext = this;
+        }
+
+
 
         public Location Location
         {
@@ -85,6 +167,38 @@ namespace Cards
             }
         }
 
+        /// <summary>
+        ///     This is where the cards are created...
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns></returns>
+        public static List<CardCtrl> GetCards(int number, Owner owner)
+        {
+            List<CardCtrl> CardUI = new List<CardCtrl>();
+            Deck deck = new Deck(Environment.TickCount);
+            List<Card> Cards = deck.GetCards(number);
+
+            foreach (var card in Cards)
+            {
+                CardCtrl c = new CardCtrl(card);
+                c.Width = 125;
+                c.Height = 175;
+                c.Margin = new Thickness(0);
+                Grid.SetColumnSpan(c, 99); // should be enough...
+                Grid.SetRowSpan(c, 99); // should be enough...
+                c.HorizontalAlignment = HorizontalAlignment.Left;
+                c.Owner = owner;
+                c.VerticalAlignment = VerticalAlignment.Top;
+                c.Orientation = CardOrientation.FaceDown;
+                c.ShowDebugInfo = false;
+                CardUI.Add(c);
+            }
+
+
+
+            return CardUI;
+        }
+
         //
         //  these are the properties that we save/load
         private List<string> _savedProperties = new List<string> { "FaceDown", "Suit", "Rank" };
@@ -94,15 +208,10 @@ namespace Cards
         public event PropertyChangedEventHandler PropertyChanged;
         public event CardSelectionChangedDelegate CardSelectionChanged;
 
-        public CardCtrl()
-        {
-            this.InitializeComponent();
-            this.DataContext = this;
-        }
 
         public override string ToString()
         {
-            return String.Format($"{CardOrdinal} of {Suit}\n {Orientation}\n Rank: {Rank}\n Value: {Value}\n Owner: {Owner}\n zIndex: {Canvas.GetZIndex(this)}\n Location: {Location}");
+            return String.Format($"{_card.ToString()} Owner: {Owner}\n zIndex: {Canvas.GetZIndex(this)}\n Location: {Location}");
         }
 
         public string Info
@@ -324,23 +433,7 @@ namespace Cards
 
         }
 
-        /// <summary>
-        /// value for countinge (1..10)
-        /// </summary>
 
-        public int Value
-        {
-            get
-            {
-                if (Rank <= 10)
-                    return Rank;
-
-                return 10;
-            }
-        }
-        /// <summary>
-        /// same use as Orientation, but easier to save/load
-        /// </summary>
 
         public bool FaceDown
         {
@@ -399,76 +492,7 @@ namespace Cards
             Canvas.SetZIndex(this, zIndex);
         }
 
-        /// <summary>
-        /// used where runs and order matters (1...13)
-        /// </summary>
 
-        public int Rank
-        {
-            get
-            {
-                return _rank;
-
-            }
-            set
-            {
-                _rank = value;
-                NotifyPropertyChanged();
-
-
-                _cardOrdinal = (CardOrdinal)value;
-                UpdateCardLayout(_cardOrdinal);
-                NotifyPropertyChanged();
-                NotifyPropertyChanged("CardName");
-                NotifyPropertyChanged("Value");
-                NotifyPropertyChanged("CardOrdinal");
-
-
-            }
-        }
-        /// <summary>
-        /// the index into the unordered card deck
-        /// </summary>
-
-        public int Index
-        {
-            get
-            {
-                return _index;
-            }
-            set
-            {
-
-                _index = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-
-
-
-
-
-        public CardNames CardName
-        {
-            get
-            {
-                return (CardNames)(((int)(Suit - 1) * 13 + Rank - 1));
-
-            }
-            set
-            {
-                //
-                //  given a number of 0-51, set the suit and the rank
-
-                if ((int)value < 0 || (int)value > 51)
-                    throw new InvalidDataException($"The value {(int)value} is an invalid CardNumber");
-
-                int val = (int)value;
-                Suit = (Suit)((int)(val / 13) + 1);
-                Rank = val % 13 + 1;
-            }
-        }
 
         public int zIndex
         {
@@ -485,60 +509,6 @@ namespace Cards
 
 
 
-        //public string Glyph
-        //{
-        //    get { return (string)GetValue(GlyphProperty); }
-        //    set { SetValue(GlyphProperty, value); NotifyPropertyChanged(); }
-        //}
-
-        public CardOrdinal CardOrdinal
-        {
-            get
-            {
-
-                try
-                {
-                    return _cardOrdinal;
-                }
-                catch
-                {
-                    return CardOrdinal.Uninitialized;
-                }
-
-
-
-            }
-            set
-            {
-                _cardOrdinal = value;
-                UpdateCardLayout(value);
-                _rank = (int)value;
-                NotifyPropertyChanged();
-                NotifyPropertyChanged("CardName");
-                NotifyPropertyChanged("Rank");
-            }
-        }
-        public Suit Suit
-        {
-            get
-            {
-                try
-                {
-                    return _suit;
-                }
-                catch
-                {
-                    return Suit.Diamonds;
-                }
-            }
-            set
-            {
-                _suit = value;
-                SetSuit(value);
-                NotifyPropertyChanged();
-                NotifyPropertyChanged("CardName");
-            }
-        }
 
         internal void Reset()
         {
@@ -797,7 +767,7 @@ namespace Cards
         {
             get
             {
-                if (this.Suit == Suit.Clubs || this.Suit == Suit.Spades)
+                if (_card?.Suit == Suit.Clubs || _card?.Suit == Suit.Spades)
                     return _black;
 
                 return _red;
@@ -986,44 +956,7 @@ namespace Cards
 
 
         }
-        public static int CompareCardsByIndex(CardCtrl x, CardCtrl y)
-        {
-            if (x == null)
-            {
-                if (y == null)
-                {
-                    // If x is null and y is null, they're 
-                    // equal.  
-                    return 0;
-                }
-                else
-                {
-                    // If x is null and y is not null, y 
-                    // is greater.  
-                    return -1;
-                }
-            }
-            else
-            {
-                // If x is not null... 
-                // 
-                if (y == null)
-                // ...and y is null, x is greater.
-                {
-                    return 1;
-                }
-                else
-                {
-
-                    //
-                    //  sorted largest to smallest for easier destructive iterations
-                    return (y.Index - x.Index);
 
 
-                }
-            }
-
-
-        }
     }
 }
