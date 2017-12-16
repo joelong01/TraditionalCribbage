@@ -3,6 +3,7 @@ using CardView;
 using CribbagePlayers;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace Cribbage
@@ -25,21 +26,7 @@ namespace Cribbage
         None
     }
 
-    public class Score
-    {
-        public string Description { get; set; }
-        public int Value { get; set; }
-        private Score() { }
-        public Score(string description, int value)
-        {
-            Description = description;
-            Value = value;
-        }
-        public override string ToString()
-        {
-            return String.Format($"{Description} for {Value} ");
-        }
-    }
+   
 
     public interface IGameView
     {
@@ -171,6 +158,14 @@ namespace Cribbage
                         break;
                     case GameState.GiveToCrib:
                         await _gameView.MoveCardsToCrib();
+                        //
+                        //  shared card has been flipped -- check for Jack
+
+                        if (_sharedCard[0].Card.CardOrdinal == CardOrdinal.Jack)
+                        {
+                            Score score = new Score(ScoreName.HisNibs, 2);
+                            _gameView.AddScore(new List<Score>() { score }, PlayerTurn);
+                        }
                         await SetState(GameState.Count);
                         break;
                     case GameState.Count:
@@ -231,7 +226,7 @@ namespace Cribbage
         private List<Score> ScoreHand(List<CardCtrl> cards, HandType handType)
         {
             List<Score> scores = new List<Score>();
-            scores.Add(new Score("Test", 7));
+           // scores.Add(new Score("Test", 7));
             return scores;
         }
 
@@ -262,42 +257,62 @@ namespace Cribbage
 
             if (_state == GameState.Count)
             {
+                //
+                //  1. get Count Card
+                //  2. Score It
+                //  3. add the value to the current count
+                //  4. add the score
+                //  5. add it to the counted cards
+                //  6. remove it from the player cards (the UI can only be in one collection at a time)
+                //
                 CardCtrl playerCard = cards[0];
                 CardCtrl computerCard = null;
 
                 if (PlayerTurn == PlayerType.Player)
                 {
+
+                    List<Card> countedCards = CardCtrlToCards(_countedCards);
+                    int score = CardScoring.ScoreCountingCardsPlayed(countedCards, playerCard.Card, _currentCount, out List<Score> scoreList);
+
                     _currentCount += playerCard.Value;
-                    _countedCards.Add(playerCard);
                     _playerCards.Remove(playerCard);
-                    await _gameView.CountCard(computerCard, _currentCount);
-                    List<Score> scores = ScoreCountedCards(_countedCards);
-                    if (scores != null)
-                        _gameView.AddScore(scores, PlayerTurn);
+                    _countedCards.Add(playerCard);
+                    
+                    await _gameView.CountCard(computerCard, _currentCount); // need to update the UI even when the player plays -- set the count and playable cards
+                    _gameView.AddScore(scoreList, PlayerTurn);
+                    
 
                 }
                 //
-                //  the right card for the computer to play
+                //  the right card for the computer to play - will be null if there is nothing for them to play
+                //
                 computerCard = PickCountingCard(_countedCards, _computerCards, _currentCount);
-
-
-
+                
                 if (computerCard != null)
                 {
+                    //
+                    // this means the computer can play -- let them do so
                     PlayerTurn = PlayerType.Computer;
                     await SetState(GameState.Count);
                 }
                 else // computer can't go.  can the player?
                 {
-                    playerCard = PickCountingCard(_countedCards, _playerCards, _currentCount); // is there a valid card for the player to play?
+                    playerCard = PickCountingCard(_countedCards, _playerCards, _currentCount); // is there a valid card for the player to play? - ask the computer player what it would play.  if it returns a non-null value, the player can play
                     if (playerCard == null) // player can't go either
                     {
+                        if (_playerCards.Count == 0 && _computerCards.Count == 0)
+                        {
+                            await EndCounting();
+                            return true;
+                        }
+
                         if (_currentCount != 31) // already scored above
                         {
                             //
                             //   score go!
                             List<Score> scores = new List<Score>();
-                            scores.Add(new Score("Go", 1));
+                            ScoreName scoreName = ScoreName.Go;                            
+                            scores.Add(new Score(scoreName, 1));
                             _gameView.AddScore(scores, PlayerTurn);
                         }
 
@@ -309,11 +324,7 @@ namespace Cribbage
                             PlayerTurn = PlayerType.Computer;
                             await SetState(GameState.Count);
                         }
-                        else if (_playerCards.Count == 0)
-                        {
-                            await EndCounting();
-                            return true;
-                        }
+                        
                     }
 
                     SetPlayableCards();
@@ -325,6 +336,18 @@ namespace Cribbage
 
         private async Task EndCounting()
         {
+            //
+            // score 1 for last card
+            List<Score> scores = new List<Score>();
+            ScoreName scoreName = ScoreName.LastCard;
+            scores.Add(new Score(scoreName, 1));
+            PlayerType player = PlayerType.Computer;
+            
+            if (_countedCards[_countedCards.Count - 1].Owner == Owner.Player)
+                player = PlayerType.Player;
+
+            _gameView.AddScore(scores, player);
+
             foreach (CardCtrl card in _countedCards)
             {
                 if (card.Owner == Owner.Computer)
@@ -345,20 +368,33 @@ namespace Cribbage
 
         private async Task CountComputerCard(CardCtrl computerCard)
         {
-            CardCtrl playerCard = null;
 
+            if (computerCard == null)
+                return;
+
+            CardCtrl playerCard = null;
+            //
+            //  1. get Count Card
+            //  2. Score It
+            //  3. add the value to the current count
+            //  4. add the score
+            //  5. add it to the counted cards
+            //  6. remove it from the player cards (the UI can only be in one collection at a time)
+            //
 
             do
             {
+                List<Card> countedCards = CardCtrlToCards(_countedCards);
+                int score = CardScoring.ScoreCountingCardsPlayed(countedCards, computerCard.Card, _currentCount, out List<Score> scoreList);
+
                 _currentCount += computerCard.Value;
-                _countedCards.Add(computerCard);
                 _computerCards.Remove(computerCard);
+                _countedCards.Add(computerCard);
 
-                await _gameView.CountCard(computerCard, _currentCount);
-                List<Score> scores = ScoreCountedCards(_countedCards);
-                if (scores != null)
-                    _gameView.AddScore(scores, PlayerTurn);
+                await _gameView.CountCard(computerCard, _currentCount); // update the UI
 
+                _gameView.AddScore(scoreList, PlayerType.Computer);
+                
                 //
                 //  the card that the computer thinks the player can/should play
                 playerCard = PickCountingCard(_countedCards, _playerCards, _currentCount);
@@ -371,10 +407,18 @@ namespace Cribbage
             {
                 if (playerCard == null)
                 {
+
+                    if (_computerCards.Count == 0 && _playerCards.Count == 0)
+                    {
+                        await EndCounting();
+                        return;
+                    }
+
+
                     if (_currentCount != 31)
                     {
                         List<Score> scores = new List<Score>();
-                        scores.Add(new Score("Go", 1));
+                        scores.Add(new Score(ScoreName.Go, 1));
                         _gameView.AddScore(scores, PlayerTurn);
                     }
                     await _gameView.OnGo();
@@ -392,13 +436,7 @@ namespace Cribbage
                 else if (_computerCards.Count > 0)
                 {
                     await SetState(GameState.Count);
-                }
-                else
-                {
-                    await EndCounting();
-                    return;
-                }
-
+                }               
 
             }
             else // computer can play, but so can the player
@@ -420,43 +458,11 @@ namespace Cribbage
                     return uiCard;
             }
 
-            
-            return null;
+
+            throw new Exception("a CardCtrl was not found containing a Card");
         }
 
-        //
-        //  called by the View when a a card is played .  
-        //  The computer always instantly plays a card when it is its turn
-        public async Task CountCard(CardCtrl card)
-        {
-            _countedCards.Add(card);
-            card.Location = Location.Discarded;
-
-            List<Score> scores = ScoreCountedCards(_countedCards);
-            if (scores != null)
-            {
-                _gameView.AddScore(scores, PlayerTurn);
-
-            }
-
-            if (PlayerTurn == PlayerType.Player)
-            {
-                PlayerTurn = PlayerType.Computer;
-                await SetState(GameState.Count);
-            }
-        }
-
-        private List<Score> ScoreCountedCards(List<CardCtrl> countedCards)
-        {
-            List<Score> scores = new List<Score>();
-            if (_currentCount == 31)
-            {
-                scores.Add(new Score("Hit 31", 2));
-                return scores;
-            }
-
-            return null;
-        }
+       
 
         private List<CardCtrl> ComputerSelectCrib(List<CardCtrl> cards, bool computerCrib)
         {
