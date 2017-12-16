@@ -1,28 +1,27 @@
-﻿using Cribbage;
-using System;
+﻿using Cards;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
+
 
 namespace Cards
 {
+  
+
+
     public class Deck
     {
-
+        
         int[] _randomIndeces = new int[52];
         int _index = 0; // the index of the cards handed out
 
-        public Deck()
+        public Deck(int seed)
         {
-            Shuffle();
+            Shuffle(seed);
         }
 
-        public void Shuffle()
+        public void Shuffle(int seed)
         {
-            MersenneTwister twist = new MersenneTwister();
+            
+            MersenneTwister twist = new MersenneTwister(seed);
 
 
             for (int i = 0; i < 52; i++)
@@ -40,29 +39,16 @@ namespace Cards
                 _randomIndeces[k] = temp;
             }
 
+            _index = 0;
         }
-        /// <summary>
-        ///     This is where the cards are created...
-        /// </summary>
-        /// <param name="number"></param>
-        /// <returns></returns>
-        public List<CardCtrl> GetCards(int number, Owner owner)
+
+        public List<Card> GetCards(int number)
         {
-            List<CardCtrl> cards = new List<CardCtrl>();
+            List<Card> cards = new List<Card>();
             for (int i = _index; i < number + _index; i++)
             {
-                CardCtrl c = new CardCtrl();
-                c.Width = 125;
-                c.Height = 175;
-                c.Margin = new Thickness(0);
-                Grid.SetColumnSpan(c, 99); // should be enough...
-                Grid.SetRowSpan(c, 99); // should be enough...
-                c.HorizontalAlignment = HorizontalAlignment.Left;
-                c.Owner = owner;
-                c.VerticalAlignment = VerticalAlignment.Top;
-                c.Orientation = CardOrientation.FaceDown;
-                c.CardName = (CardNames)_randomIndeces[i];
-                c.ShowDebugInfo = false;
+                Card c = new Card((CardNames)_randomIndeces[i]);
+
                 cards.Add(c);
             }
 

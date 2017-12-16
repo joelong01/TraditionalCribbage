@@ -18,6 +18,7 @@ using Cribbage;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using Windows.UI.Core;
+using CardView;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -174,14 +175,17 @@ namespace Cribbage
             
         }
 
+      
 
+        
 
         private async Task OnDeal()
         {
             ResetCards();
-            Deck d = new Deck();            
-            List<CardCtrl> computerCards = d.GetCards(6, Owner.Computer);            
-            await this.Deal(d.GetCards(6, Owner.Player), computerCards, d.GetCards(1, Owner.Shared), new List<CardCtrl> { computerCards[0], computerCards[2] }, PlayerType.Computer);
+
+            var hands = Game.GetHands();
+
+            await this.Deal(hands.playerCards, hands.computerCards, hands.sharedCard, new List<CardCtrl> { hands.computerCards[0], hands.computerCards[2] }, PlayerType.Computer);
             List<CardCtrl> playerCribCards = new List<CardCtrl>() { _cgPlayer.Cards[0], _cgPlayer.Cards[1] };
             int index = 2;
             foreach (CardCtrl card in playerCribCards)
@@ -197,19 +201,7 @@ namespace Cribbage
             try
             {
                 MyMenu.IsPaneOpen = false;
-                ((Button)(sender)).IsEnabled = false;
-                ResetCards();
-                Deck d = new Deck();
-                List<CardCtrl> computerCards = d.GetCards(6, Owner.Computer);
-                await this.Deal(d.GetCards(6, Owner.Player), computerCards, d.GetCards(1, Owner.Shared), new List<CardCtrl> { computerCards[0], computerCards[2] }, PlayerType.Computer);
-                List<CardCtrl> playerCribCards = new List<CardCtrl>() { _cgPlayer.Cards[0], _cgPlayer.Cards[1] };
-                int index = 2;
-                foreach (CardCtrl card in playerCribCards)
-                {
-                    await CardGrid.AnimateMoveOneCard(_cgPlayer, _cgDiscarded, card, index++, false, MOVE_CARDS_ANIMATION_DURATION, 0);
-                }
-
-                CardGrid.TransferCards(_cgPlayer, _cgDiscarded, playerCribCards);
+                await OnDeal();
             }
             catch (Exception ex)
             {
