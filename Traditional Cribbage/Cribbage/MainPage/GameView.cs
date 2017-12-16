@@ -7,6 +7,7 @@ using Windows.UI.Xaml.Input;
 using System.Threading.Tasks;
 using Windows.UI.Popups;
 using CardView;
+using Cards;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -101,6 +102,8 @@ namespace Cribbage
 
             return PlayerType.Computer;
         }
+
+        
 
         public void AddScore(List<Score> scores, PlayerType playerTurn)
         {
@@ -197,5 +200,9 @@ namespace Cribbage
             _ctrlCount.Visibility = Visibility.Collapsed;
             await Task.Delay(0);
         }
+
+       
+
+      
     }
 }

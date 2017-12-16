@@ -41,7 +41,7 @@ namespace CribbagePlayers
             //  see which card we can play that gives us the most points
             foreach (Card c in uncountedCards)
             {
-                score = CardScoring.ScoreCountingCardsPlayed(playedCards, c, currentCount);
+                score = CardScoring.ScoreCountingCardsPlayed(playedCards, c, currentCount, out List<Score> scoreList);
                 if (score > maxScore)
                 {
                     maxScore = score;
@@ -169,7 +169,7 @@ namespace CribbagePlayers
 
             foreach (List<Card> cards in combinations)
             {
-                double score = (double)CardScoring.ScoreHand(cards, null, HandType.Regular);
+                double score = (double)CardScoring.ScoreHand(cards, null, HandType.Regular, out List<Score> scoreList);
                 List<Card> crib = GetCrib(hand, cards);
                 if (UseDropTable)
                 {

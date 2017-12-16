@@ -4,10 +4,28 @@ using System.Collections.Generic;
 
 namespace Cards
 {
+    public enum ScoreName { Fifteen, Run, Pair, ThreeOfaKind, FourOfAKind, HisNibs, HisNobs, CountedRun, ThirtyOne, Go, Flush, LastCard};
+    public class Score
+    {
+        public ScoreName ScoreName { get; set; }
+        public int Value { get; set; }
+        private Score() { }
+        public Score(ScoreName scoreName, int value)
+        {
+            ScoreName = scoreName;
+            Value = value;
+        }
+        public override string ToString()
+        {
+            return String.Format($"{ScoreName} for {Value} ");
+        }
+    }
+
     static class CardScoring
     {
-        public static int ScoreCountingCardsPlayed(List<Card> playedCards, Card card, int currentCount)
+        public static int ScoreCountingCardsPlayed(List<Card> playedCards, Card card, int currentCount, out List<Score> scoreList)
         {
+            scoreList = new List<Score>();
             if (card.Value + currentCount > 31)
             {
                 return -1;
@@ -20,12 +38,14 @@ namespace Cards
             //  hit 15?
             if (currentCount == 15)
             {
+                scoreList.Add(new Score(ScoreName.Fifteen, 2));
                 score += 2;
             }
 
             // hit 31?
             if (currentCount == 31)
             {
+                scoreList.Add(new Score(ScoreName.ThirtyOne, 2));
                 score += 2;
             }
 
@@ -46,12 +66,15 @@ namespace Cards
             switch (samenessCount)
             {
                 case 1: // pair
+                    scoreList.Add(new Score(ScoreName.Pair, 2));
                     score += 2;
                     break;
                 case 2: // 3 of a kind
+                    scoreList.Add(new Score(ScoreName.ThreeOfaKind, 6));
                     score += 6;
                     break;
                 case 3: // 4 of a kind
+                    scoreList.Add(new Score(ScoreName.FourOfAKind, 12));
                     score += 12;
                     break;
                 default:
@@ -59,8 +82,12 @@ namespace Cards
             }
 
             // search for runs
-
-            score += ScoreCountedRun(allCards);
+            int runValue = ScoreCountedRun(allCards);
+            if (runValue > 0)
+            {
+                scoreList.Add(new Score(ScoreName.CountedRun, runValue));
+                score += runValue;
+            }
 
             return score;
 
@@ -419,11 +446,26 @@ namespace Cards
             return score;
         }
 
-        public static int ScoreHand(List<Card> hand, Card sharedCard, HandType handType)
+        public static int ScoreNobs(Card sharedCard, out List<Score> scoreList)
+        {
+            scoreList = new List<Score>();
+            if (sharedCard.CardOrdinal == CardOrdinal.Jack)
+            {
+                scoreList.Add(new Score(ScoreName.HisNobs, 2));
+                return 2;
+            }
+            return 0;
+        }
+
+        public static int ScoreHand(List<Card> hand, Card sharedCard, HandType handType, out List<Score> scoreList)
         {
             int score = 0;
-
+            scoreList = new List<Score>();
             score += ScoreNibs(hand, sharedCard);                    // this is the only one where it matters which particular card is shared
+            if (score > 0)
+            {
+                scoreList.Add(new Score(ScoreName.HisNibs, 1));
+            }
 
             //
             //   DON't SORT BEFORE NIBS!!!
@@ -432,11 +474,39 @@ namespace Cards
                 cards.Add(sharedCard);
 
             cards.Sort(Card.CompareCardsByRank);
+            int tempScore = 0;
 
-            score += ScoreFifteens(cards);
-            score += ScorePairs(cards);
-            score += ScoreRuns(cards);
-            score += ScoreFlush(cards, handType);
+            tempScore += ScoreFifteens(cards);
+            if (tempScore > 0)
+            {
+                scoreList.Add(new Score(ScoreName.Fifteen, tempScore));
+                score += tempScore;
+            }
+            
+            tempScore += ScorePairs(cards);
+            if (tempScore > 0)
+            {
+                ScoreName scoreName = ScoreName.Pair;
+                if (tempScore == 6) scoreName = ScoreName.ThreeOfaKind;
+                if (tempScore == 12) scoreName = ScoreName.FourOfAKind;                
+                scoreList.Add(new Score(scoreName, tempScore));
+                score += tempScore;
+            }
+
+            tempScore += ScoreRuns(cards);
+            if (tempScore > 0)
+            {
+                scoreList.Add(new Score(ScoreName.Run, tempScore));
+                score += tempScore;
+            }
+
+            tempScore += ScoreFlush(cards, handType);
+            if (tempScore > 0)
+            {
+                scoreList.Add(new Score(ScoreName.Flush, tempScore));
+                score += tempScore;
+            }
+
 
 
             return score;
