@@ -49,8 +49,10 @@ namespace Cards
                 score += 2;
             }
 
-            List<Card> allCards = new List<Card>(playedCards);
-            allCards.Add(card);
+            List<Card> allCards = new List<Card>(playedCards)
+            {
+                card
+            };
 
 
             //
@@ -153,7 +155,7 @@ namespace Cards
 
         }
 
-        public static bool Is3CardRun(Card card1, Card card2, Card card3)
+        private static bool Is3CardRun(Card card1, Card card2, Card card3)
         {
             if (card1.Rank == card2.Rank - 1 &&
                 card2.Rank == card3.Rank - 1)
@@ -290,7 +292,7 @@ namespace Cards
 
 
         // assumes a sorted list
-        public static int ScorePairs(List<Card> list)
+        private static int ScorePairs(List<Card> list)
         {
             int score = 0;
             int pairs = 0;
@@ -308,7 +310,7 @@ namespace Cards
 
             return score;
         }
-        public static int ScoreFifteens(List<Card> list)
+        private static int ScoreFifteens(List<Card> list)
         {
             int score = 0;
             int iVal = 0;
@@ -388,7 +390,7 @@ namespace Cards
 
         //
         //  call this to see if a run is in the cards based on the rules of counting
-        public static int ScoreCountedRun(List<Card> playedCards)
+        private static int ScoreCountedRun(List<Card> playedCards)
         {
             int n = 3;
             int count = playedCards.Count;
@@ -446,7 +448,7 @@ namespace Cards
             return score;
         }
 
-        public static int ScoreNobs(Card sharedCard, out List<Score> scoreList)
+        private static int ScoreNobs(Card sharedCard, out List<Score> scoreList)
         {
             scoreList = new List<Score>();
             if (sharedCard.CardOrdinal == CardOrdinal.Jack)
@@ -476,14 +478,14 @@ namespace Cards
             cards.Sort(Card.CompareCardsByRank);
             int tempScore = 0;
 
-            tempScore += ScoreFifteens(cards);
+            tempScore = ScoreFifteens(cards);
             if (tempScore > 0)
             {
                 scoreList.Add(new Score(ScoreName.Fifteen, tempScore));
                 score += tempScore;
             }
             
-            tempScore += ScorePairs(cards);
+            tempScore = ScorePairs(cards);
             if (tempScore > 0)
             {
                 ScoreName scoreName = ScoreName.Pair;
@@ -493,14 +495,14 @@ namespace Cards
                 score += tempScore;
             }
 
-            tempScore += ScoreRuns(cards);
+            tempScore = ScoreRuns(cards);
             if (tempScore > 0)
             {
                 scoreList.Add(new Score(ScoreName.Run, tempScore));
                 score += tempScore;
             }
 
-            tempScore += ScoreFlush(cards, handType);
+            tempScore = ScoreFlush(cards, handType);
             if (tempScore > 0)
             {
                 scoreList.Add(new Score(ScoreName.Flush, tempScore));
@@ -564,7 +566,7 @@ namespace Cards
 
     }
 
-    public static class CribbageStats
+    static class CribbageStats
     {
         public static int[,] TwoCard = new int[,] { { 0, 1 }, { 0, 2 }, { 0, 3 }, { 0, 4 }, { 1, 2 }, { 1, 3 }, { 1, 4 }, { 2, 3 }, { 3, 4 }, { 3, 4 } };
         public static int[,,] ThreeCard = new int[,,] { { { 0, 1, 2 }, { 0, 1, 3 }, { 0, 1, 4 }, { 0, 2, 3 }, { 0, 2, 4 }, { 0, 3, 4 }, { 1, 2, 3 }, { 1, 2, 4 }, { 1, 3, 4 }, { 2, 3, 4 } } };

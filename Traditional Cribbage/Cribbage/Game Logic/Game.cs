@@ -59,6 +59,8 @@ namespace Cribbage
         Task ScoreHand(List<Score> scores, PlayerType playerType, HandType handType);
         Task ReturnCribCards(PlayerType dealer);
         Task EndHand(PlayerType dealer);
+
+        List<CardCtrl> DiscardedCards { get; }// needed after counting is over
     }
 
 
@@ -185,17 +187,17 @@ namespace Cribbage
                         await _gameView.SendCardsBackToOwner();
                         if (Dealer == PlayerType.Computer)
                         {
-                            await ScoreHandAndNotifyView(_playerCards, PlayerType.Player, HandType.Regular);
-                            await ScoreHandAndNotifyView(_computerCards, PlayerType.Computer, HandType.Regular);
+                            await ScoreHandAndNotifyView(_playerCards, _sharedCard, PlayerType.Player, HandType.Regular);
+                            await ScoreHandAndNotifyView(_computerCards, _sharedCard, PlayerType.Computer, HandType.Regular);
                             await _gameView.ReturnCribCards(Dealer);
-                            await ScoreHandAndNotifyView(_crib, PlayerType.Computer, HandType.Crib);
+                            await ScoreHandAndNotifyView(_crib, _sharedCard, PlayerType.Computer, HandType.Crib);
                         }
                         else
                         {
-                            await ScoreHandAndNotifyView(_computerCards, PlayerType.Computer, HandType.Regular);
-                            await ScoreHandAndNotifyView(_playerCards, PlayerType.Player, HandType.Regular);
+                            await ScoreHandAndNotifyView(_computerCards, _sharedCard, PlayerType.Computer, HandType.Regular);
+                            await ScoreHandAndNotifyView(_playerCards, _sharedCard, PlayerType.Player, HandType.Regular);
                             await _gameView.ReturnCribCards(Dealer);
-                            await ScoreHandAndNotifyView(_crib, PlayerType.Player, HandType.Crib);
+                            await ScoreHandAndNotifyView(_crib, _sharedCard, PlayerType.Player, HandType.Crib);
 
                         }
 
@@ -230,9 +232,9 @@ namespace Cribbage
             return scores;
         }
 
-        private async Task ScoreHandAndNotifyView(List<CardCtrl> cards, PlayerType playerType, HandType handType)
+        private async Task ScoreHandAndNotifyView(List<CardCtrl> cards, List<CardCtrl> sharedCard, PlayerType playerType, Cards.HandType handType)
         {
-            List<Score> scores = ScoreHand(cards, handType);
+            int score = CardScoring.ScoreHand(CardCtrlToCards(cards), CardCtrlToCards(sharedCard)[0], handType, out List<Score> scores);            
             await _gameView.ScoreHand(scores, playerType, handType);
         }
 
@@ -347,8 +349,9 @@ namespace Cribbage
                 player = PlayerType.Player;
 
             _gameView.AddScore(scores, player);
+            _countedCards.Clear();
 
-            foreach (CardCtrl card in _countedCards)
+            foreach (CardCtrl card in _gameView.DiscardedCards)
             {
                 if (card.Owner == Owner.Computer)
                 {
@@ -360,7 +363,8 @@ namespace Cribbage
                 }
             }
 
-            _countedCards.Clear();
+            Debug.Assert(_playerCards.Count == 4);
+            Debug.Assert(_computerCards.Count == 4);
 
             await SetState(GameState.CountingEnded);
         }
@@ -417,8 +421,10 @@ namespace Cribbage
 
                     if (_currentCount != 31)
                     {
-                        List<Score> scores = new List<Score>();
-                        scores.Add(new Score(ScoreName.Go, 1));
+                        List<Score> scores = new List<Score>
+                        {
+                            new Score(ScoreName.Go, 1)
+                        };
                         _gameView.AddScore(scores, PlayerTurn);
                     }
                     await _gameView.OnGo();

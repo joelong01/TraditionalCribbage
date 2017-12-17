@@ -53,7 +53,7 @@ namespace CardView
                 return _card;
             }
         }
-        
+
 
         public static readonly DependencyProperty CardNameProperty = DependencyProperty.Register("CardName", typeof(CardNames), typeof(Card), new PropertyMetadata(CardNames.AceOfSpades, CardNameChanged));
         public CardNames CardName
@@ -180,17 +180,22 @@ namespace CardView
 
             foreach (var card in Cards)
             {
-                CardCtrl c = new CardCtrl(card);
-                c.Width = 125;
-                c.Height = 175;
-                c.Margin = new Thickness(0);
+                CardCtrl c = new CardCtrl(card)
+                {
+                    Width = 125,
+                    Height = 175,
+                    Margin = new Thickness(0),
+                    HorizontalAlignment = HorizontalAlignment.Left,
+                    Owner = owner,
+                    VerticalAlignment = VerticalAlignment.Top,
+                    Orientation = CardOrientation.FaceDown,
+                    ShowDebugInfo = false
+                };
+
+
+
                 Grid.SetColumnSpan(c, 99); // should be enough...
                 Grid.SetRowSpan(c, 99); // should be enough...
-                c.HorizontalAlignment = HorizontalAlignment.Left;
-                c.Owner = owner;
-                c.VerticalAlignment = VerticalAlignment.Top;
-                c.Orientation = CardOrientation.FaceDown;
-                c.ShowDebugInfo = false;
                 CardUI.Add(c);
             }
 
@@ -211,6 +216,7 @@ namespace CardView
 
         public override string ToString()
         {
+            if (_card == null) return "";
             return String.Format($"{_card.ToString()} Owner: {Owner}\n zIndex: {Canvas.GetZIndex(this)}\n Location: {Location}");
         }
 
@@ -351,9 +357,11 @@ namespace CardView
         public void MoveCardToReletivePosition(Point delta)
         {
 
-            Point to = new Point();
-            to.X = (double)MoveCardDoubleAnimationX.To + delta.X;
-            to.Y = (double)MoveCardDoubleAnimationY.To + delta.Y;
+            Point to = new Point
+            {
+                X = (double)MoveCardDoubleAnimationX.To + delta.X,
+                Y = (double)MoveCardDoubleAnimationY.To + delta.Y
+            };
             SetCardPositionAndDoAnimationFixups(to);
 
 
@@ -494,7 +502,9 @@ namespace CardView
 
 
 
+#pragma warning disable IDE1006 // Naming Styles
         public int zIndex
+#pragma warning restore IDE1006 // Naming Styles
         {
             get
             {

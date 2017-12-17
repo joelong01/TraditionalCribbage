@@ -178,6 +178,7 @@ namespace Cribbage
             }
         }
 
+        
         private async Task AnimateSendCardsBackToOwner()
         {
             List<Task> tList = new List<Task>();
