@@ -18,6 +18,14 @@ namespace Cribbage
     /// </summary>
     public sealed partial class MainPage : Page, IGameView
     {
+        public List<CardCtrl> DiscardedCards
+        {
+            get
+            {
+                return _cgDiscarded.Cards;
+            }
+        }
+
         public Task ComputerGiveToCrib(List<CardCtrl> cardList)
         {
             throw new NotImplementedException();

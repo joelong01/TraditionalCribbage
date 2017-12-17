@@ -18,7 +18,7 @@ namespace Cribbage
 
 
     public enum PlayerType { Player = 0, Computer = 1 };
-    public enum HandType { Crib = 0, Regular = 1 };
+    
 
     public enum Open { Up, Left, Right, Down };
     public enum ScoreType { Count, Hand, Crib, Cut, Saved, Unspecified }
@@ -48,12 +48,16 @@ namespace Cribbage
         public PegScore()
         {
 
-            FirstPegControl = new PegControl();
-            FirstPegControl.Width = 15.0;
-            FirstPegControl.Height = 15.0;
-            SecondPegControl = new PegControl();
-            SecondPegControl.Width = 15.0;
-            SecondPegControl.Height = 15.0;
+            FirstPegControl = new PegControl
+            {
+                Width = 15.0,
+                Height = 15.0
+            };
+            SecondPegControl = new PegControl
+            {
+                Width = 15.0,
+                Height = 15.0
+            };
             Canvas.SetZIndex(SecondPegControl, 75);
             Canvas.SetZIndex(FirstPegControl, 75);
             Score1 = 0;
@@ -321,8 +325,10 @@ namespace Cribbage
             ScoreType = name;
             Count = count;
             Score = score;
-            Cards = new List<int>();
-            Cards.Add(cardIndex);
+            Cards = new List<int>
+            {
+                cardIndex
+            };
 
         }
 
