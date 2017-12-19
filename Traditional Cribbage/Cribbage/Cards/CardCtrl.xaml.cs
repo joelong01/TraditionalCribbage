@@ -17,7 +17,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Cribbage;
-using System.Diagnostics;
+using LongShotHelpers;
 using Cards;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
@@ -189,10 +189,10 @@ namespace CardView
                     Owner = owner,
                     VerticalAlignment = VerticalAlignment.Top,
                     Orientation = CardOrientation.FaceDown,
-                    ShowDebugInfo = false
+                    ShowDebugInfo = false,                        
                 };
 
-
+                card.Tag = (object)c;
 
                 Grid.SetColumnSpan(c, 99); // should be enough...
                 Grid.SetRowSpan(c, 99); // should be enough...
@@ -234,12 +234,13 @@ namespace CardView
 
         public string Serialize()
         {
-            return StaticHelpers.SerializeObject<CardCtrl>(this, _savedProperties, true);
+            
+            return this.SerializeObject<CardCtrl>(_savedProperties);
         }
 
         public bool Deserialize(string s)
         {
-            StaticHelpers.DeserializeObject<CardCtrl>(this, s, true);
+            this.DeserializeObject<CardCtrl>(s);
             return true;
         }
 
@@ -280,6 +281,7 @@ namespace CardView
         {
 
             _daRotate.To = angle;
+            
             await StaticHelpers.RunStoryBoard(_sbRotateCard, false);
 
         }

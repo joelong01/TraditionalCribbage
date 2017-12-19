@@ -9,6 +9,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
+using LongShotHelpers;
 
 namespace CardView
 {
@@ -456,9 +457,11 @@ namespace CardView
                 //  now pointer moved
 
                 Point pt = e.GetCurrentPoint(cardClickedOn).Position;
-                Point delta = new Point();
-                delta.X = pt.X - pointMouseDown.X;
-                delta.Y = pt.Y - pointMouseDown.Y;
+                Point delta = new Point
+                {
+                    X = pt.X - pointMouseDown.X,
+                    Y = pt.Y - pointMouseDown.Y
+                };
                 CardCtrl localCard = (CardCtrl)s;
                 bool reorderCards = false;
                 foreach (var c in this.SelectedCards)
@@ -845,9 +848,12 @@ namespace CardView
         private async Task<bool> DroppedCard(List<CardCtrl> dragList)
         {
             bool ret = false;
+            
             if (OnCardDropped != null)
             {
-                ret = await OnCardDropped(dragList, _maxSelectedCards);
+                    
+                    ret = await OnCardDropped(dragList, _maxSelectedCards);
+                
             }
 
 

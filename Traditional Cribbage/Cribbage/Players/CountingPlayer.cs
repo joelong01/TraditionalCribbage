@@ -1,8 +1,9 @@
 ﻿using Cards;
+using CardView;
 using Facet.Combinatorics;
 using System;
 using System.Collections.Generic;
-
+using System.Threading.Tasks;
 
 namespace CribbagePlayers
 {
@@ -23,7 +24,7 @@ namespace CribbagePlayers
 
 
 
-        public override Card GetCountCard(List<Card> playedCards, List<Card> uncountedCards, int currentCount)
+        public override Task<Card> GetCountCard(List<Card> playedCards, List<Card> uncountedCards, int currentCount)
         {
             int maxScore = -1;
             Card maxCard = null;
@@ -32,7 +33,7 @@ namespace CribbagePlayers
             if (uncountedCards.Count == 1)
             {
                 if (uncountedCards[0].Value + currentCount <= 31)
-                    return uncountedCards[0];
+                    return Task.FromResult(uncountedCards[0]);
                 else
                     return null;
             }
@@ -70,7 +71,7 @@ namespace CribbagePlayers
                     if (uncountedCards[i].Rank == uncountedCards[i + 1].Rank)
                     {
                         if (uncountedCards[i].Rank != 5)
-                            return uncountedCards[i];
+                            return Task.FromResult(uncountedCards[i]);
 
                     }
                 }
@@ -96,9 +97,9 @@ namespace CribbagePlayers
                             {
                                 //Debug.WriteLine($"Trying to get a run! {cards[0].CardName} and {cards[1].CardName}");
                                 if (cards[0].Rank != 5)
-                                    return cards[0];
+                                    return Task.FromResult(cards[0]);
                                 else
-                                    return cards[1];
+                                    return Task.FromResult(cards[1]);
                             }
 
                         }
@@ -110,9 +111,9 @@ namespace CribbagePlayers
                             {
                                 //Debug.WriteLine($"Trying to get a run with a gap! {cards[0].Ordinal} and {cards[1].Ordinal}");
                                 if (cards[0].Rank != 5)
-                                    return cards[0];
+                                    return Task.FromResult(cards[0]);
                                 else
-                                    return cards[1];
+                                    return Task.FromResult(cards[1]);
                             }
                         }
 
@@ -135,10 +136,10 @@ namespace CribbagePlayers
                 {
                     int sum = cds[0].Value + cds[1].Value;
                     if (sum + currentCount == 5) // i'll 15 them if they play a 10
-                        return cds[1];
+                        return Task.FromResult(cds[1]);
 
                     if (sum + currentCount == 21) // i'll 31 them if they play a 10
-                        return cds[1];
+                        return Task.FromResult(cds[1]);
 
                 }
 
@@ -157,11 +158,11 @@ namespace CribbagePlayers
                 }
             }
 
-            return maxCard;
+            return Task.FromResult(maxCard);
         }
 
 
-        public override List<Card> SelectCribCards(List<Card> hand, bool myCrib)
+        public override Task<List<Card>> SelectCribCards(List<Card> hand, bool myCrib)
         {
             Combinations<Card> combinations = new Combinations<Card>(hand, 4);
             List<Card> maxCrib = null;
@@ -193,7 +194,7 @@ namespace CribbagePlayers
                 }
             }
 
-            return maxCrib;
+            return Task.FromResult(maxCrib);
         }
 
         private List<Card> GetCrib(List<Card> hand, List<Card> cards)
@@ -211,8 +212,9 @@ namespace CribbagePlayers
         {
            
             base.PlayerAlgorithm = PlayerAlgorithm.ImprovedCounting;
-
         }
+
+     
     }
 }
 

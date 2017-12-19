@@ -8,11 +8,47 @@ using System.Threading.Tasks;
 using Windows.UI.Popups;
 using CardView;
 using Cards;
+using LongShotHelpers;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
 namespace Cribbage
 {
+    public interface IGameView
+    {
+
+        Task<PlayerType> ChooseDealer();
+
+
+        //
+        // Remove any cards that are in the grids  
+        // add the cards to the grid and then run the Deal Animation
+        Task Deal(List<CardCtrl> playerCards, List<CardCtrl> computerCards, List<CardCtrl> sharedCard, List<CardCtrl> computerGribCards, PlayerType dealer);
+
+        //
+        //  Move cards to Crib and flip the shared card
+        //  called in Count state
+        Task MoveCardsToCrib();
+
+        //
+        //  Count Computer Card - animate the right card and update the current count
+        Task CountCard(CardCtrl card, int newCount);
+
+        //
+        // Animate the cards back to the player and the computer so that scoring can take place
+        // hide the Count control
+        Task SendCardsBackToOwner();
+        int AddScore(List<Score> scores, PlayerType playerTurn);
+        void PlayerCardsAddedToCrib(List<CardCtrl> cards);
+        void SetState(GameState state);
+        Task OnGo();
+        int ScoreHand(List<Score> scores, PlayerType playerType, HandType handType);
+        Task ReturnCribCards(PlayerType dealer);
+        Task EndHand(PlayerType dealer);
+
+        List<CardCtrl> DiscardedCards { get; }// needed after counting is over
+    }
+
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
@@ -42,6 +78,7 @@ namespace Cribbage
                 task = card.SetOrientationTask(CardOrientation.FaceUp, FLIP_ANIMATION_DURATION, 0);
                 if (task != null)
                     tList.Add(task);
+
 
                 CardGrid.TransferCards(_cgComputer, _cgDiscarded, new List<CardCtrl> { card });
 
@@ -113,19 +150,7 @@ namespace Cribbage
 
         
 
-        public void AddScore(List<Score> scores, PlayerType playerTurn)
-        {
-            int scoreDelta = 0;
-            if (scores == null)
-                return;
-            foreach (Score score in scores)
-            {
-                scoreDelta += score.Value;
-                AddScoreMessage(String.Format($"{_game.PlayerTurn}\n {score.ToString()}"));
-                
-            }
-            _board.AnimateScore(playerTurn, scoreDelta);
-        }
+       
 
 
 
@@ -142,7 +167,7 @@ namespace Cribbage
                 case GameState.Uninitialized:                  
                 case GameState.Start:                    
                 case GameState.Deal:
-                case GameState.GiveToCrib:
+                case GameState.GiveToCrib:                    
                 case GameState.ScoreHand:
                 case GameState.CountingEnded:
                 case GameState.ScoreCrib:
@@ -176,24 +201,28 @@ namespace Cribbage
             await dlg.ShowAsync();
         }
 
-      
-
-        public async Task ScoreHand(List<Score> scores, PlayerType playerType, HandType handType)
+        public int AddScore(List<Score> scores, PlayerType playerTurn)
         {
+            int scoreDelta = 0;
             if (scores == null)
-                return;
-
-            int s = 0;
+                return 0;
             foreach (Score score in scores)
             {
-                AddScoreMessage(score.ToString());                
-                s += score.Value;
-                
+                scoreDelta += score.Value;
+                AddScoreMessage(String.Format($"{_game.PlayerTurn}\n {score.ToString()}"));
+
             }
-            _board.AnimateScore(playerType, s);
-            string message = String.Format($"{playerType} scores {s} for their {handType}");
+
+            _board.AnimateScore(playerTurn, scoreDelta);
+            return scoreDelta;
+        }
+
+        public int ScoreHand(List<Score> scores, PlayerType playerType, HandType handType)
+        {
+            int ret = AddScore(scores, playerType);
+            string message = String.Format($"{playerType} scores {ret} for their {handType}");
             AddScoreMessage(message);
-            await Task.Delay(0);
+            return ret;
         }
 
         public async Task ReturnCribCards(PlayerType dealer)

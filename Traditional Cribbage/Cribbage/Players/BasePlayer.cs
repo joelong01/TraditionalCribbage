@@ -1,7 +1,7 @@
 ﻿using Cards;
 using System;
 using System.Collections.Generic;
-
+using System.Threading.Tasks;
 
 namespace CribbagePlayers
 {
@@ -16,6 +16,9 @@ namespace CribbagePlayers
         List<Card> _crib = new List<Card>();
         public List<Card> Hand { get; set; } = new List<Card>();
         public List<Card> UncountedCards { get; set; } = new List<Card>();
+
+        public object Tag { get; set; } // a way of storing arbitrary data in a player that the various games might need - tempted to make this a Player<T> where T is the type stored here.
+
         public List<Card> Crib
         {
             get
@@ -63,7 +66,7 @@ namespace CribbagePlayers
         /// <param name="uncountedCards"> The cards in the players hand that are available to be played</param>
         /// <param name="currentCount">Current count</param>
         /// <returns> the card to play.  NULL if no card is acceptable</returns>
-        public virtual Card GetCountCard(List<Card> playedCards, List<Card> uncountedCards, int currentCount)
+        public virtual Task<Card> GetCountCard(List<Card> playedCards, List<Card> uncountedCards, int currentCount)
         {
             throw new NotImplementedException();
         }
@@ -84,7 +87,7 @@ namespace CribbagePlayers
         /// <param name="hand">6 cards that represent a player's hand</param>
         /// <param name="yourCrib">true if the API is returned cards to be added to its own Crib</param>
         /// <returns>2 cards to be added to the crib</returns>
-        public virtual List<Card> SelectCribCards(List<Card> hand, bool yourCrib)
+        public virtual Task<List<Card>> SelectCribCards(List<Card> hand, bool yourCrib)
         {
             throw new NotImplementedException();
         }

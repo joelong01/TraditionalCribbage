@@ -10,7 +10,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Shapes;
-
+using LongShotHelpers;
 
 namespace Cribbage
 {
@@ -197,8 +197,10 @@ namespace Cribbage
         {
             RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap();
             await renderTargetBitmap.RenderAsync(card, (int)rect.Width, (int)rect.Height);
-            ImageBrush imageBrush = new ImageBrush();
-            imageBrush.ImageSource = renderTargetBitmap;
+            ImageBrush imageBrush = new ImageBrush
+            {
+                ImageSource = renderTargetBitmap
+            };
             rect.Fill = imageBrush;
             rect.Tag = card.Index;
         }

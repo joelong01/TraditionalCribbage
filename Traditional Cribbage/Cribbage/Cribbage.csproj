@@ -116,6 +116,7 @@
     <Compile Include="Players\BasePlayer.cs" />
     <Compile Include="Players\CountingPlayer.cs" />
     <Compile Include="Players\DefaultPlayer.cs" />
+    <Compile Include="Players\InteractivePlayer.cs" />
     <Compile Include="Players\RandomPlayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScoreViewerCtrl.xaml.cs" />
