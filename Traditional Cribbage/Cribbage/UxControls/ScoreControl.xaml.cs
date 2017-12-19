@@ -7,7 +7,7 @@ using Windows.UI.Xaml.Input;
 using System.Diagnostics;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
-
+using LongShotHelpers;
 
 namespace Cribbage
 {
@@ -505,10 +505,10 @@ namespace Cribbage
         {
             var tcs = new TaskCompletionSource<object>();
 
-            AcceptScoreHandler OnCompletion = (_, args) =>
+            void OnCompletion(object _, EventArgs args)
             {
                 tcs.SetResult(null);
-            };
+            }
 
             try
             {
@@ -545,11 +545,7 @@ namespace Cribbage
 
         public void OnPropertyChanged(string name)
         {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(name));
-            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

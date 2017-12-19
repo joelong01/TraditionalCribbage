@@ -435,7 +435,7 @@ namespace Cards
                     //  if we have enough cards, look for the next longest run
                     n++;
                 }
-                while (n < playedCards.Count);
+                while (n <= playedCards.Count);
 
                 if (i > 1)
                 {

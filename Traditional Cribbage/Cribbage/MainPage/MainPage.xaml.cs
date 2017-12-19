@@ -19,6 +19,8 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using Windows.UI.Core;
 using CardView;
+using LongShotHelpers;
+using CribbagePlayers;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -41,20 +43,13 @@ namespace Cribbage
 
             ResetCards();
 
-            _cgDiscarded.OnCardDropped += Player_CardDropped;
+        //    _cgDiscarded.OnCardDropped += Player_CardDropped;
 
 
         }
 
         
 
-        private async Task<bool> Player_CardDropped(List<CardCtrl> cards, int currentMax)
-        {
-
-            return await _game.CardsDropped(cards);
-            
-          
-        }
 
         public ObservableCollection<CardCtrl> PlayerCards
         {
@@ -183,9 +178,9 @@ namespace Cribbage
         {
             ResetCards();
 
-            var hands = Game.GetHands();
+            var (computerCards, playerCards, sharedCard) = Game.GetHands();
 
-            await this.Deal(hands.playerCards, hands.computerCards, hands.sharedCard, new List<CardCtrl> { hands.computerCards[0], hands.computerCards[2] }, PlayerType.Computer);
+            await this.Deal(playerCards, computerCards, sharedCard, new List<CardCtrl> { computerCards[0], computerCards[2] }, PlayerType.Computer);
             List<CardCtrl> playerCribCards = new List<CardCtrl>() { _cgPlayer.Cards[0], _cgPlayer.Cards[1] };
             int index = 2;
             foreach (CardCtrl card in playerCribCards)
@@ -233,6 +228,11 @@ namespace Cribbage
 
         private void OnGetSuggestion(object sender, RoutedEventArgs e)
         {
+            _cgPlayer.SelectedCards.Clear();
+            _cgPlayer.SelectedCards =  _game.ComputerSelectCrib(_cgPlayer.Cards, _game.Dealer == PlayerType.Player);
+            _cgPlayer.SelectedCards[0].Selected = true;
+            _cgPlayer.SelectedCards[1].Selected = true;
+
 
         }
 
@@ -249,13 +249,17 @@ namespace Cribbage
             try
             {
                 ((Button)sender).IsEnabled = false;
-                bool ret = await StaticHelpers.AskUserYesNoQuestion("Start a new game?", "Yes", "No", "");
+                bool ret = await StaticHelpers.AskUserYesNoQuestion("Start a new game?", "Yes", "No");
                 if (ret)
                 {
                     await Reset();
                     _txtInstructions.Text = "";
-                    _game = new Game(this);
-                    await _game.SetState(GameState.Start);                    
+                    InteractivePlayer player = new InteractivePlayer(_cgDiscarded);
+                    DefaultPlayer computer = new DefaultPlayer();
+                    computer.Init("-usedroptable");
+                    _game = new Game(this, computer, player);
+                    // await _game.SetState(GameState.Start);                    
+                    await _game.StartGame(GameState.Start);
                     
                                         
                 }

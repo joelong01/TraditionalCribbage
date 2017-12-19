@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Cards;
 using Facet.Combinatorics;
 
@@ -28,11 +29,12 @@ namespace CribbagePlayers
 
 
 
-        public override Card GetCountCard(List<Card> playedCards, List<Card> uncountedCards, int currentCount)
+        public override Task<Card> GetCountCard(List<Card> playedCards, List<Card> uncountedCards, int currentCount)
         {
             int maxScore = -1;
             Card maxCard = null;
             int score = 0;
+            
 
             //
             // if we have only 1 card, play it if we legally can
@@ -41,9 +43,9 @@ namespace CribbagePlayers
             if (uncountedCards.Count == 1)
             {
                 if (uncountedCards[0].Value + currentCount <= 31)
-                    return uncountedCards[0];
+                    return Task.FromResult(uncountedCards[0]);
                 else
-                    return null;
+                    return Task.FromResult<Card>(null);
             }
 
             //
@@ -59,12 +61,12 @@ namespace CribbagePlayers
             }
 
             if (maxScore == -1)
-                return null; // we have no valid card to play
+                return Task.FromResult<Card>(null); ; // we have no valid card to play
 
             if (maxScore > 0)
             {
                 // if we can play a card to score points, play it
-                return maxCard;
+                return Task.FromResult(maxCard);
             }
 
             if (maxScore == 0) // there isn't a card for us to play that generates points
@@ -84,7 +86,7 @@ namespace CribbagePlayers
                     if (uncountedCards[i].Rank == uncountedCards[i + 1].Rank)
                     {
                         if (uncountedCards[i].Rank != 5)
-                            return uncountedCards[i];
+                            return Task.FromResult(uncountedCards[i]);
 
                     }
                 }
@@ -99,10 +101,10 @@ namespace CribbagePlayers
                 {
                     int sum = cards[0].Value + cards[1].Value;
                     if (sum + currentCount == 5) // i'll 15 them if they play a 10
-                        return cards[1];
+                        return Task.FromResult(cards[1]);
 
                     if (sum + currentCount == 21) // i'll 31 them if they play a 10
-                        return cards[1];
+                        return Task.FromResult(cards[1]);
 
                 }
 
@@ -133,11 +135,11 @@ namespace CribbagePlayers
                 }
             }
 
-            return maxCard;
+            return Task.FromResult(maxCard);
         }
 
 
-        public override List<Card> SelectCribCards(List<Card> hand, bool myCrib)
+        public override Task<List<Card>> SelectCribCards(List<Card> hand, bool myCrib)
         {
             Combinations<Card> combinations = new Combinations<Card>(hand, 4);
             List<Card> maxCrib = null;
@@ -169,7 +171,7 @@ namespace CribbagePlayers
                 }
             }
 
-            return maxCrib;
+            return Task.FromResult(maxCrib);
         }
 
         private List<Card> GetCrib(List<Card> hand, List<Card> cards)

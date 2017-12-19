@@ -34,7 +34,8 @@ namespace Cards
         {
 
         }
-        
+
+        public object Tag { get; set; } = null;
 
         public override string ToString()
         {

@@ -1,6 +1,7 @@
 ﻿using Cards;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace CribbagePlayers
 {
@@ -12,7 +13,7 @@ namespace CribbagePlayers
         
         public RandomPlayer() { }
         
-        public override Card GetCountCard(List<Card> playedCards, List<Card> uncountedCards, int currentCount)
+        public override Task<Card> GetCountCard(List<Card> playedCards, List<Card> uncountedCards, int currentCount)
         {
             //
             //  randomly pick a card until there are no cards left to pick.
@@ -26,7 +27,7 @@ namespace CribbagePlayers
 
 
                 if (myCards[n].Value + currentCount <= 31)
-                    return myCards[n];
+                    return Task.FromResult(myCards[n]);
 
                 myCards.RemoveAt(n);
 
@@ -37,7 +38,7 @@ namespace CribbagePlayers
         }
 
 
-        public override List<Card> SelectCribCards(List<Card> hand, bool myCrib)
+        public override Task<List<Card>> SelectCribCards(List<Card> hand, bool myCrib)
         {
             //
             //  randomly pick two different cards
@@ -55,7 +56,7 @@ namespace CribbagePlayers
 
             crib.Add(hand[c1]);
             crib.Add(hand[c2]);
-            return crib;
+            return Task.FromResult(crib);
         }
 
         public override void Init(string parameters)
