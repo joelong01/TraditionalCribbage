@@ -21,6 +21,7 @@ using Windows.UI.Core;
 using CardView;
 using LongShotHelpers;
 using CribbagePlayers;
+using System.Threading;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -40,10 +41,9 @@ namespace Cribbage
 
             this.InitializeComponent();
             this.DataContext = this;
-
             ResetCards();
-
-        //    _cgDiscarded.OnCardDropped += Player_CardDropped;
+            _board.HideAsync();
+            
 
 
         }
@@ -228,6 +228,15 @@ namespace Cribbage
 
         private void OnGetSuggestion(object sender, RoutedEventArgs e)
         {
+            if (_game.State != GameState.PlayerSelectsCribCards)
+            {
+                return;
+            }
+
+            foreach (var c in _cgPlayer.Cards)
+            {
+                c.Selected = false;
+            }
             _cgPlayer.SelectedCards.Clear();
             _cgPlayer.SelectedCards =  _game.ComputerSelectCrib(_cgPlayer.Cards, _game.Dealer == PlayerType.Player);
             _cgPlayer.SelectedCards[0].Selected = true;
@@ -241,28 +250,42 @@ namespace Cribbage
             ResetCards();
             await _board.Reset();          
             _textCardInfo.Text = "";
+            _board.HideAsync();
 
         }
+
+      
 
         private async void OnNewGame(object sender, RoutedEventArgs e)
         {
             try
             {
-                ((Button)sender).IsEnabled = false;
-                bool ret = await StaticHelpers.AskUserYesNoQuestion("Start a new game?", "Yes", "No");
+                
+
+               // ((Button)sender).IsEnabled = false;
+                bool ret = await StaticHelpers.AskUserYesNoQuestion("Cribbage", "Start a new game?", "Yes", "No");
                 if (ret)
-                {
+                {       
+                    if (_game !=null)
+                    {
+                        _game = null; // what happens if we are in an await???    
+                    }
                     await Reset();
                     _txtInstructions.Text = "";
-                    InteractivePlayer player = new InteractivePlayer(_cgDiscarded);
+                    InteractivePlayer player = new InteractivePlayer(_cgDiscarded, _board);
                     DefaultPlayer computer = new DefaultPlayer();
                     computer.Init("-usedroptable");
                     _game = new Game(this, computer, player);
-                    // await _game.SetState(GameState.Start);                    
-                    await _game.StartGame(GameState.Start);
+                    ((Button)sender).IsEnabled = true;
+                     await _game.StartGame();
+                    
                     
                                         
                 }
+            }
+            catch
+            {
+                // eat this - user won't be able to do anythign anyway
             }
             finally
             {
@@ -285,12 +308,37 @@ namespace Cribbage
         {
             await this.MoveCardsToCrib();
         }
-
-        private void OnTestAddScore(object sender, RoutedEventArgs e)
+        int _testScore = 0;
+        private  void OnTestAddScore(object sender, RoutedEventArgs e)
         {
+            int delta = 0;
+            if (_testScore < 80)
+            {
+                
+                delta = 80;
+            }
+            else if (_testScore > 85)
+            {
+                delta = 6;
+                
+            }
+            else
+            {
+                delta = 1;
+            }
 
-            string msg = "   Fifteen Two";
-            AddScoreMessage(msg);
+            _testScore += delta;
+
+            _board.AnimateScore(PlayerType.Player, delta);
+            _board.AnimateScore(PlayerType.Computer, delta);
+
+        }
+
+        private async void OnTestReset(object sender, RoutedEventArgs e)
+        {
+            _testScore = 0;
+             await _board.Reset();
+            
 
         }
 

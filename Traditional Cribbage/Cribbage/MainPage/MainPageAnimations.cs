@@ -53,7 +53,7 @@ namespace Cribbage
             double beginTime = 0;
 
             int zIndex = 53; // this number is important -- the layout engine for cards sets Zindex too...
-            for (int z = 0; z < 6; z++)
+            for (int z = 0; z < nonDealerCards.Count; z++)
             {
                 nonDealerCards[z].zIndex = zIndex;
                 dealersCards[z].zIndex = zIndex - 1;
@@ -109,13 +109,14 @@ namespace Cribbage
             taskList.Clear();
             beginTime = 0;
 
-            taskList.AddRange(CardGrid.MoveListOfCards(_cgComputer, _cgDiscarded, discardedComputerCards, MOVE_CARDS_ANIMATION_DURATION, beginTime));
+            List<Task> tList = CardGrid.MoveListOfCards(_cgComputer, _cgDiscarded, discardedComputerCards, MOVE_CARDS_ANIMATION_DURATION, beginTime);
+            if (tList != null) taskList.AddRange(tList);
             await Task.WhenAll(taskList);
 
             //
             //  Now put the cards where they belong - they are all currently owned by the deck...
             CardGrid.TransferCards(_cgDeck, _cgComputer, computerCards);
-            CardGrid.TransferCards(_cgDeck, _cgPlayer, playerCards);
+            CardGrid.TransferCards(_cgDeck, _cgPlayer, playerCards);            
             CardGrid.TransferCards(_cgComputer, _cgDiscarded, discardedComputerCards);
 
 
@@ -232,7 +233,8 @@ namespace Cribbage
             await Task.WhenAll(taskList);
             taskList.Clear();
             taskList.AddRange(CardGrid.AnimateMoveAllCards(_cgComputer, _cgDeck, MOVE_CARDS_ANIMATION_DURATION, 0, AnimateMoveOptions.StackAtZero, false));
-            taskList.AddRange(CardGrid.AnimateMoveAllCards(_cgPlayer, _cgDeck, MOVE_CARDS_ANIMATION_DURATION, 0, AnimateMoveOptions.StackAtZero, false));            
+            var ret = CardGrid.AnimateMoveAllCards(_cgPlayer, _cgDeck, MOVE_CARDS_ANIMATION_DURATION, 0, AnimateMoveOptions.StackAtZero, false);
+            taskList.AddRange(ret);            
             await Task.WhenAll(taskList);
             taskList.Clear();
             CardGrid cribOwnerGrid = (dealer == PlayerType.Computer) ? _cgComputer : _cgPlayer;

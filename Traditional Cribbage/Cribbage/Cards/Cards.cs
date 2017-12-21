@@ -19,7 +19,7 @@ namespace Cards
     };
     
     public enum Suit { Uninitialized = 0, Clubs = 1, Diamonds = 2, Hearts = 3, Spades = 4 };
-    public enum HandType { Crib = 0, Regular = 1 };
+    public enum HandType { Crib = 0, Hand = 1 };
 
 
     public partial class Card

@@ -107,22 +107,23 @@ namespace Cribbage
             }
         }
 
-        public async Task<int> ShowAndWaitForContinue(int actualScore)
+        public async Task<int> ShowAndWaitForContinue(int actualScore, bool autosetScore)
         {
-            //
-            //  PORT TODO
-            
-          //  if (MainPage.Current.Settings.AutoSetScore)
-          if (true)
+            int maxHighlight = 0;
+           
+          if (autosetScore)
             {
                 HighlightScore(_board.PlayerFrontScore + actualScore, Convert.ToInt32(_tbScoreToAdd.Text), false);  //if the player guessed too high, need to reset those back to normal
                 _tbScoreToAdd.Text = actualScore.ToString();
+                maxHighlight = actualScore;
                 HighlightScore(_board.PlayerFrontScore, actualScore, true);               
             }
-            //else
-            //{
-            //    HighlightScore(_board.PlayerFrontScore, Convert.ToInt32(_tbScoreToAdd.Text), true);               
-            //}
+            else
+            {
+                maxHighlight = Convert.ToInt32(_tbScoreToAdd.Text);
+                HighlightScore(_board.PlayerFrontScore, maxHighlight, true);
+
+            }
 
             var tcs = new TaskCompletionSource<object>();
 
@@ -145,6 +146,8 @@ namespace Cribbage
             finally
             {
                 _btnAccept.Click -= OnCompletion;
+                HideAsync();
+                HighlightScore(_board.PlayerFrontScore, maxHighlight, false);
 
             }
         }
@@ -153,7 +156,7 @@ namespace Cribbage
         {
             foreach (DoubleAnimation da in _sbAnimateSetScore.Children)
             {
-                da.Duration = TimeSpan.FromMilliseconds(500);
+                da.Duration = TimeSpan.FromMilliseconds(50);
                 da.To = 1;
             }
 
@@ -175,7 +178,7 @@ namespace Cribbage
         {
             foreach (DoubleAnimation da in _sbAnimateSetScore.Children)
             {
-                da.Duration = TimeSpan.FromMilliseconds(500);
+                da.Duration = TimeSpan.FromMilliseconds(50);
                 da.To = 0;
             }
 

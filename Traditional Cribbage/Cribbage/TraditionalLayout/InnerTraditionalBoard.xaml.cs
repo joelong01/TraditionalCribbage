@@ -19,6 +19,8 @@ using Windows.UI.Xaml.Shapes;
 namespace Cribbage
 {
 
+
+
     public sealed partial class InnerTraditionalBoard : UserControl, INotifyPropertyChanged
     {
         private PlayerDataObject _player = null;
@@ -26,7 +28,7 @@ namespace Cribbage
         private Point _firstPegLocation = new Point(13, 698);   // for 768 pixels high
         private Point _topPegLocation = new Point(13, 114);     // for 768 pixels high
         Point _centerBottom = new Point(130.5, 684);            // for 768 pixels high
-        int _pixelRoundDigits = 1;
+        int _pixelRoundDigits = 2;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -159,10 +161,10 @@ namespace Cribbage
             _computer.ResetScore(this.Width / 2.0);
 
             List<Task<object>> taskList = new List<Task<object>>();
-            Animate(_player, 0, taskList,250, false);
-            Animate(_player, -1, taskList,250, false);
-            Animate(_computer, 0, taskList,250, false);
-            Animate(_computer, -1, taskList,250, false);
+            Animate(_player, 0, taskList, 250, false);
+            Animate(_player, -1, taskList, 250, false);
+            Animate(_computer, 0, taskList, 250, false);
+            Animate(_computer, -1, taskList, 250, false);
             await Task.WhenAll(taskList);
 
         }
@@ -223,13 +225,16 @@ namespace Cribbage
             gt = _targetCenterBottom.TransformToVisual(LayoutRoot);
             double radius = PegHoleDiameter / 2.0;
 
-            radius = 0;
-            _centerBottom = gt.TransformPoint(new Point(-radius, -radius));
+            //radius = 0;
+            //_centerBottom = gt.TransformPoint(new Point(-radius, -radius));
 
-            _centerBottom.X = Math.Round(Math.Abs(_centerBottom.X), _pixelRoundDigits);
-            _centerBottom.Y = Math.Round(Math.Abs(_centerBottom.Y), _pixelRoundDigits);
+            //_centerBottom.X = Math.Round(Math.Abs(_centerBottom.X), _pixelRoundDigits);
+            //_centerBottom.Y = Math.Round(Math.Abs(_centerBottom.Y), _pixelRoundDigits);
 
-           // Debug.WriteLine("Size={0} PegDiameter={1} CenterBottom={2} ", newSize, PegHoleDiameter, _centerBottom);
+            //this.TraceMessage($"Size={newSize} PegDiameter={PegHoleDiameter} CenterBottom={_centerBottom} ");
+
+            //_targetCenterBottom.Visibility = Visibility.Visible;
+            //_targetCenterBottom.Fill = new SolidColorBrush(Colors.HotPink);
 
             NotifyPropertyChanged("PegHoleDiameter");
             NotifyPropertyChanged("CenterBottomY");
@@ -351,7 +356,7 @@ namespace Cribbage
             pt.X = Math.Round(pt.X, _pixelRoundDigits);
             pt.Y = Math.Round(pt.Y, _pixelRoundDigits);
 
-           // Debug.WriteLine("{0} to {1} = ({2}, {3})", movePeg.Name, target.Name, pt.X, pt.Y);
+            // Debug.WriteLine("{0} to {1} = ({2}, {3})", movePeg.Name, target.Name, pt.X, pt.Y);
             return pt;
         }
 
@@ -468,13 +473,17 @@ namespace Cribbage
                 animateScore = 85;
             }
 
-            DoubleAnimation rotateAnimation = (DoubleAnimation)storyboard.Children[(int)PegStoryAnimationChildren.RotateBottomAngle];
-            RotateTransform ellipseRotateTransform = ((TransformGroup)data.Pegs[animateScore + 1].RenderTransform).Children[3] as RotateTransform;
+            DoubleAnimation rotateAnimation = (DoubleAnimation)storyboard.Children[(int)PegStoryAnimationChildren.RotateBottomAngle]; // there is TransformGroup on all pegs and this is the Transform in the TransformGroup we want
+            RotateTransform ellipseRotateTransform = ((TransformGroup)data.Pegs[animateScore + 1].RenderTransform).Children[3] as RotateTransform;  // get the angle from the peg hole
             RotateTransform pegRotate = ((TransformGroup)data.BackPeg.RenderTransform).Children[3] as RotateTransform;
-            double radiusDiff = Math.Round((data.BackPeg.ActualWidth - data.Pegs[0].Width) / 2.0, _pixelRoundDigits);
+            double radiusDiff = Math.Round((data.BackPeg.ActualWidth - data.Pegs[0].Width) * 0.5, _pixelRoundDigits);
             pegRotate.CenterX = ellipseRotateTransform.CenterX - radiusDiff;
             pegRotate.CenterY = ellipseRotateTransform.CenterY - radiusDiff;
             rotateAnimation.To = ellipseRotateTransform.Angle;
+
+            TranslateTransform translateTransform = ((TransformGroup)data.BackPeg.RenderTransform).Children[4] as TranslateTransform;
+            translateTransform.X = radiusDiff;
+            translateTransform.Y = radiusDiff;
 
             if (newScore >= 86)
                 rotateAnimation.To = 180;
