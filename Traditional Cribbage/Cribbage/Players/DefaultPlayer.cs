@@ -147,7 +147,7 @@ namespace CribbagePlayers
 
             foreach (List<Card> cards in combinations)
             {
-                double score = (double)CardScoring.ScoreHand(cards, null, HandType.Regular, out List<Score> scoreList);
+                double score = (double)CardScoring.ScoreHand(cards, null, HandType.Hand, out List<Score> scoreList);
                 List<Card> crib = GetCrib(hand, cards);
                 if (UseDropTable)
                 {

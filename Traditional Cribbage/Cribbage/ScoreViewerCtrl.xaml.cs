@@ -70,11 +70,13 @@ namespace Cribbage
 
         private void BeginAnimation(string message)
         {
-           
-            ScrollingTextCtrl ctrl = new ScrollingTextCtrl();
-            ctrl.HorizontalAlignment = HorizontalAlignment.Left;
-            ctrl.VerticalAlignment = VerticalAlignment.Center;
-            ctrl.TranslateX = this.ActualWidth;
+
+            ScrollingTextCtrl ctrl = new ScrollingTextCtrl
+            {
+                HorizontalAlignment = HorizontalAlignment.Left,
+                VerticalAlignment = VerticalAlignment.Center,
+                TranslateX = this.ActualWidth
+            };
             this.UpdateLayout();
             EventHandler< object > Phase2AnmiationComplete = null;
             EventHandler<object> Phase1AnmiationComplete = null;

@@ -23,20 +23,17 @@ namespace Cribbage
         CountComputer,
         ScoreHand,
         CountingEnded,
-        ScoreCrib,
+        ScorePlayerCrib,
         ShowCrib,
         EndOfHand,
         GameOver,
         None,
         SelectCrib,
         ScorePlayerHand,
-        ScoreComputerHand
+        ScoreComputerHand,
+        ScoreComputerCrib
     }
-
-
-
-
-
+    
 
     /// <summary>
     ///     This class should hold all the state for a game.  I expect the view to new Game and then start it.
@@ -52,6 +49,54 @@ namespace Cribbage
         List<CardCtrl> _countedCards = new List<CardCtrl>();
         IGameView _gameView;
 
+        public List<Card> PlayerCards
+        {
+            get
+            {
+                return CardCtrlToCards(_playerCards);
+            }
+        }
+
+        public List<Card> ComputerCards
+        {
+            get
+            {
+                return CardCtrlToCards(_computerCards);
+            }
+        }
+
+        public List<Card> CribCards
+        {
+            get
+            {
+                return CardCtrlToCards(_crib);
+            }
+        }
+
+        public List<CardCtrl> PlayerUiCards
+        {
+            get
+            {
+                return _playerCards;
+            }
+        }
+
+        public List<Card> CountedCards
+        {
+            get
+            {
+                return CardCtrlToCards(_countedCards);
+            }
+        }
+
+        public List<CardCtrl> CountedUiCards
+        {
+            get
+            {
+                return _countedCards;
+            }
+        }
+
         Player _computer = null;
         InteractivePlayer _player = null;
         
@@ -64,6 +109,8 @@ namespace Cribbage
         {
             _gameView = gameView;
         }
+
+        public GameState State { get { return _state; } }
 
         public Game(IGameView gameView, Player computer, InteractivePlayer player)
         {
@@ -100,11 +147,14 @@ namespace Cribbage
 
         }
 
-        public async Task<Player> StartGame(GameState state)
+        public async Task<Player> StartGame()
         {
+            GameState state = GameState.Start;
+            
             while (true)
             {
                 _state = state;
+              //  _gameView.SetState(state);
                 switch (state)
                 {
                     case GameState.Uninitialized:
@@ -136,11 +186,14 @@ namespace Cribbage
                         }
                         break;
                     case GameState.PlayerSelectsCribCards:
+                        _gameView.SetState(state);
                         List<CardCtrl> playerCrib = await _player.SelectCribUiCards(null, Dealer == PlayerType.Player);
                         _crib.Add(playerCrib[0]);
                         _crib.Add(playerCrib[1]);
-                        _playerCards.Remove(playerCrib[0]);
-                        _playerCards.Remove(playerCrib[1]);
+                       bool ret =  _playerCards.Remove(playerCrib[0]);
+                        Debug.Assert(ret, "SelectCribUiCards returned a card not in the hand");
+                        ret = _playerCards.Remove(playerCrib[1]);
+                        Debug.Assert(ret, "SelectCribUiCards returned a card not in the hand");
                         state = GameState.GiveToCrib;
                         break;
                     case GameState.GiveToCrib:
@@ -165,144 +218,52 @@ namespace Cribbage
                         break;
                     case GameState.CountPlayer:
                         {
+                            SetPlayableCards();
+                            
                             PlayerTurn = PlayerType.Player;
-                            Card cardPlayerShouldPlay = _computer.GetCountCard(CardCtrlToCards(_countedCards), CardCtrlToCards(_playerCards), _currentCount).Result;
-                            CardCtrl playerCard = null;
-
-                            if (cardPlayerShouldPlay != null)
+                            _currentCount = await DoCountForPlayer(_player, PlayerType.Player, _countedCards, _playerCards, _currentCount);
+                            state = GameState.CountComputer;
+                            var (computerCanPlay, playerCanPlay) = CanPlay(_computerCards, _playerCards, _currentCount);
+                            
+                            if (computerCanPlay == false && playerCanPlay == false)
                             {
-                                playerCard = await _player.GetCountCard();
-                                if (playerCard != null)
+                                if (_playerCards.Count == 0 && _computerCards.Count == 0)
                                 {
-                                    int score = CardScoring.ScoreCountingCardsPlayed(CardCtrlToCards(_countedCards), playerCard.Card, _currentCount, out List<Score> scoreList);
-
-                                    _currentCount += playerCard.Value;
-                                    _playerCards.Remove(playerCard);
-                                    _countedCards.Add(playerCard);
-                                    AddScore(scoreList, PlayerType.Player);
-                                    await _gameView.CountCard(playerCard, _currentCount); // need to update the UI even when the player plays -- set the count and playable cards
-
-                                    state = GameState.CountComputer;
-                                    if (_currentCount == 31)
-                                    {
-                                        _currentCount = 0;
-                                        _countedCards.Clear();
-                                        break;
-                                    }
-                                }
-                            }
-
-                            Card cardComputerShouldPlay = _computer.GetCountCard(CardCtrlToCards(_countedCards), CardCtrlToCards(_computerCards), _currentCount).Result;
-
-                            if (playerCard == null) // player couldn't go
-                            {
-                                if (cardComputerShouldPlay == null) // computer can't go
-                                {
-                                    if (_playerCards.Count == 0 && _computerCards.Count == 0)
-                                    {
-                                        //
-                                        //  counting over                                        
-                                        state = GameState.CountingEnded;
-
-                                    }
-                                    else // do a go
-                                    {
-
-                                        PlayerType goPlayer = await ScoreGo();
-
-                                        if (goPlayer == PlayerType.Computer)
-                                            state = GameState.CountPlayer;
-                                        else
-                                            state = GameState.CountComputer;
-
-                                    }
-                                }
-                                else // computer can go
-                                {
-                                    state = GameState.CountComputer;
-
-                                }
-                            }
-                            else // player went maybe can go again
-                            {
-                                if (cardComputerShouldPlay == null) // computer can't go
-                                {
-                                    state = GameState.CountPlayer; // this is the state that got us here, loop and do again
+                                    state = GameState.CountingEnded;
                                 }
                                 else
                                 {
-                                    state = GameState.CountComputer;
+                                    PlayerType goPlayer = await ScoreGo();
+                                    if (goPlayer == PlayerType.Computer)
+                                        state = GameState.CountPlayer;
+                                    else
+                                        state = GameState.CountComputer;
                                 }
-
-
-                            }
+                            }                            
                         }
 
                         break;
                     case GameState.CountComputer:
                         {
-                            PlayerTurn = PlayerType.Computer;
-                            Card card = _computer.GetCountCard(CardCtrlToCards(_countedCards), CardCtrlToCards(_computerCards), _currentCount).Result; //PickCountingCard(_countedCards, _computerCards, _currentCount);
-                            if (card != null)
+                            PlayerTurn = PlayerType.Computer;                            
+                            _currentCount = await DoCountForPlayer(_computer, PlayerType.Computer, _countedCards, _computerCards, _currentCount);
+                            state = GameState.CountPlayer;
+                            var (computerCanPlay, playerCanPlay) = CanPlay(_computerCards, _playerCards, _currentCount);
+                            if (computerCanPlay == false && playerCanPlay == false)
                             {
-                                CardCtrl computerCard = card.Tag as CardCtrl;
-                                int score = CardScoring.ScoreCountingCardsPlayed(CardCtrlToCards(_countedCards), card, _currentCount, out List<Score> scoreList);
-                                _currentCount += computerCard.Value;
-                                _computerCards.Remove(computerCard);
-                                _countedCards.Add(computerCard);
-                                await _gameView.CountCard(computerCard, _currentCount);
-                                AddScore(scoreList, PlayerType.Computer);
-                                if (_currentCount == 31)
-                                {
-                                    _currentCount = 0;
-                                    _countedCards.Clear();
-                                    state = GameState.CountPlayer;
-                                    break;
+                                if (_playerCards.Count == 0 && _computerCards.Count == 0)
+                                {                                    
+                                    state = GameState.CountingEnded;
                                 }
-                            }
-                            Card cardPlayerShouldPlay = _computer.GetCountCard(CardCtrlToCards(_countedCards), CardCtrlToCards(_playerCards), _currentCount).Result;
-                            if (card == null) // computer couldn't go
-                            {
-                                if (cardPlayerShouldPlay == null) // player can't go
+                                else
                                 {
-                                    if (_playerCards.Count == 0 && _computerCards.Count == 0)
-                                    {
-                                        //
-                                        //  counting over
-
-                                        state = GameState.CountingEnded;
-
-                                    }
-                                    else // do a go
-                                    {
-                                        PlayerType goPlayer = await ScoreGo();
-
-                                        if (goPlayer == PlayerType.Computer)
+                                    PlayerType goPlayer = await ScoreGo();
+                                    if (goPlayer == PlayerType.Computer)
                                             state = GameState.CountPlayer;
                                         else
                                             state = GameState.CountComputer;
-
-                                    }
                                 }
-                                else
-                                {
-                                    state = GameState.CountPlayer;
-
-                                }
-                            }
-                            else // computer went maybe can go again
-                            {
-                                if (cardPlayerShouldPlay == null) // player can't go
-                                {
-                                    state = GameState.CountComputer; // this is the state that got us here, loop and do again
-                                }
-                                else
-                                {
-                                    state = GameState.CountPlayer;
-                                }
-
-
-                            }
+                            }                            
                         }
                         break;
 
@@ -317,23 +278,29 @@ namespace Cribbage
                         break;
                     case GameState.ScorePlayerHand:
                         PlayerTurn = PlayerType.Player;
-                        await ScoreHandAndNotifyView(_playerCards, _sharedCard, PlayerType.Player, HandType.Regular);
+                                    
+                        int playerScore = await GetScoreFromPlayer(this.PlayerCards, _sharedCard[0].Card, HandType.Hand);
                         if (Dealer == PlayerType.Computer)
                             state = GameState.ScoreComputerHand;
                         else
-                            state = GameState.ScoreCrib;
+                            state = GameState.ScorePlayerCrib;
                         break;
                     case GameState.ScoreComputerHand:
                         PlayerTurn = PlayerType.Computer;
-                        await ScoreHandAndNotifyView(_computerCards, _sharedCard, PlayerType.Computer, HandType.Regular);
+                        await ScoreHandAndNotifyView(_computerCards, _sharedCard, PlayerType.Computer, HandType.Hand);
                         if (Dealer == PlayerType.Computer)
-                            state = GameState.ScoreCrib;
+                            state = GameState.ScoreComputerCrib;
                         else
                             state = GameState.ScorePlayerHand;
                         break;
-                    case GameState.ScoreCrib:
+                    case GameState.ScoreComputerCrib:
                         await _gameView.ReturnCribCards(Dealer);
-                        await ScoreHandAndNotifyView(_crib, _sharedCard, Dealer, HandType.Crib);
+                        await ScoreHandAndNotifyView(_crib, _sharedCard, PlayerType.Computer, HandType.Crib);
+                        state = GameState.EndOfHand;
+                        break;
+                    case GameState.ScorePlayerCrib:
+                        await _gameView.ReturnCribCards(Dealer);
+                        await GetScoreFromPlayer(this.CribCards, _sharedCard[0].Card, HandType.Crib);                                               
                         state = GameState.EndOfHand;
                         break;
                     case GameState.ShowCrib:
@@ -343,7 +310,7 @@ namespace Cribbage
                         state = GameState.Deal;
                         break;
                     case GameState.GameOver:
-                        break;
+                        return null;                       
                     case GameState.None:
                         break;
                     case GameState.SelectCrib:
@@ -364,6 +331,82 @@ namespace Cribbage
             }
 
             throw new Exception("Shouldn't have exited the state loop");
+        }
+
+        //
+        //  this needs to operate on the UI cards becuase the data cards are always a new list
+        private async Task<int> DoCountForPlayer(Player player, PlayerType playerTurn, List<CardCtrl> countedCards, List<CardCtrl> uncountedCards, int currentCount)
+        {
+            PlayerTurn = playerTurn;
+
+            if (uncountedCards.Count == 0)
+                return currentCount;
+
+            Card cardPlayed  = await player.GetCountCard(CardCtrlToCards(countedCards), CardCtrlToCards(uncountedCards), _currentCount); 
+            
+
+            if (cardPlayed != null)
+            {
+                CardCtrl uiCard = cardPlayed.Tag as CardCtrl;
+                int score = CardScoring.ScoreCountingCardsPlayed(this.CountedCards, cardPlayed, currentCount, out List<Score> scoreList);
+                currentCount += uiCard.Value;
+               bool removed= uncountedCards.Remove(uiCard);
+                Debug.Assert(removed == true, "Tried to remove a card not in a collection");
+                countedCards.Add(uiCard);
+                await _gameView.CountCard(uiCard, currentCount);
+                AddScore(scoreList, playerTurn);
+                if (currentCount == 31)
+                {
+                    currentCount = 0;
+                    countedCards.Clear();                                       
+                }
+            }
+            
+            return currentCount;
+        }
+
+        private (bool computerCanPlay, bool playerCanPlay) CanPlay(List<CardCtrl> computerCards, List<CardCtrl> playerCards, int currentCount)
+        {
+            bool cCanPlay = false;
+            bool pCanPlay = false;
+            foreach (var card in computerCards)
+            {
+                if (card.Value + currentCount <= 31)
+                {
+                    cCanPlay = true;
+                    break;
+                }
+            }
+            foreach (var card in playerCards)
+            {
+                if (card.Value + currentCount <= 31)
+                {
+                    pCanPlay = true;
+                    break;
+                }
+            }
+
+            return (computerCanPlay: cCanPlay, playerCanPlay: pCanPlay );
+        }
+
+        bool _autoEnterScore = false;
+        private async Task<int> GetScoreFromPlayer(List<Card> cards, Card sharedCard, HandType handType)
+        {            
+            int playerScore = CardScoring.ScoreHand(cards, sharedCard, handType, out List<Score> scores);
+            int enteredScore = 0;
+
+            do
+            {
+                enteredScore = await _player.GetScoreFromUser(playerScore, _autoEnterScore);
+                if (enteredScore != playerScore)
+                {
+                    _autoEnterScore = await StaticHelpers.AskUserYesNoQuestion("Cribbage", $"{enteredScore} is the wrong score.\n\nWould you like the computer to set the score?", "Yes", "No");
+                }
+            } while (enteredScore != playerScore);
+
+            AddScore(scores, PlayerType.Player);
+
+            return playerScore;
         }
 
 
@@ -484,15 +527,20 @@ namespace Cribbage
         }
 
         internal void SetPlayableCards()
-        {
+        {            
             foreach (CardCtrl card in _playerCards)
             {
                 if (card.Location == Location.Player)
                 {
                     if (card.Value + _currentCount > 31)
+                    {
+                        
                         card.IsEnabled = false;
+                    }
                     else
+                    {
                         card.IsEnabled = true;
+                    }
                 }
 
 

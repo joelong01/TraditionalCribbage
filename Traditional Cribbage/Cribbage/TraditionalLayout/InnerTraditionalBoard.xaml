@@ -239,16 +239,16 @@
                 </TransformGroup>
             </local:PegControl.RenderTransform>
         </local:PegControl>
-        <local:PegControl x:Name="_playerBackPeg"    Style="{StaticResource PegControlStyle}" Owner="Player" 
+        <local:PegControl x:Name="_playerBackPeg"    Style="{StaticResource PegControlStyle}" Owner="Player" Canvas.ZIndex="9999" RenderTransformOrigin=".5 .5"
                           Width="{Binding Path=PegHoleDiameter, ConverterParameter=2, Converter={StaticResource AddConverter},  Mode=OneWay, FallbackValue=14.0}" 
                           Height="{Binding Path=PegHoleDiameter, ConverterParameter=2, Converter={StaticResource AddConverter},  Mode=OneWay, FallbackValue=14.0}">
             <local:PegControl.RenderTransform>
                 <TransformGroup>
-                    <TranslateTransform X="5.5" Y="93" />
-                    <RotateTransform Angle="180" CenterX="93" CenterY="93" />
-                    <TranslateTransform  Y="591" X="0" />
-                    <RotateTransform CenterX="132.5" CenterY="682" Angle="180"/>
-                    <TranslateTransform  Y="0"/>
+                    <TranslateTransform X="7" Y="94" />
+                    <RotateTransform Angle="180" CenterX="94" CenterY="94" />
+                    <TranslateTransform  Y="591.5" X="0" />
+                    <RotateTransform CenterX="130.5" CenterY="684.5" Angle="160"/>
+                    <TranslateTransform  Y="1" X="1"/>
                     <TranslateTransform />
                     <TranslateTransform />
 
@@ -308,13 +308,15 @@
         <Ellipse Name="_cStart1"    Grid.Row="46" Grid.Column="1" VerticalAlignment="Top" Style="{StaticResource EllipsePegStyle}" Width="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" Height ="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" />
 
 
-        <Ellipse Name="_targetCenterBottom" Grid.Row="44" Grid.Column="5" VerticalAlignment="Center" Opacity="0"
-                 HorizontalAlignment="Center" Canvas.ZIndex="999999" Fill="Green" 
+        <Ellipse Name="_targetCenterBottom" Grid.Row="44" Grid.Column="5" VerticalAlignment="Center" Opacity="0" RenderTransformOrigin=".5 .5"
+                 HorizontalAlignment="Center" Canvas.ZIndex="999999" Fill="Green" Margin="0"
                  Width="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" 
                  Height ="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}">
         </Ellipse>
 
+      
 
+            <!--This is the same as _tragetCenterBottom, but without puting into a row/column of the grid-->
         <!--<Ellipse VerticalAlignment="Top" Opacity="1" Grid.RowSpan="50" Grid.ColumnSpan="8"
                  HorizontalAlignment="Left" Canvas.ZIndex="999999" Fill="Yellow" 
                  Width="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" 
@@ -442,23 +444,6 @@
         <Ellipse Name="_c3"    Grid.Row="41" Grid.Column="1" Style="{StaticResource EllipsePegStyle}" Width="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" Height ="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" />
         <Ellipse Name="_c2"    Grid.Row="42" Grid.Column="1" Style="{StaticResource EllipsePegStyle}" Width="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" Height ="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" />
         <Ellipse Name="_c1"    Grid.Row="43" Grid.Column="1" Style="{StaticResource EllipsePegStyle}" Width="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" Height ="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" />
-
-
-        <!--<Ellipse Width="200" Height="200" Grid.RowSpan="10" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="9" 
-                 Fill="Transparent" Stroke="Black" StrokeThickness="2" Canvas.ZIndex="9999" VerticalAlignment="Top" HorizontalAlignment="Left">
-            <Ellipse.Clip>
-                <RectangleGeometry Rect=" 0,0,200,100" />
-            </Ellipse.Clip>
-        </Ellipse>
-        
-
-        <Ellipse Width="100" Height="100" Grid.RowSpan="5" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="4" 
-                 Fill="Transparent" Stroke="Black" StrokeThickness="2" Canvas.ZIndex="9999" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0,42,0,0">
-
-            <Ellipse.Clip>
-                <RectangleGeometry Rect=" 0,0,100,50" />
-            </Ellipse.Clip>
-        </Ellipse>-->
 
 
         <Ellipse x:Name="_p36"
@@ -998,7 +983,7 @@
         <Ellipse Name="_c83"  
                  Style="{StaticResource RotatedPegStyle}" RenderTransformOrigin=".5, .5"
                  Width="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" 
-                 Height ="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" 
+                 Height ="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}"                  
                  >
             <Ellipse.RenderTransform>
                 <TransformGroup>
@@ -1075,9 +1060,9 @@
                     <TranslateTransform X="131.5" Y="685.5" />
                 </TransformGroup>
             </Ellipse.RenderTransform>
-        </Ellipse>
+        </Ellipse>-->
 
-        <Ellipse Width="12" Height="12" Fill="Yellow" Stroke="Red" Opacity=".75" 
+        <!--<Ellipse Width="12" Height="12" Fill="Yellow" Stroke="Red" Opacity=".75" 
                  Canvas.ZIndex="99999" Grid.RowSpan="45" Grid.ColumnSpan="8" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Row="0" 
                  Grid.Column="0" RenderTransformOrigin="0.5 0.5">
             <Ellipse.RenderTransform>
@@ -1085,8 +1070,8 @@
                     <TranslateTransform X="6.5" Y="94" />
                     <RotateTransform Angle="180" CenterX="94" CenterY="94" />
                     <TranslateTransform  Y="591.5" />
-                    <RotateTransform  CenterX="131.5" CenterY="685.5" Angle="90"/>
-                    <TranslateTransform  Y="0"/>
+                    <RotateTransform  CenterX="131.5" CenterY="685.5" Angle="180"/>
+                    <TranslateTransform  Y="-12"/>
                 </TransformGroup>
             </Ellipse.RenderTransform>
         </Ellipse>-->

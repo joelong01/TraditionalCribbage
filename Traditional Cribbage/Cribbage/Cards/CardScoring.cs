@@ -437,11 +437,10 @@ namespace Cards
                 }
                 while (n <= playedCards.Count);
 
-                if (i > 1)
+                if (longestRun > 1)
                 {
                     // found a run!!
-                    score += i + 1;
-                    //Debug.WriteLine($"Found a run: {score} cards: {Card.CardsToString(playedCards)}");
+                    score += longestRun + 1;                    
                 }
 
             }
@@ -536,7 +535,7 @@ namespace Cards
             if (handType == HandType.Crib && run == 5)
                 return run;
 
-            if (handType == HandType.Regular && run > 3)
+            if (handType == HandType.Hand && run > 3)
                 return run;
 
             return 0;

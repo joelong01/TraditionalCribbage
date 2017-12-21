@@ -33,7 +33,12 @@ namespace CardView
 
         new public void Add(CardCtrl card)
         {
-            if (Selectable) card.PointerPressed += _parent.CardGrid_PointerPressed;
+            if (Selectable)
+            {
+                
+                card.PointerPressed += _parent.CardGrid_PointerPressed;
+            }
+            
             base.Add(card);
         }
 
@@ -208,14 +213,9 @@ namespace CardView
 
             _pushedCard = sender as CardCtrl;
             if (_pushedCard != null)
-            {
+            {                
                 Point pt = await DragAsync(this, _pushedCard, e, draggedCards);
-
             }
-
-
-
-
         }
 
         public CardLayout CardLayout
@@ -441,6 +441,8 @@ namespace CardView
             //  this is called while the pointer is pressed!
             TaskCompletionSource<Point> taskCompletionSource = new TaskCompletionSource<Point>();
             Point pointMouseDown = origE.GetCurrentPoint(cardClickedOn).Position;
+            Point totalCardMovement = new Point(0, 0);
+
             PointerEventHandler pointerMovedHandler = null;
             PointerEventHandler pointerReleasedHandler = null;
             int myZIndex = Canvas.GetZIndex(this);
@@ -449,7 +451,10 @@ namespace CardView
             bool dragging = false;
 
             if (dragList.Contains(cardClickedOn) == false)
+            {
+              //  this.TraceMessage($"Adding {cardClickedOn.CardName} to dragList");
                 dragList.Insert(0, cardClickedOn); // card you clicked is always the first one
+            }
             #region Pointer_moved
             pointerMovedHandler = (Object s, PointerRoutedEventArgs e) =>
             {
@@ -462,34 +467,42 @@ namespace CardView
                     X = pt.X - pointMouseDown.X,
                     Y = pt.Y - pointMouseDown.Y
                 };
+                totalCardMovement.X += Math.Abs(delta.X);
+                totalCardMovement.Y += Math.Abs(delta.Y);
+
                 CardCtrl localCard = (CardCtrl)s;
                 bool reorderCards = false;
                 foreach (var c in this.SelectedCards)
                 {
                     if (dragList.Contains(c) == false)
                     {
+                      //  this.TraceMessage($"Adding {c.CardName} to dragList");
                         dragList.Add(c);
 
                     }
                 }
 
                 if (dragList.Contains(localCard) == false)
+                {
                     dragList.Add(localCard);
+                  //  this.TraceMessage($"Adding {localCard.CardName} to dragList");
+                }
 
                 if (dragList.Count > MaxSelectedCards)
                 {
                     CardCtrl c = this.SelectedCards[0];
                     c.Selected = false;
                     dragList.Remove(c);
+                 //   this.TraceMessage($"Removing {c.CardName} from dragList MaxSelected: {MaxSelectedCards}");
 
                 }
 
-                if (Math.Abs(delta.X - MOUSE_MOVE_SENSITIVITY) > 0 || Math.Abs(delta.Y - MOUSE_MOVE_SENSITIVITY) > 0)
+                if (totalCardMovement.X > MOUSE_MOVE_SENSITIVITY || totalCardMovement.Y > MOUSE_MOVE_SENSITIVITY)
                 {
+
                     dragging = true;
                 }
-
-
+                
                 if (CardGrid.MouseInGrid(container, e)) //still inside the host container
                 {
                     reorderCards = true;
@@ -604,14 +617,15 @@ namespace CardView
 
                    if (!dragging)
                    {
-                       ToggleSelect(cardClickedOn);
+                       ToggleSelect(cardClickedOn);                     
                        dragList.Clear();
+                     //  this.TraceMessage("Clearling dragList");
                    }
 
                    Point exitPoint = e.GetCurrentPoint(cardClickedOn).Position;
 
                    if (MouseInTarget(e))
-                   {
+                   {                       
                        if (DropTarget.AcceptDrop(dragList) == true)  // there might be a bug here where the view accepts the drop, but something fails...
                        {
                            foreach (CardCtrl card in dragList)
@@ -623,20 +637,22 @@ namespace CardView
                            CardGrid.TransferCards(this, DropTarget, dragList); // this fixes up the Zindex                           
                            await DropTarget.DroppedCard(dragList);
                            dragList.Clear();
+                         //  this.TraceMessage("Clearling dragList");
 
                        }
 
                    }
                    else
-                   {
+                   {                       
                        foreach (CardCtrl card in dragList)
                        {
                            Point to = this.GetNextCardPosition(card);
                            card.AnimateToAsync(to, false, 50);
-                           Canvas.SetZIndex(card, myZIndex);
+                           Canvas.SetZIndex(card, myZIndex);                           
                        }
 
                        dragList.Clear();
+                      // this.TraceMessage("Clearling dragList");
 
                    }
 
@@ -646,6 +662,8 @@ namespace CardView
                    //  returns the point that the mouse was released.  the _selectedCards list
                    //  will have the cards that were selected.  if dragging occurred, the card(s)e
                    //  will be in the _draggingList
+
+                   container.UpdateCardLayoutAsync();
 
 
 
@@ -791,6 +809,8 @@ namespace CardView
         {
             int i = 0;
 
+            if (cards == null)
+                return null;
 
             Task t = null;
             List<Task> taskList = new List<Task>();

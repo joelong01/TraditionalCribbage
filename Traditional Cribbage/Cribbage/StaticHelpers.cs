@@ -1126,7 +1126,7 @@ namespace LongShotHelpers
             }
         }
 
-        static public async Task<bool> AskUserYesNoQuestion(string question, string button1, string button2)
+        static public async Task<bool> AskUserYesNoQuestion(string title, string question, string button1, string button2)
         {
 
             bool saidYes = false;
@@ -1136,7 +1136,7 @@ namespace LongShotHelpers
 
             ContentDialog dlg = new ContentDialog()
             {
-                Title = "Catan",
+                Title = title,
                 Content = "\n" + question,
                 PrimaryButtonText = button1,
                 SecondaryButtonText = button2

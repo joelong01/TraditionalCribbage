@@ -9,6 +9,7 @@ using Windows.UI.Popups;
 using CardView;
 using Cards;
 using LongShotHelpers;
+using System.Diagnostics;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -141,11 +142,76 @@ namespace Cribbage
 
         public async Task<PlayerType> ChooseDealer()
         {
-            bool ret = await StaticHelpers.AskUserYesNoQuestion("Would you like to deal first?", "Yes", "No");
-            if (ret)
-                return PlayerType.Player;
 
-            return PlayerType.Computer;
+            List<CardCtrl> cards = null;
+            Task t = null;
+            List<Task> taskList = new List<Task>();
+            const double waitToReset =0;
+
+            while (true)
+            {
+                cards = CardCtrl.GetCards(2, Owner.Uninitialized);
+                cards[0].Owner = Owner.Player;
+                cards[1].Owner = Owner.Computer;
+                AddCardsToDeckVisually(cards);
+                _cgDeck.SetCardPositionsNoAnimation();
+                await DealOneCardEach();
+                await Reset();
+                ResetCards();
+                if (cards[0].Card.CardOrdinal == cards[1].Card.CardOrdinal)
+                {
+                    AddScoreMessage("Tie!  Try again.");
+                    await Task.Delay(250);
+                    continue;
+                }
+                
+                break;
+
+            }
+
+            PlayerType playerType = PlayerType.Computer;
+            if (cards[0].Card.CardOrdinal < cards[1].Card.CardOrdinal)
+            {
+
+                playerType = PlayerType.Player;
+            }
+            string user = playerType == PlayerType.Player ? "You" : "The Computer";
+            string message = String.Format($"{user} got low card and will deal.");
+            AddScoreMessage(message);
+            
+            return playerType;
+
+            //
+            //  wow - local functions!
+            async Task DealOneCardEach()
+            {
+                taskList.Clear();
+                t = CardGrid.AnimateMoveOneCard(_cgDeck, _cgPlayer, cards[0], 0, true, MOVE_CARDS_ANIMATION_DURATION, 0);
+                taskList.Add(t);
+                t = CardGrid.AnimateMoveOneCard(_cgDeck, _cgComputer, cards[1], 0, true, MOVE_CARDS_ANIMATION_DURATION, 0);
+                taskList.Add(t);
+                t = cards[1].SetOrientationTask(CardOrientation.FaceUp, FLIP_ANIMATION_DURATION, 500);
+                taskList.Add(t);
+                t = cards[0].SetOrientationTask(CardOrientation.FaceUp, FLIP_ANIMATION_DURATION, 1500);
+                taskList.Add(t);
+                await Task.WhenAll(taskList);
+                await Task.Delay(1000); // let the user see it for a second
+            }
+
+            async Task Reset()
+            {
+                taskList.Clear();
+                t = cards[1].SetOrientationTask(CardOrientation.FaceDown, FLIP_ANIMATION_DURATION, waitToReset);
+                taskList.Add(t);
+                t = cards[0].SetOrientationTask(CardOrientation.FaceDown, FLIP_ANIMATION_DURATION, waitToReset);
+                taskList.Add(t);
+                t = CardGrid.AnimateMoveOneCard(_cgPlayer, _cgDeck, cards[0], 0, true, MOVE_CARDS_ANIMATION_DURATION, FLIP_ANIMATION_DURATION );
+                taskList.Add(t);
+                t = CardGrid.AnimateMoveOneCard(_cgComputer, _cgDeck, cards[1], 0, true, MOVE_CARDS_ANIMATION_DURATION, FLIP_ANIMATION_DURATION );
+                taskList.Add(t);
+                await Task.WhenAll(taskList);
+            }
+           
         }
 
         
@@ -160,30 +226,41 @@ namespace Cribbage
 
         }
 
+       
+
         public void SetState(GameState state)
         {
             switch (state)
             {
-                case GameState.Uninitialized:                  
-                case GameState.Start:                    
-                case GameState.Deal:
-                case GameState.GiveToCrib:                    
-                case GameState.ScoreHand:
-                case GameState.CountingEnded:
-                case GameState.ScoreCrib:
-                case GameState.ShowCrib:
-                case GameState.EndOfHand:                    
-                case GameState.GameOver:                                        
-                case GameState.None:
-                    _cgPlayer.MaxSelectedCards = 2;
-                    break;
+                
+                
                 case GameState.PlayerSelectsCribCards:
                     _cgPlayer.MaxSelectedCards = 2;
                     break;
-                case GameState.Count:
+                case GameState.CountPlayer:
                     _cgPlayer.MaxSelectedCards = 1;
-                    break;                                
+                    break;
+                case GameState.SelectCrib:
+                case GameState.None:
+                case GameState.Uninitialized:                    
+                case GameState.Start:                    
+                case GameState.Deal:                                    
+                case GameState.GiveToCrib:
+                case GameState.Count:                
+                case GameState.CountComputer:
+                case GameState.ScoreHand:
+                case GameState.CountingEnded:
+                case GameState.ScorePlayerCrib:
+                case GameState.ShowCrib:
+                case GameState.EndOfHand:
+                case GameState.GameOver:
+                case GameState.ScorePlayerHand:
+                case GameState.ScoreComputerHand:
+                case GameState.ScoreComputerCrib:
+                    _cgPlayer.MaxSelectedCards = 0;
+                    break;
                 default:
+                    Debug.Assert(false, "you forgot to add a GameState to SetState in GameView");
                     break;
             }
         }
