@@ -119,7 +119,7 @@ namespace Cribbage
 
             }
         }
-        internal void AnimateTo(Point pt, double duration,  List<Task<object>> taskList)
+        internal void AnimateTo(Point pt, double duration,  List<Task> taskList)
         {
             _daTranslateX.To += pt.X;
             _daTranslateY.To += pt.Y;

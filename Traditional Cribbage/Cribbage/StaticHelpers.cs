@@ -1074,37 +1074,61 @@ namespace LongShotHelpers
             return default(T);
         }
 
-        public static Task<object> ToTask(this Storyboard storyboard, CancellationTokenSource cancellationTokenSource = null)
+        public static Task BeginAsync(this Storyboard storyboard)
         {
-            TaskCompletionSource<object> tcs = new TaskCompletionSource<object>(TaskCreationOptions.AttachedToParent);
-
-            if (cancellationTokenSource != null)
+            System.Threading.Tasks.TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
+            if (storyboard == null)
+                tcs.SetException(new ArgumentNullException());
+            else
             {
-                // when the task is cancelled, 
-                // Stop the storyboard
-                cancellationTokenSource.Token.Register
-                (
-                    () =>
-                    {
-                        storyboard.Stop();
-                    }
-                );
+                void onComplete(object s, object e)
+                {
+                    storyboard.Completed -= onComplete;
+                    tcs.SetResult(true);
+                }
+
+                storyboard.Completed += onComplete;
+                storyboard.Begin();
             }
-
-            void onCompleted(object s, object e)
-            {
-                storyboard.Completed -= onCompleted;
-
-                tcs.SetResult(null);
-            }
-
-            storyboard.Completed += onCompleted;
-
-            // start the storyboard during the conversion.
-            storyboard.Begin();
-
             return tcs.Task;
         }
+
+        public static Task ToTask(this Storyboard storyboard)
+        {
+            return storyboard.BeginAsync();
+        }
+
+        //public static Task<object> ToTask(this Storyboard storyboard, CancellationTokenSource cancellationTokenSource = null)
+        //{
+        //    TaskCompletionSource<object> tcs = new TaskCompletionSource<object>(TaskCreationOptions.AttachedToParent);
+
+        //    if (cancellationTokenSource != null)
+        //    {
+        //        // when the task is cancelled, 
+        //        // Stop the storyboard
+        //        cancellationTokenSource.Token.Register
+        //        (
+        //            () =>
+        //            {
+        //                storyboard.Stop();
+        //            }
+        //        );
+        //    }
+
+        //    void onCompleted(object s, object e)
+        //    {
+        //        storyboard.Completed -= onCompleted;
+
+        //        tcs.SetResult(null);
+        //    }
+
+        //    storyboard.Completed += onCompleted;
+
+        //    // start the storyboard during the conversion.
+        //    storyboard.Begin();
+
+        //    return tcs.Task;
+        //}
 
 
        
