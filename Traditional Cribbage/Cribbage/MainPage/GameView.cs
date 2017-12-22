@@ -290,7 +290,7 @@ namespace Cribbage
 
             }
 
-            _board.AnimateScore(playerTurn, scoreDelta);
+            _board.AnimateScoreAsync(playerTurn, scoreDelta);
             return scoreDelta;
         }
 
