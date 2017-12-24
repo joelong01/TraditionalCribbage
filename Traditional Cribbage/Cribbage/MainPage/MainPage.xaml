@@ -14,7 +14,9 @@
     <Page.Resources>
 
         <CribbageBoard:DoubleToDoubleConverter x:Key="DoubleToDoubleConverter" />
-
+        <Storyboard x:Name="_sbMoveCrib">
+            <DoubleAnimation  x:Name="_daMoveCribY"   Duration="0:0:1" To="0" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateY)" Storyboard.TargetName="_cgCrib" />
+        </Storyboard>
 
         <Style x:Key="CardGridStyle" TargetType="cardView:CardGrid">
             <Setter Property="BorderBrush" Value="{StaticResource LineBrush}" />
@@ -90,7 +92,7 @@
                     <Button Content="6" Click="OnTestReset" Foreground="White" />
                     <TextBlock Text="Reset"  Style="{StaticResource HamburgerText}"  />
                 </StackPanel>
-                
+
             </StackPanel>
         </SplitView.Pane>
         <SplitView.Content>
@@ -103,19 +105,20 @@
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="0" />
-                    <RowDefinition Height="100*"/>
+                    <RowDefinition Height="97*"/>
+                    <RowDefinition Height="159*"/>
                     <RowDefinition Height="0"/>
                 </Grid.RowDefinitions>
-                <Viewbox Grid.Column="2" Grid.Row="1" Grid.RowSpan="2" Stretch="Uniform" VerticalAlignment="Top" Margin="10">
+                <Viewbox Grid.Column="2" Grid.Row="1" Grid.RowSpan="2" Stretch="Uniform" VerticalAlignment="Top" Margin="10,10,10,0">
 
                     <CribbageBoard:TraditionalBoard x:Name="_board" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
 
                 </Viewbox>
 
 
-                <Viewbox Stretch="Uniform" Grid.RowSpan="1" Grid.ColumnSpan="1" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top">
+                <Viewbox Stretch="Uniform" Grid.RowSpan="2" Grid.ColumnSpan="1" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top">
                     <Grid x:Name="LayoutRoot" Background="Transparent" Grid.RowSpan="1" Grid.ColumnSpan="1" HorizontalAlignment="Left" VerticalAlignment="Top" 
-                          Canvas.ZIndex="999" BorderBrush="{StaticResource bmWalnut}" BorderThickness="2" CornerRadius="3">
+                          Canvas.ZIndex="999" BorderBrush="{StaticResource LineBrush}" BorderThickness="4" CornerRadius="3">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="10"/>
                             <ColumnDefinition Width="125" />
@@ -140,7 +143,8 @@
 
 
 
-                        <cardView:CardGrid x:Name="_cgComputer" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="5" Style="{StaticResource CardGridStyle}" MaxSelectedCards="0" Location="Computer"
+
+                        <cardView:CardGrid x:Name="_cgComputer" Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="3" Style="{StaticResource CardGridStyle}" MaxSelectedCards="0" Location="Computer"
                                        HorizontalAlignment="Center"
                                        DropTarget="{Binding ElementName=_cgDiscarded}" ParentGrid="{Binding ElementName=LayoutRoot}" >
                             <cardView:CardGrid.ColumnDefinitions>
@@ -160,9 +164,9 @@
                             <cardView:CardCtrl CardName="KingOfSpades"    Grid.Column="5"     />
                             <cardView:CardCtrl CardName="KingOfClubs"     Grid.Column="6"     />
                         </cardView:CardGrid>
-                        <cardView:CardGrid x:Name="_cgPlayer"   Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="5" AllowDrop="True" MaxSelectedCards="2"  Location="Player"
+                        <cardView:CardGrid x:Name="_cgPlayer"   Grid.Row="5" Grid.Column="3" Grid.ColumnSpan="3" AllowDrop="True" MaxSelectedCards="2"  Location="Player"
                                         HorizontalAlignment="Center"
-                                       DropTarget="{Binding ElementName=_cgDiscarded}"  CardLayout="Normal"  Style="{StaticResource CardGridStyle}" ParentGrid="{Binding ElementName=LayoutRoot}" >
+                                        CardLayout="Normal"  Style="{StaticResource CardGridStyle}" ParentGrid="{Binding ElementName=LayoutRoot}" >
                             <cardView:CardGrid.ColumnDefinitions>
                                 <ColumnDefinition Width="0" />
                                 <ColumnDefinition Width="125" />
@@ -184,7 +188,7 @@
                         <cardView:CardGrid x:Name="_cgDiscarded"   Grid.Row="3" Grid.Column="3" Grid.ColumnSpan="1" AllowDrop="True" MaxSelectedCards="0" Location="Discarded"                                        
                                        DropTarget="{Binding ElementName=_cgCrib}"  CardLayout="Overlapped"  
                                        Style="{StaticResource CardGridStyle}" ParentGrid="{Binding ElementName=LayoutRoot}"
-					                   HorizontalAlignment="Center" VerticalAlignment="Stretch">
+					                   HorizontalAlignment="Left" VerticalAlignment="Stretch">
                             <cardView:CardGrid.ColumnDefinitions>
                                 <ColumnDefinition Width="3"/>
                                 <ColumnDefinition Width="62.5" />
@@ -209,6 +213,9 @@
                         </cardView:CardGrid>
 
                         <cardView:CardGrid x:Name="_cgCrib" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="1" Location="Crib" CardLayout="Stacked" Margin="0" Grid.RowSpan="1" Style="{StaticResource CardGridStyle}" MaxSelectedCards="0" ParentGrid="{Binding ElementName=LayoutRoot}" >
+                            <cardView:CardGrid.RenderTransform>
+                                <CompositeTransform />
+                            </cardView:CardGrid.RenderTransform>
                             <cardView:CardCtrl CardName="AceOfHearts"   Grid.Column="1"  HighlightCards="True" FaceDown="True" />
                         </cardView:CardGrid>
 
@@ -232,6 +239,7 @@
                                 <RowDefinition Height="50"/>
                                 <RowDefinition Height="10"/>
                             </Grid.RowDefinitions>
+                            <Button Name="_btnContinue" Visibility="Collapsed" Content="Continue" Grid.Row="3" Grid.Column="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{StaticResource bmCherry}" Foreground="White" FontSize="24" />
                             <Viewbox Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1"    >
                                 <TextBlock x:Name="_txtInstructions" Text="Click &quot;+&quot; to start a game" Foreground="White"  />
                             </Viewbox>
@@ -246,7 +254,7 @@
 
                             <TextBox x:Name="_textCardInfo"   Grid.Column="2" Grid.Row="0" Grid.RowSpan="4"  FontFamily="Lucida Console" IsReadOnly="True" AcceptsReturn="True" Visibility="Collapsed" />
 
-                            
+
                         </Grid>
                     </Grid>
                 </Viewbox>

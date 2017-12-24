@@ -14,41 +14,55 @@ namespace CribbagePlayers
     {
         CardGrid _discardedGrid = null;
         TraditionalBoard _board = null;
+        CardGrid _cribGrid = null;
         public IGameView GameView { get; set; } = null;
 
-        public InteractivePlayer(CardGrid grid, TraditionalBoard board)
+        public InteractivePlayer(CardGrid grid, CardGrid cribGrid, TraditionalBoard board)
         {
             _discardedGrid = grid;
             _board = board;
-            
+            _cribGrid = cribGrid;
+
         }
 
         public override async Task<Card> GetCountCard(List<Card> playedCards, List<Card> uncountedCards, int currentCount)
         {
-            List<CardCtrl> cardList = await WaitForCardsFromUser(1);
+            List<CardCtrl> cardList = await WaitForCardsFromUser(_discardedGrid, 1, false);
             Debug.Assert(cardList.Count == 1);
             return cardList[0].Card;
 
         }
 
-        public async Task<CardCtrl> GetCountCard()
-        {
-            List<CardCtrl> cardList = await WaitForCardsFromUser(1);
-            Debug.Assert(cardList.Count == 1);
-            return cardList[0];
-        }
-
-        private async Task<List<CardCtrl>> WaitForCardsFromUser(int count)
+        private async Task<List<CardCtrl>> WaitForCardsFromUser(CardGrid dropTarget, int count, bool flipCards)
         {
 
             TaskCompletionSource<List<CardCtrl>> tcs = null;
             tcs = new TaskCompletionSource<List<CardCtrl>>();
             List<CardCtrl> totalCards = new List<CardCtrl>();
 
-            Task<bool> OnCardsDropped(List<CardCtrl> droppedCards, int currentMax)
+            async Task<bool> OnBeginCardsDropped(List<CardCtrl> droppedCards, int currentMax)
+            {
+
+                List<Task> taskList = new List<Task>();
+                foreach (var card in droppedCards)
+                {
+                    if (card.Orientation == CardOrientation.FaceUp) // if you drop two cards, these are already face down
+                    {
+                        card.Selected = false;
+                        taskList.Add(card.SetOrientationTask(CardOrientation.FaceDown, 250, 0));
+                    }
+                }
+                if (taskList.Count > 0)
+                {
+                    await Task.WhenAll(taskList);
+                }
+                return true;
+            }
+
+            Task<bool> OnEndCardsDropped(List<CardCtrl> droppedCards, int currentMax)
             {
                 totalCards.AddRange(droppedCards);
-                GameView.PlayerCardsAddedToCrib(totalCards); // reduces the max # of cards that the player can select
+                if (count > 1) GameView.PlayerCardDroppedToCrib(totalCards); // reduces the max # of cards that the player can select
                 if (totalCards.Count == count)
                 {
                     tcs.TrySetResult(totalCards);
@@ -59,15 +73,24 @@ namespace CribbagePlayers
             }
 
 
+
             try
             {
-                _discardedGrid.OnCardDropped += OnCardsDropped;
+                if (flipCards)
+                {
+                    dropTarget.OnBeginCardDropped += OnBeginCardsDropped;
+                }
+                dropTarget.OnEndCardDropped += OnEndCardsDropped;                
                 List<CardCtrl> retList = await tcs.Task;
                 return retList;
             }
             finally
             {
-                _discardedGrid.OnCardDropped -= OnCardsDropped;
+                dropTarget.OnEndCardDropped -= OnEndCardsDropped;
+                if (flipCards)
+                {
+                    dropTarget.OnBeginCardDropped -= OnBeginCardsDropped;
+                }
             }
 
 
@@ -75,14 +98,14 @@ namespace CribbagePlayers
 
         public async Task<List<CardCtrl>> SelectCribUiCards(List<Card> hand, bool myCrib)
         {
-            List<CardCtrl> cardCtrlList = await WaitForCardsFromUser(2);            
+            List<CardCtrl> cardCtrlList = await WaitForCardsFromUser(_cribGrid, 2, true);
 
             return cardCtrlList;
         }
 
         public override async Task<List<Card>> SelectCribCards(List<Card> hand, bool myCrib)
         {
-            List<CardCtrl> cardCtrlList = await WaitForCardsFromUser(2);
+            List<CardCtrl> cardCtrlList = await WaitForCardsFromUser(_cribGrid, 2, true);
             Debug.Assert(cardCtrlList.Count == 2);
 
             List<Card> cardList = new List<Card>()

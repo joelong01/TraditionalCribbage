@@ -227,6 +227,10 @@ namespace LongShotHelpers
 
         }
 
+        public static bool IsPositiveOrZero(this double d)        
+        {
+            return (d >= 0);
+        }
 
         public static void TraceMessage(this object o, string toWrite, [CallerMemberName] string cmb = "", [CallerLineNumber] int cln = 0, [CallerFilePath] string cfp = "")
         {

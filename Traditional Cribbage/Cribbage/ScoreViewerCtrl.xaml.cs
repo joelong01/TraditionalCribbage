@@ -60,7 +60,7 @@ namespace Cribbage
             }
         }
 
-        public void AddScore(string message)
+        public void AddMessage(string message)
         {
             _scores.Add(message);
             if (_scores.Count == 1)
@@ -79,18 +79,17 @@ namespace Cribbage
             };
             this.UpdateLayout();
             EventHandler< object > Phase2AnmiationComplete = null;
-            EventHandler<object> Phase1AnmiationComplete = null;
-            Phase1AnmiationComplete = (s, ex) =>
+            void Phase1AnmiationComplete(object s, object ex)
             {
                 //
                 // the text has scrolled its position and now we can send the next one
                 _scores.RemoveAt(0);
-               if (_scores.Count > 0)
+                if (_scores.Count > 0)
                 {
                     BeginAnimation(_scores[0]);
-                } 
+                }
 
-            };
+            }
 
             Phase2AnmiationComplete = (s, ex) =>
             {

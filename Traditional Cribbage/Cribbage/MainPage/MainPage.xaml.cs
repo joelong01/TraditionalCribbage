@@ -50,6 +50,8 @@ namespace Cribbage
 
 
 
+        
+
 
         public ObservableCollection<CardCtrl> PlayerCards
         {
@@ -272,7 +274,7 @@ namespace Cribbage
                     }
                     await Reset();
                     _txtInstructions.Text = "";
-                    InteractivePlayer player = new InteractivePlayer(_cgDiscarded, _board);
+                    InteractivePlayer player = new InteractivePlayer(_cgDiscarded, _cgCrib, _board);
                     DefaultPlayer computer = new DefaultPlayer();
                     computer.Init("-usedroptable");
                     _game = new Game(this, computer, player);
@@ -304,15 +306,18 @@ namespace Cribbage
             await AnimationEndHand(PlayerType.Computer);
         }
 
-        private async void OnTestMoveToCrib(object sender, RoutedEventArgs e)
+        private void OnTestMoveToCrib(object sender, RoutedEventArgs e)
         {
-            await this.MoveCardsToCrib();
+            MoveCrib(PlayerType.Computer);
         }
         int _testScore = 0;
         private async void OnTestAddScore(object sender, RoutedEventArgs e)
         {
+            
             try
             {
+
+            
                 ((Button)sender).IsEnabled = false;
 
                 int delta = 0;
@@ -339,14 +344,19 @@ namespace Cribbage
                 taskList.AddRange(_board.AnimateScore(PlayerType.Computer, delta));
                 await Task.WhenAll(taskList);
                 _board.TraceBackPegPosition();
+
             }
             catch (Exception ex)
             {
+
                 this.TraceMessage($"Exception: {ex.Message}");
+
             }
             finally
             {
+
                 ((Button)sender).IsEnabled = true;
+
             }
 
         }
@@ -358,12 +368,6 @@ namespace Cribbage
 
 
         }
-
-        private void AddScoreMessage(string msg)
-        {
-            _scoreViewCtrl.AddScore(msg);
-
-        }
-
+      
     }
 }

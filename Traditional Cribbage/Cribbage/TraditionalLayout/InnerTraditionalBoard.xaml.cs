@@ -13,6 +13,7 @@ using LongShotHelpers;
 using Windows.UI.Xaml.Media.Animation;
 
 using Windows.UI.Xaml.Shapes;
+using System.Diagnostics;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -378,7 +379,18 @@ namespace Cribbage
 
         public void SetDurations(Storyboard pegStoryBoard, double xy, double topAngle, double CenterY, double bottomAngle, double durationUpSecondCol, double durationToWin)
         {
+            xy = Math.Max(xy, 0);
+            topAngle = Math.Max(topAngle, 0);
+            CenterY = Math.Max(CenterY, 0);
 
+            Debug.Assert(xy.IsPositiveOrZero());
+            Debug.Assert(topAngle.IsPositiveOrZero());
+            Debug.Assert(CenterY.IsPositiveOrZero());
+            Debug.Assert(bottomAngle.IsPositiveOrZero());
+            Debug.Assert(durationUpSecondCol.IsPositiveOrZero());
+            Debug.Assert(durationToWin.IsPositiveOrZero());
+
+          
 
             DoubleAnimation animateX = (DoubleAnimation)pegStoryBoard.Children[(int)PegStoryAnimationChildren.XFirstColumn];
             DoubleAnimation animateY = (DoubleAnimation)pegStoryBoard.Children[(int)PegStoryAnimationChildren.YFirstColumn];

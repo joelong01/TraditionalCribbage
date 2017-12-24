@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Cards
 {
-    public enum ScoreName { Fifteen, Run, Pair, ThreeOfaKind, FourOfAKind, HisNibs, HisNobs, CountedRun, ThirtyOne, Go, Flush, LastCard};
+    public enum ScoreName { Fifteen, Run, Pair, ThreeOfaKind, FourOfAKind, HisNibs, HisNobs, CountedRun, ThirtyOne, Go, Flush, LastCard };
     public class Score
     {
         public ScoreName ScoreName { get; set; }
@@ -425,7 +425,7 @@ namespace Cards
                             break;
                         }
                     }
-                    if (i >= 2)
+                    if (i >= n - 1)
                     {
                         //
                         //  we found a run of at least 3
@@ -440,7 +440,7 @@ namespace Cards
                 if (longestRun > 1)
                 {
                     // found a run!!
-                    score += longestRun + 1;                    
+                    score += longestRun + 1;
                 }
 
             }
@@ -483,13 +483,13 @@ namespace Cards
                 scoreList.Add(new Score(ScoreName.Fifteen, tempScore));
                 score += tempScore;
             }
-            
+
             tempScore = ScorePairs(cards);
             if (tempScore > 0)
             {
                 ScoreName scoreName = ScoreName.Pair;
                 if (tempScore == 6) scoreName = ScoreName.ThreeOfaKind;
-                if (tempScore == 12) scoreName = ScoreName.FourOfAKind;                
+                if (tempScore == 12) scoreName = ScoreName.FourOfAKind;
                 scoreList.Add(new Score(scoreName, tempScore));
                 score += tempScore;
             }

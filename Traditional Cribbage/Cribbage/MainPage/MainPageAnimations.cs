@@ -10,8 +10,9 @@ namespace Cribbage
 {
     public sealed partial class MainPage : Page
     {
-        const double FLIP_ANIMATION_DURATION = 250;
-        const double MOVE_CARDS_ANIMATION_DURATION = 250; // how long for the cards to get to the player and the computer
+        public const double FLIP_ANIMATION_DURATION = 250;
+        public const double MOVE_CARDS_ANIMATION_DURATION = 250; // how long for the cards to get to the player and the computer
+        bool _firstDeal = true;
         /// <summary>
         ///     Deal does the following
         ///     1. moves cards from the deck to the computer and player
@@ -99,36 +100,42 @@ namespace Cribbage
 
 
 
+
             //
             //  Now flip the players cards
-
             taskList.AddRange(CardGrid.SetCardsToOrientationTask(playerCards, CardOrientation.FaceUp, FLIP_ANIMATION_DURATION, beginTime));
-
             await Task.WhenAll(taskList);
 
             taskList.Clear();
+            //
+            //  move computer cards to the crib.  do it slow the first time so that the user can learn where to place the cards
+            //
             beginTime = 0;
-
-            List<Task> tList = CardGrid.MoveListOfCards(_cgComputer, _cgDiscarded, discardedComputerCards, MOVE_CARDS_ANIMATION_DURATION, beginTime);
+            double animationDuration = FLIP_ANIMATION_DURATION;
+            if (_firstDeal)
+            {
+                animationDuration *= 4;
+                _firstDeal = false;
+            }
+            List<Task> tList = CardGrid.MoveListOfCards(_cgComputer, _cgCrib, discardedComputerCards, animationDuration, beginTime);
             if (tList != null) taskList.AddRange(tList);
             await Task.WhenAll(taskList);
 
             //
             //  Now put the cards where they belong - they are all currently owned by the deck...
             CardGrid.TransferCards(_cgDeck, _cgComputer, computerCards);
-            CardGrid.TransferCards(_cgDeck, _cgPlayer, playerCards);            
-            CardGrid.TransferCards(_cgComputer, _cgDiscarded, discardedComputerCards);
+            CardGrid.TransferCards(_cgDeck, _cgPlayer, playerCards);
+            CardGrid.TransferCards(_cgComputer, _cgCrib, discardedComputerCards);
 
 
 
 
         }
         /// <summary>
-        ///     This is after the player has dropped 2 cards.  Do 3 things
+        ///     This is after the player has dropped 2 cards. To the Crib Do 2 things
         /// 
-        ///     1. Flip the cards to face down in the discarded grid
-        ///     2. move the cards from the discarded grid to the crib grid
-        ///     3. flip the deck card to faceup
+        ///     1. Flip the cards to face down in the crib grid        
+        ///     2. flip the deck card to faceup
         /// 
         /// </summary>
         /// <returns></returns>
@@ -139,34 +146,28 @@ namespace Cribbage
             double beginTime = 0;
             List<Task> taskList = new List<Task>();
 
-            CardList cards = _cgDiscarded.Cards;
+            CardList cards = _cgCrib.Cards;
 
+            //foreach (CardCtrl card in cards)
+            //{
+            //    if (card.Orientation == CardOrientation.FaceUp)
+            //        card.BoostZindex();
+            //}
+            ////
+            ////  flip the cards -- note that the 2 computer cards are face down
+            //taskList = CardGrid.SetCardsToOrientationTask(cards, CardOrientation.FaceDown, FLIP_ANIMATION_DURATION, beginTime);
+            //await Task.WhenAll(taskList);
+            //taskList.Clear();
 
-            //
-            //  flip the cards -- note that the 2 computer cards are face down
-            taskList = CardGrid.SetCardsToOrientationTask(cards, CardOrientation.FaceDown, FLIP_ANIMATION_DURATION, beginTime);
-            await Task.WhenAll(taskList);
-            taskList.Clear();
-
-            //
-            //  move the cards after a flip            
-            taskList.AddRange(CardGrid.MoveListOfCards(_cgDiscarded, _cgCrib, cards, MOVE_CARDS_ANIMATION_DURATION, beginTime));
 
             //
             //  when that is done flip the shared card
-            beginTime += MOVE_CARDS_ANIMATION_DURATION;
+            beginTime = 0;
             taskList.AddRange(CardGrid.SetCardsToOrientationTask(_cgDeck.Cards, CardOrientation.FaceUp, FLIP_ANIMATION_DURATION, beginTime));
 
             //
             // run the animation
             await Task.WhenAll(taskList);
-
-
-            //
-            //  transfer the cards from discarded to crib
-
-            CardGrid.TransferCards(_cgDiscarded, _cgCrib, cards);
-
 
 
         }
@@ -179,7 +180,7 @@ namespace Cribbage
             }
         }
 
-        
+
         private async Task AnimateSendCardsBackToOwner()
         {
             List<Task> tList = new List<Task>();
@@ -234,11 +235,11 @@ namespace Cribbage
             taskList.Clear();
             taskList.AddRange(CardGrid.AnimateMoveAllCards(_cgComputer, _cgDeck, MOVE_CARDS_ANIMATION_DURATION, 0, AnimateMoveOptions.StackAtZero, false));
             var ret = CardGrid.AnimateMoveAllCards(_cgPlayer, _cgDeck, MOVE_CARDS_ANIMATION_DURATION, 0, AnimateMoveOptions.StackAtZero, false);
-            taskList.AddRange(ret);            
+            taskList.AddRange(ret);
             await Task.WhenAll(taskList);
             taskList.Clear();
             CardGrid cribOwnerGrid = (dealer == PlayerType.Computer) ? _cgComputer : _cgPlayer;
-            taskList.AddRange(CardGrid.AnimateMoveAllCards(_cgCrib, cribOwnerGrid, MOVE_CARDS_ANIMATION_DURATION, 0, AnimateMoveOptions.MoveSequentlyEndingAtZero, false));            
+            taskList.AddRange(CardGrid.AnimateMoveAllCards(_cgCrib, cribOwnerGrid, MOVE_CARDS_ANIMATION_DURATION, 0, AnimateMoveOptions.MoveSequentlyEndingAtZero, false));
             await Task.WhenAll(taskList);
             taskList.Clear();
             taskList.AddRange(AnimateFlipAllCards(_cgCrib.Cards, CardOrientation.FaceUp, true)); // moved in space, but not from grids...that happens right below

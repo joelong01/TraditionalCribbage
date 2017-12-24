@@ -17,11 +17,21 @@
         <local:CenterXConverter x:Key="CenterXConverter"/>
         <local:DoubleToDoubleConverter x:Key="DoubleToDoubleConverter"/>
 
-
+        <Style x:Key="NumberTextStyle" TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value ="Center" />
+            <Setter Property="Margin" Value="0,-3,0,0"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Normal" />
+            <Setter Property="FontStyle" Value="Italic" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontFamily" Value="Century Schoolbook"/>
+            <Setter Property="Opacity" Value=".75" />
+        </Style>
 
         <Style x:Key="PegRectangleBackgroundStyle" TargetType="Rectangle">
-            <Setter Property="Fill" Value="{StaticResource bmWalnut}"/>
-            <Setter Property="Stroke" Value="{StaticResource bmWalnut}" />
+            <Setter Property="Fill" Value="{StaticResource bmBurledWalnut}"/>
+            <Setter Property="Stroke" Value="{StaticResource bmBurledWalnut}" />
             <Setter Property="StrokeThickness" Value="2" />
         </Style>
 
@@ -190,12 +200,12 @@
             <RowDefinition Height="25*" />
         </Grid.RowDefinitions>
 
-        <Grid x:Name="_gridWinning" Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="2" VerticalAlignment="Bottom"
+        <Grid x:Name="_gridWinning" Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="2" VerticalAlignment="Bottom" Canvas.ZIndex="999999"
               Height="{Binding Path=ControlWidth, ConverterParameter=0.15, Converter={StaticResource DoubleToDoubleConverter},  FallbackValue=30, Mode=OneWay}">
             <Ellipse  x:Name="_ellipseWinningPeg"  Grid.Row="1"  Grid.Column="0" Grid.ColumnSpan="8" HorizontalAlignment="Center" Style="{StaticResource EllipsePegStyle}" VerticalAlignment="Center"
                           Width="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" 
                           Height="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" />
-            <Ellipse Name="_rectBackGroundWinning" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="1" Grid.RowSpan="1" Fill="{StaticResource bmWalnut}"
+            <Ellipse Name="_rectBackGroundWinning" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="1" Grid.RowSpan="1" Fill="{StaticResource bmBurledWalnut}"
                      Width="{Binding Path=ControlWidth, ConverterParameter=.25, Converter={StaticResource DoubleToDoubleConverter}, Mode=OneWay, FallbackValue=50}" 
                      Height="{Binding Path=ControlWidth, ConverterParameter=.25, Converter={StaticResource DoubleToDoubleConverter}, Mode=OneWay, FallbackValue=50}" 
                      HorizontalAlignment="Center" VerticalAlignment="Top" Canvas.ZIndex="-1" />
@@ -214,8 +224,9 @@
                                   Radius="{Binding Path=ControlWidth, ConverterParameter=0.5, Converter={StaticResource DoubleToDoubleConverter},  FallbackValue=100, Mode=OneWay}" 
                                   InnerRadius="{Binding Path=ControlWidth, ConverterParameter=0.25, Converter={StaticResource DoubleToDoubleConverter},  FallbackValue=50, Mode=OneWay}" 
                                   StartAngle="-90" EndAngle="90"
-                                  Fill="{StaticResource bmWalnut}"
-                                  Stroke="Transparent"                               
+                                  Fill="{StaticResource bmBurledWalnut}"
+                                  Stroke="Transparent"                            
+                              Margin="0,1,0,0"
                                   >
         </xtControls:RingSlice>
 
@@ -224,7 +235,7 @@
                                   Radius="{Binding Path=ControlWidth, ConverterParameter=0.3125, Converter={StaticResource DoubleToDoubleConverter},  FallbackValue=62.5, Mode=OneWay}" 
                                   InnerRadius="{Binding Path=ControlWidth, ConverterParameter=0.0625, Converter={StaticResource DoubleToDoubleConverter},  FallbackValue=12.5, Mode=OneWay}" 
                                   StartAngle="90" EndAngle="270"
-                                  Fill="{StaticResource bmWalnut}"
+                                  Fill="{StaticResource bmBurledWalnut}"
                                   Stroke="Transparent" Margin="0,0,0,12"  />
 
         <local:PegControl x:Name="_playerFrontPeg"     Style="{StaticResource PegControlStyle}" Owner="Player" Opacity="1"  
@@ -317,9 +328,9 @@
                  Height ="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}">
         </Ellipse>
 
-      
 
-            <!--This is the same as _tragetCenterBottom, but without puting into a row/column of the grid-->
+
+        <!--This is the same as _tragetCenterBottom, but without puting into a row/column of the grid-->
         <!--<Ellipse VerticalAlignment="Top" Opacity="1" Grid.RowSpan="50" Grid.ColumnSpan="8"
                  HorizontalAlignment="Left" Canvas.ZIndex="999999" Fill="Yellow" 
                  Width="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" 
@@ -1195,36 +1206,36 @@
                 </TransformGroup>
             </Ellipse.RenderTransform>
         </Ellipse>
-        <TextBlock Text="Start" FontSize="14"  Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="44" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" />
-        <TextBlock Text="5"     FontSize="14"  Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="38" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" />
-        <TextBlock Text="10"    FontSize="14"  Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="32" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" />
-        <TextBlock Text="15"    FontSize="14"  Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="26" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" />
-        <TextBlock Text="20"    FontSize="14"  Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="20" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" />
-        <TextBlock Text="25"    FontSize="14"  Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="14" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" />
-        <TextBlock Text="30"    FontSize="14"  Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="8"  HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" />
-        <TextBlock Text="35"    FontSize="14"  Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2"  HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" />
-        <TextBlock Text="40"    FontSize="14"    Grid.ColumnSpan="2" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Top" Canvas.ZIndex="99" Margin="0" Grid.Row="1"   >
+        <TextBlock Text="Start" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="44"  Style="{StaticResource NumberTextStyle}" />
+        <TextBlock Text="5"     Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="38"  Style="{StaticResource NumberTextStyle}" />
+        <TextBlock Text="10"    Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="32"  Style="{StaticResource NumberTextStyle}" />
+        <TextBlock Text="15"    Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="26"  Style="{StaticResource NumberTextStyle}" />
+        <TextBlock Text="20"    Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="20"  Style="{StaticResource NumberTextStyle}" />
+        <TextBlock Text="25"    Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="14"  Style="{StaticResource NumberTextStyle}" />
+        <TextBlock Text="30"    Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="8"   Style="{StaticResource NumberTextStyle}" />
+        <TextBlock Text="35"    Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2"   Style="{StaticResource NumberTextStyle}" />
+        <TextBlock Text="40"     Grid.ColumnSpan="2" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Top" Canvas.ZIndex="99" Margin="0" Grid.Row="1"  Style="{StaticResource NumberTextStyle}" >
             <TextBlock.RenderTransform>
                 <TranslateTransform Y="6"/>
             </TextBlock.RenderTransform>
 
         </TextBlock>
-        <TextBlock Text="45"    FontSize="14" Grid.Column="6" Grid.ColumnSpan="2" Grid.Row="2"  HorizontalAlignment="Center" VerticalAlignment="Center"  Margin="0" />
-        <TextBlock Text="50"    FontSize="14" Grid.Column="6" Grid.ColumnSpan="2" Grid.Row="8"  HorizontalAlignment="Center" VerticalAlignment="Center"  Margin="0" />
-        <TextBlock Text="55"    FontSize="14" Grid.Column="6" Grid.ColumnSpan="2" Grid.Row="14" HorizontalAlignment="Center" VerticalAlignment="Center"  Margin="0" />
-        <TextBlock Text="60"    FontSize="14" Grid.Column="6" Grid.ColumnSpan="2" Grid.Row="20" HorizontalAlignment="Center" VerticalAlignment="Center"  Margin="0" />
-        <TextBlock Text="65"    FontSize="14" Grid.Column="6" Grid.ColumnSpan="2" Grid.Row="26" HorizontalAlignment="Center" VerticalAlignment="Center"  Margin="0" />
-        <TextBlock Text="70"    FontSize="14" Grid.Column="6" Grid.ColumnSpan="2" Grid.Row="32" HorizontalAlignment="Center" VerticalAlignment="Center"  Margin="0" />
-        <TextBlock Text="75"    FontSize="14" Grid.Column="6" Grid.ColumnSpan="2" Grid.Row="38" HorizontalAlignment="Center" VerticalAlignment="Center"  Margin="0" />
-        <TextBlock Text="80"    FontSize="14" Grid.Column="6" Grid.ColumnSpan="2" Grid.Row="44" HorizontalAlignment="Center" VerticalAlignment="Center"  Margin="0" />
-        <TextBlock Text="85"    FontSize="14" Grid.Column="3" Grid.ColumnSpan="2" Grid.Row="44" HorizontalAlignment="Center" VerticalAlignment="Center"  Margin="0" />
-        <TextBlock Text="Skunk" FontSize="14" Grid.Column="3" Grid.ColumnSpan="2" Grid.Row="38" HorizontalAlignment="Center" VerticalAlignment="Center"  Margin="0" />
-        <TextBlock Text="95"    FontSize="14" Grid.Column="3" Grid.ColumnSpan="2" Grid.Row="32" HorizontalAlignment="Center" VerticalAlignment="Center"  Margin="0" />
-        <TextBlock Text="100"   FontSize="14" Grid.Column="3" Grid.ColumnSpan="2" Grid.Row="26" HorizontalAlignment="Center" VerticalAlignment="Center"  Margin="0" />
-        <TextBlock Text="105"   FontSize="14" Grid.Column="3" Grid.ColumnSpan="2" Grid.Row="20" HorizontalAlignment="Center" VerticalAlignment="Center"  Margin="0" />
-        <TextBlock Text="110"   FontSize="14" Grid.Column="3" Grid.ColumnSpan="2" Grid.Row="14" HorizontalAlignment="Center" VerticalAlignment="Center"  Margin="0" />
-        <TextBlock Text="115"   FontSize="14" Grid.Column="3" Grid.ColumnSpan="2" Grid.Row="8"  HorizontalAlignment="Center" VerticalAlignment="Center"  Margin="0" />
-        <TextBlock Text="120"   FontSize="14" Grid.Column="3" Grid.ColumnSpan="2" Grid.Row="2"  HorizontalAlignment="Center" VerticalAlignment="Center"  Margin="0" />
+        <TextBlock Text="45"    Grid.Column="6" Grid.ColumnSpan="2" Grid.Row="2"  Style="{StaticResource NumberTextStyle}"/>
+        <TextBlock Text="50"    Grid.Column="6" Grid.ColumnSpan="2" Grid.Row="8"  Style="{StaticResource NumberTextStyle}"/>
+        <TextBlock Text="55"    Grid.Column="6" Grid.ColumnSpan="2" Grid.Row="14" Style="{StaticResource NumberTextStyle}"/>
+        <TextBlock Text="60"    Grid.Column="6" Grid.ColumnSpan="2" Grid.Row="20" Style="{StaticResource NumberTextStyle}"/>
+        <TextBlock Text="65"    Grid.Column="6" Grid.ColumnSpan="2" Grid.Row="26" Style="{StaticResource NumberTextStyle}"/>
+        <TextBlock Text="70"    Grid.Column="6" Grid.ColumnSpan="2" Grid.Row="32" Style="{StaticResource NumberTextStyle}"/>
+        <TextBlock Text="75"    Grid.Column="6" Grid.ColumnSpan="2" Grid.Row="38" Style="{StaticResource NumberTextStyle}"/>
+        <TextBlock Text="80"    Grid.Column="6" Grid.ColumnSpan="2" Grid.Row="44" Style="{StaticResource NumberTextStyle}"/>
+        <TextBlock Text="85"    Grid.Column="3" Grid.ColumnSpan="2" Grid.Row="44" Style="{StaticResource NumberTextStyle}"/>
+        <TextBlock Text="Skunk" Grid.Column="3" Grid.ColumnSpan="2" Grid.Row="38" Style="{StaticResource NumberTextStyle}"/>
+        <TextBlock Text="95"    Grid.Column="3" Grid.ColumnSpan="2" Grid.Row="32" Style="{StaticResource NumberTextStyle}"/>
+        <TextBlock Text="100"   Grid.Column="3" Grid.ColumnSpan="2" Grid.Row="26" Style="{StaticResource NumberTextStyle}"/>
+        <TextBlock Text="105"   Grid.Column="3" Grid.ColumnSpan="2" Grid.Row="20" Style="{StaticResource NumberTextStyle}"/>
+        <TextBlock Text="110"   Grid.Column="3" Grid.ColumnSpan="2" Grid.Row="14" Style="{StaticResource NumberTextStyle}"/>
+        <TextBlock Text="115"   Grid.Column="3" Grid.ColumnSpan="2" Grid.Row="8"  Style="{StaticResource NumberTextStyle}"/>
+        <TextBlock Text="120"   Grid.Column="3" Grid.ColumnSpan="2" Grid.Row="2"  Style="{StaticResource NumberTextStyle}"/>
 
 
 

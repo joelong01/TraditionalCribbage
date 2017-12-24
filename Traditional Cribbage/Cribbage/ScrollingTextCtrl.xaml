@@ -10,8 +10,7 @@
              mc:Ignorable="d">
     <UserControl.Resources>
         <Storyboard x:Name="_sbMoveText">
-            <DoubleAnimation x:Name="_daMoveText"
-                             d:IsOptimized="True"
+            <DoubleAnimation x:Name="_daMoveText"                           
                              Duration="0"
                              Storyboard.TargetName="LayoutRoot"
                              Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)"
@@ -30,14 +29,13 @@
         <Grid.RenderTransform>
             <CompositeTransform x:Name="_tranform" />
         </Grid.RenderTransform>
-        <Viewbox x:Name="_vbText"
-                 HorizontalAlignment="Stretch"
-                 VerticalAlignment="Stretch"
-                 RenderTransformOrigin="0.5,0.5">
+       
             <TextBlock Name="_textBlock"
                        Foreground="White"
+                       FontSize="20"
+                       FontFamily="Segoe UI"
                        RenderTransformOrigin="0.5,0.5"
                        Text="Player: Fifteen Two" />
-        </Viewbox>
+       
     </Grid>
 </UserControl>
