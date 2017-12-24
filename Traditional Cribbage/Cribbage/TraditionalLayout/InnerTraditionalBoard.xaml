@@ -83,30 +83,33 @@
             <Setter Property="Opacity" Value="1.0" />
         </Style>
 
+        <!--PegStoryAnimationChildren { XFirstColumn = 0, YFirstColumn = 1, RotateTopAngle = 2, YThirdColumn = 3, RotateBottomAngle = 4, YSecondColumn = 5, XToWinning = 6, YToWinning = 7, XCorrectLayout = 8, YCorrectLayout = 9 };-->
+
+
         <Storyboard x:Name="_sbMovePFPeg">
-            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(TranslateTransform.X)"     Storyboard.TargetName="_playerFrontPeg"/>
-            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(TranslateTransform.Y)"     Storyboard.TargetName="_playerFrontPeg"/>
-            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[1].(RotateTransform.Angle)"    Storyboard.TargetName="_playerFrontPeg"/>
-            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[2].(TranslateTransform.Y)"     Storyboard.TargetName="_playerFrontPeg"/>
-            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(RotateTransform.Angle)"    Storyboard.TargetName="_playerFrontPeg"/>
-            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[4].(TranslateTransform.Y)"     Storyboard.TargetName="_playerFrontPeg"/>
-            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[5].(TranslateTransform.X)"     Storyboard.TargetName="_playerFrontPeg"/>
-            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[5].(TranslateTransform.Y)"     Storyboard.TargetName="_playerFrontPeg"/>
-            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[6].(TranslateTransform.X)"     Storyboard.TargetName="_playerFrontPeg"/>
-            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[6].(TranslateTransform.Y)"     Storyboard.TargetName="_playerFrontPeg"/>
+            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(TranslateTransform.X)"     Storyboard.TargetName="_playerFrontPeg"/> <!--XFirstColumn-->
+            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(TranslateTransform.Y)"     Storyboard.TargetName="_playerFrontPeg"/> <!--YFirstColumn-->
+            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[1].(RotateTransform.Angle)"    Storyboard.TargetName="_playerFrontPeg"/> <!--RotateTopAngle-->
+            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[2].(TranslateTransform.Y)"     Storyboard.TargetName="_playerFrontPeg"/> <!--YThirdColumn-->
+            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(RotateTransform.Angle)"    Storyboard.TargetName="_playerFrontPeg"/> <!--RotateBottomAngle-->
+            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[4].(TranslateTransform.Y)"     Storyboard.TargetName="_playerFrontPeg"/> <!--YSecondColumn-->
+            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[5].(TranslateTransform.X)"     Storyboard.TargetName="_playerFrontPeg"/> <!--XToWinning-->
+            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[5].(TranslateTransform.Y)"     Storyboard.TargetName="_playerFrontPeg"/> <!--YToWinning-->
+            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[6].(TranslateTransform.X)"     Storyboard.TargetName="_playerFrontPeg"/> <!--XCorrectLayout-->
+            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[6].(TranslateTransform.Y)"     Storyboard.TargetName="_playerFrontPeg"/> <!--YCorrectLayout-->
         </Storyboard>
 
         <Storyboard x:Name="_sbMovePBPeg">
-            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(TranslateTransform.X)"     Storyboard.TargetName="_playerBackPeg"/>
-            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(TranslateTransform.Y)"     Storyboard.TargetName="_playerBackPeg"/>
-            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[1].(RotateTransform.Angle)"    Storyboard.TargetName="_playerBackPeg"/>
-            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[2].(TranslateTransform.Y)"     Storyboard.TargetName="_playerBackPeg"/>
-            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(RotateTransform.Angle)"    Storyboard.TargetName="_playerBackPeg"/>
-            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[4].(TranslateTransform.Y)"     Storyboard.TargetName="_playerBackPeg"/>
-            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[5].(TranslateTransform.X)"     Storyboard.TargetName="_playerBackPeg"/>
-            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[5].(TranslateTransform.Y)"     Storyboard.TargetName="_playerBackPeg"/>
-            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[6].(TranslateTransform.X)"     Storyboard.TargetName="_playerBackPeg"/>
-            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[6].(TranslateTransform.Y)"     Storyboard.TargetName="_playerBackPeg"/>
+            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(TranslateTransform.X)"     Storyboard.TargetName="_playerBackPeg"/> <!--XFirstColumn-->
+            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(TranslateTransform.Y)"     Storyboard.TargetName="_playerBackPeg"/> <!--YFirstColumn-->
+            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[1].(RotateTransform.Angle)"    Storyboard.TargetName="_playerBackPeg"/> <!--RotateTopAngle-->
+            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[2].(TranslateTransform.Y)"     Storyboard.TargetName="_playerBackPeg"/> <!--YThirdColumn-->
+            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(RotateTransform.Angle)"    Storyboard.TargetName="_playerBackPeg"/> <!--RotateBottomAngle-->
+            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[4].(TranslateTransform.Y)"     Storyboard.TargetName="_playerBackPeg"/> <!--YSecondColumn-->
+            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[5].(TranslateTransform.X)"     Storyboard.TargetName="_playerBackPeg"/> <!--XToWinning-->
+            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[5].(TranslateTransform.Y)"     Storyboard.TargetName="_playerBackPeg"/> <!--YToWinning-->
+            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[6].(TranslateTransform.X)"     Storyboard.TargetName="_playerBackPeg"/> <!--XCorrectLayout-->
+            <DoubleAnimation  Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[6].(TranslateTransform.Y)"     Storyboard.TargetName="_playerBackPeg"/> <!--YCorrectLayout-->
         </Storyboard>
 
         <Storyboard x:Name="_sbMoveCFPeg">
@@ -118,8 +121,8 @@
             <DoubleAnimation Duration="0" To="0"    Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[4].(TranslateTransform.Y)"     Storyboard.TargetName="_computerFrontPeg"/>
             <DoubleAnimation Duration="0" To="0"    Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[5].(TranslateTransform.X)"     Storyboard.TargetName="_computerFrontPeg"/>
             <DoubleAnimation Duration="0" To="0"    Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[5].(TranslateTransform.Y)"     Storyboard.TargetName="_computerFrontPeg"/>
-            <DoubleAnimation Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[6].(TranslateTransform.X)"     Storyboard.TargetName="_computerFrontPeg"/>
-            <DoubleAnimation Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[6].(TranslateTransform.Y)"     Storyboard.TargetName="_computerFrontPeg"/>
+            <DoubleAnimation Duration="0" To="0"    Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[6].(TranslateTransform.X)"     Storyboard.TargetName="_computerFrontPeg"/>
+            <DoubleAnimation Duration="0" To="0"    Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[6].(TranslateTransform.Y)"     Storyboard.TargetName="_computerFrontPeg"/>
         </Storyboard>
 
         <Storyboard x:Name="_sbMoveCBPeg">
@@ -131,8 +134,8 @@
             <DoubleAnimation Duration="0" To="0"    Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[4].(TranslateTransform.Y)"     Storyboard.TargetName="_computerBackPeg"/>
             <DoubleAnimation Duration="0" To="0"    Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[5].(TranslateTransform.X)"     Storyboard.TargetName="_computerBackPeg"/>
             <DoubleAnimation Duration="0" To="0"    Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[5].(TranslateTransform.Y)"     Storyboard.TargetName="_computerBackPeg"/>
-            <DoubleAnimation Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[6].(TranslateTransform.X)"     Storyboard.TargetName="_computerBackPeg"/>
-            <DoubleAnimation Duration="0" To="0"   Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[6].(TranslateTransform.Y)"     Storyboard.TargetName="_computerBackPeg"/>
+            <DoubleAnimation Duration="0" To="0"    Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[6].(TranslateTransform.X)"     Storyboard.TargetName="_computerBackPeg"/>
+            <DoubleAnimation Duration="0" To="0"    Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[6].(TranslateTransform.Y)"     Storyboard.TargetName="_computerBackPeg"/>
         </Storyboard>
     </UserControl.Resources>
 
@@ -244,7 +247,7 @@
                     <RotateTransform Angle="180" CenterX="93" CenterY="93" />
                     <TranslateTransform  Y="20.5"/>
                     <RotateTransform/>
-                    <TranslateTransform  Y="0"/>
+                    <TranslateTransform  />
                     <TranslateTransform />
                     <TranslateTransform />
                 </TransformGroup>
@@ -259,7 +262,7 @@
                     <RotateTransform Angle="180" CenterX="94" CenterY="94" />
                     <TranslateTransform  Y="591.5" X="0" />
                     <RotateTransform CenterX="130.5" CenterY="684.5" Angle="160"/>
-                    <TranslateTransform  Y="1" X="1"/>
+                    <TranslateTransform />
                     <TranslateTransform />
                     <TranslateTransform />
 
@@ -802,6 +805,12 @@
         <Ellipse Name="_p87"    Grid.Row="42" Grid.Column="3" Style="{StaticResource EllipsePegStyle}" Width="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" Height ="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" />
         <Ellipse Name="_p86"    Grid.Row="43" Grid.Column="3" Style="{StaticResource EllipsePegStyle}" Width="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" Height ="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" />
 
+        <Ellipse Name="_p86Target" Opacity="0"    Grid.Row="43" Grid.Column="3" Style="{StaticResource EllipsePegStyle}" Width="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" Height ="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" Fill="Purple" >
+            <Ellipse.RenderTransform>
+                <CompositeTransform TranslateY="12"/>
+            </Ellipse.RenderTransform>
+        </Ellipse>
+
         <Ellipse Name="_c120"   Grid.Row="3"  Grid.Column="4" Style="{StaticResource EllipsePegStyle}" Width="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" Height ="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" />
         <Ellipse Name="_c119"   Grid.Row="4"  Grid.Column="4" Style="{StaticResource EllipsePegStyle}" Width="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" Height ="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" />
         <Ellipse Name="_c118"   Grid.Row="5"  Grid.Column="4" Style="{StaticResource EllipsePegStyle}" Width="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" Height ="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" />
@@ -837,7 +846,11 @@
         <Ellipse Name="_c88"    Grid.Row="41" Grid.Column="4" Style="{StaticResource EllipsePegStyle}" Width="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" Height ="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" />
         <Ellipse Name="_c87"    Grid.Row="42" Grid.Column="4" Style="{StaticResource EllipsePegStyle}" Width="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" Height ="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" />
         <Ellipse Name="_c86"    Grid.Row="43" Grid.Column="4" Style="{StaticResource EllipsePegStyle}" Width="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" Height ="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" />
-
+        <Ellipse Name="_c86Target" Opacity="0"    Grid.Row="43" Grid.Column="4" Style="{StaticResource EllipsePegStyle}" Width="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" Height ="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" Fill="Purple" >
+            <Ellipse.RenderTransform>
+                <CompositeTransform TranslateY="12"/>
+            </Ellipse.RenderTransform>
+        </Ellipse>
 
         <Ellipse Name="_p46"    Grid.Row="3"  Grid.Column="7" Style="{StaticResource EllipsePegStyle}" Width="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" Height ="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" />
         <Ellipse Name="_p47"    Grid.Row="4"  Grid.Column="7" Style="{StaticResource EllipsePegStyle}" Width="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" Height ="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" />

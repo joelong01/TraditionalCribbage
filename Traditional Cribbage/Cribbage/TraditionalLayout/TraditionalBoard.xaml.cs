@@ -199,7 +199,7 @@ namespace Cribbage
 
             await _board.Reset();
 
-            List<Task<object>> taskList = new List<Task<object>>();
+            List<Task> taskList = new List<Task>();
 
              
             if (pBackScore > 0)
@@ -217,14 +217,19 @@ namespace Cribbage
             await Task.WhenAll(taskList);
         }
 
-    
-        
+
+        public List<Task> AnimateScore(PlayerType playerType, int score)
+        {
+            
+            return _board.AnimateScore(playerType, score, false);
+        }
+
+        public void TraceBackPegPosition()
+        {
+            _board.TraceBackPegPosition();
+    }
         
 
-        internal void AnimateScore(PlayerType playerType, int p)
-        {
-            AnimateScoreAsync(playerType, p);
-        }
 
 
         public void AnimateScoreAsync(PlayerType player, int scoreToAdd)

@@ -43,12 +43,12 @@ namespace Cribbage
             this.DataContext = this;
             ResetCards();
             _board.HideAsync();
-            
+
 
 
         }
 
-        
+
 
         
 
@@ -99,11 +99,11 @@ namespace Cribbage
 
         }
 
-        private  void OnSelectCribCards(object sender, RoutedEventArgs e)
+        private void OnSelectCribCards(object sender, RoutedEventArgs e)
         {
             MyMenu.IsPaneOpen = false;
             ((Button)(sender)).IsEnabled = false;
-           
+
             ((Button)(sender)).IsEnabled = true;
 
         }
@@ -147,10 +147,10 @@ namespace Cribbage
         private void ResetCards()
         {
 
-            for(int i = LayoutRoot.Children.Count - 1; i>=0; i--)
+            for (int i = LayoutRoot.Children.Count - 1; i >= 0; i--)
             {
                 UIElement el = LayoutRoot.Children[i];
-                if (el.GetType() == typeof (CardCtrl))
+                if (el.GetType() == typeof(CardCtrl))
                 {
                     LayoutRoot.Children.RemoveAt(i);
                     continue;
@@ -169,12 +169,12 @@ namespace Cribbage
             _cgDiscarded.Children.Clear();
             _cgDeck.Children.Clear();
             _cgCrib.Children.Clear();
-            
+
         }
 
-      
 
-        
+
+
 
         private async Task OnDeal()
         {
@@ -240,7 +240,7 @@ namespace Cribbage
                 c.Selected = false;
             }
             _cgPlayer.SelectedCards.Clear();
-            _cgPlayer.SelectedCards =  _game.ComputerSelectCrib(_cgPlayer.Cards, _game.Dealer == PlayerType.Player);
+            _cgPlayer.SelectedCards = _game.ComputerSelectCrib(_cgPlayer.Cards, _game.Dealer == PlayerType.Player);
             _cgPlayer.SelectedCards[0].Selected = true;
             _cgPlayer.SelectedCards[1].Selected = true;
 
@@ -250,25 +250,25 @@ namespace Cribbage
         private async Task Reset()
         {
             ResetCards();
-            await _board.Reset();          
+            await _board.Reset();
             _textCardInfo.Text = "";
             _board.HideAsync();
 
         }
 
-      
+
 
         private async void OnNewGame(object sender, RoutedEventArgs e)
         {
             try
             {
-                
 
-               // ((Button)sender).IsEnabled = false;
+
+                // ((Button)sender).IsEnabled = false;
                 bool ret = await StaticHelpers.AskUserYesNoQuestion("Cribbage", "Start a new game?", "Yes", "No");
                 if (ret)
-                {       
-                    if (_game !=null)
+                {
+                    if (_game != null)
                     {
                         _game = null; // what happens if we are in an await???    
                     }
@@ -279,10 +279,10 @@ namespace Cribbage
                     computer.Init("-usedroptable");
                     _game = new Game(this, computer, player);
                     ((Button)sender).IsEnabled = true;
-                     await _game.StartGame();
-                    
-                    
-                                        
+                    await _game.StartGame();
+
+
+
                 }
             }
             catch
@@ -311,38 +311,64 @@ namespace Cribbage
             MoveCrib(PlayerType.Computer);
         }
         int _testScore = 0;
-        private  void OnTestAddScore(object sender, RoutedEventArgs e)
+        private async void OnTestAddScore(object sender, RoutedEventArgs e)
         {
-            int delta = 0;
-            if (_testScore < 80)
+            try
             {
+
                 
                 delta = 37;
-            }
-            else if (_testScore > 85)
-            {
-                delta = 7;
-                
-            }
-            else
-            {
-                delta = 17;
-            }
 
-            _testScore += delta;
+                ((Button)sender).IsEnabled = false;
 
-            _board.AnimateScore(PlayerType.Player, delta);
-            _board.AnimateScore(PlayerType.Computer, delta);
+                int delta = 0;
+                if (_testScore < 80)
+                {
+
+                    delta = 84;
+                }
+                else if (_testScore > 85)
+                {
+                    delta = 5;
+
+                }
+                else
+                {
+                    delta = 1;
+                }
+
+                _testScore += delta;
+
+                List<Task> taskList = new List<Task>();
+                _board.TraceBackPegPosition();
+                taskList.AddRange(_board.AnimateScore(PlayerType.Player, delta));
+                taskList.AddRange(_board.AnimateScore(PlayerType.Computer, delta));
+                await Task.WhenAll(taskList);
+                _board.TraceBackPegPosition();
+
+            }
+            catch (Exception ex)
+            {
+
+                this.TraceMessage($"Exception: {ex.Message}");
+
+            }
+            finally
+            {
+
+                ((Button)sender).IsEnabled = true;
+
+            }
 
         }
 
         private async void OnTestReset(object sender, RoutedEventArgs e)
         {
             _testScore = 0;
-             await _board.Reset();
-            
+            await _board.Reset();
+
 
         }
-
+      
     }
 }
