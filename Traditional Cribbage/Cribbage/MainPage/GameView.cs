@@ -15,11 +15,15 @@ using System.Diagnostics;
 
 namespace Cribbage
 {
+
+    public enum CardType { Player, Computer, Deck, Crib}; // all the card lists
+
     public interface IGameView
     {
 
         Task<PlayerType> ChooseDealer();
 
+        CardList GetCards(CardType cardType);
 
         //
         // Remove any cards that are in the grids  
@@ -40,14 +44,16 @@ namespace Cribbage
         // hide the Count control
         Task SendCardsBackToOwner();
         int AddScore(List<Score> scores, PlayerType playerTurn);
-        void PlayerCardsAddedToCrib(List<CardCtrl> cards);
+        void PlayerCardDroppedToCrib(List<CardCtrl> cards);
         void SetState(GameState state);
-        Task OnGo();
-        int ScoreHand(List<Score> scores, PlayerType playerType, HandType handType);
+        Task OnGo(PlayerType player);
+        Task<int> ScoreHand(List<Score> scores, PlayerType playerType, HandType handType);
         Task ReturnCribCards(PlayerType dealer);
         Task EndHand(PlayerType dealer);
 
         List<CardCtrl> DiscardedCards { get; }// needed after counting is over
+
+        void AddMessage(string message);
     }
 
     /// <summary>
@@ -70,7 +76,10 @@ namespace Cribbage
 
         public async Task CountCard(CardCtrl card, int newCount)
         {
+            if (newCount == 31) newCount = 0;
+
             _ctrlCount.Count = newCount;
+            
             if (_game.PlayerTurn == PlayerType.Computer)
             {
                 List<Task> tList = new List<Task>();
@@ -99,15 +108,29 @@ namespace Cribbage
             AddCardsToDeckVisually(playerCards);
             AddCardsToDeckVisually(computerCards);
             _cgDeck.SetCardPositionsNoAnimation();
+            await MoveCrib(dealer);
             await AnimateDeal(playerCards, computerCards, computerGribCards, dealer);
+
             _txtCribOwner.Text = dealer.ToString() + "'s Crib";
+        }
+
+        private Task MoveCrib(PlayerType player)
+        {
+            if (player == PlayerType.Computer)
+            {
+                _daMoveCribY.To = -(_cgCrib.ActualHeight + 10); // 10 is a row that is used as empty space
+            }
+            else
+            {
+                _daMoveCribY.To = (_cgCrib.ActualHeight + 10);
+            }
+
+            return _sbMoveCrib.ToTask();
         }
 
         public async Task MoveCardsToCrib()
         {
             await AnimateMoveToCribAndFlipDeckCard();
-            _txtInstructions.Text = "Play a card!";
-            _ctrlCount.Visibility = Visibility.Visible;
             if (_game != null) // can be null if we are testing animations
                 _cgPlayer.MaxSelectedCards = (_game.PlayerTurn == PlayerType.Player) ? 1 : 0;
 
@@ -120,7 +143,7 @@ namespace Cribbage
 
         }
 
-        
+
 
         private void AddCardsToDeckVisually(List<CardCtrl> cardList)
         {
@@ -128,7 +151,7 @@ namespace Cribbage
             {
                 LayoutRoot.Children.Add(c);
                 _cgDeck.Cards.Insert(0, c);
-             //   c.Tapped += Card_DebugTapped;
+                //   c.Tapped += Card_DebugTapped;
             }
         }
 
@@ -146,7 +169,7 @@ namespace Cribbage
             List<CardCtrl> cards = null;
             Task t = null;
             List<Task> taskList = new List<Task>();
-            const double waitToReset =0;
+            const double waitToReset = 0;
 
             while (true)
             {
@@ -160,11 +183,11 @@ namespace Cribbage
                 ResetCards();
                 if (cards[0].Card.CardOrdinal == cards[1].Card.CardOrdinal)
                 {
-                    AddScoreMessage("Tie!  Try again.");
+                    AddMessage("Tie!  Try again.");
                     await Task.Delay(250);
                     continue;
                 }
-                
+
                 break;
 
             }
@@ -177,8 +200,8 @@ namespace Cribbage
             }
             string user = playerType == PlayerType.Player ? "You" : "The Computer";
             string message = String.Format($"{user} got low card and will deal.");
-            AddScoreMessage(message);
-            
+            AddMessage(message);
+
             return playerType;
 
             //
@@ -205,67 +228,72 @@ namespace Cribbage
                 taskList.Add(t);
                 t = cards[0].SetOrientationTask(CardOrientation.FaceDown, FLIP_ANIMATION_DURATION, waitToReset);
                 taskList.Add(t);
-                t = CardGrid.AnimateMoveOneCard(_cgPlayer, _cgDeck, cards[0], 0, true, MOVE_CARDS_ANIMATION_DURATION, FLIP_ANIMATION_DURATION );
+                t = CardGrid.AnimateMoveOneCard(_cgPlayer, _cgDeck, cards[0], 0, true, MOVE_CARDS_ANIMATION_DURATION, FLIP_ANIMATION_DURATION);
                 taskList.Add(t);
-                t = CardGrid.AnimateMoveOneCard(_cgComputer, _cgDeck, cards[1], 0, true, MOVE_CARDS_ANIMATION_DURATION, FLIP_ANIMATION_DURATION );
+                t = CardGrid.AnimateMoveOneCard(_cgComputer, _cgDeck, cards[1], 0, true, MOVE_CARDS_ANIMATION_DURATION, FLIP_ANIMATION_DURATION);
                 taskList.Add(t);
                 await Task.WhenAll(taskList);
             }
-           
+
         }
 
-        
-
-       
 
 
 
-        public void PlayerCardsAddedToCrib(List<CardCtrl> cards)
+
+
+
+        public void PlayerCardDroppedToCrib(List<CardCtrl> cards)
         {
             _cgPlayer.MaxSelectedCards = 4 - _cgDiscarded.Cards.Count;
 
         }
 
-       
+
 
         public void SetState(GameState state)
         {
+            //
+            //  this is the default state of the UI -- modify it below for different states
+            //  I do it here instead of the default of the case because some states only 
+            //  change one of the items and I found that putting it in the default made
+            //  the code more complicated (e.g. look at what would happen for GameState.ScorePlayerHand)
+
+            _cgPlayer.MaxSelectedCards = 0;
+            _txtInstructions.Text = "";
+            _ctrlCount.Visibility = Visibility.Collapsed;
+
             switch (state)
             {
-                
-                
                 case GameState.PlayerSelectsCribCards:
                     _cgPlayer.MaxSelectedCards = 2;
+                    _cgPlayer.DropTarget = _cgCrib;
+                    _txtInstructions.Text = "Drop two cards on the crib";
                     break;
                 case GameState.CountPlayer:
                     _cgPlayer.MaxSelectedCards = 1;
+                    _cgPlayer.DropTarget = _cgDiscarded;
+                    _ctrlCount.Visibility = Visibility.Visible;
+                    _txtInstructions.Text = "Drop the card to be counted";
                     break;
-                case GameState.SelectCrib:
-                case GameState.None:
-                case GameState.Uninitialized:                    
-                case GameState.Start:                    
-                case GameState.Deal:                                    
-                case GameState.GiveToCrib:
-                case GameState.Count:                
+
                 case GameState.CountComputer:
-                case GameState.ScoreHand:
-                case GameState.CountingEnded:
-                case GameState.ScorePlayerCrib:
-                case GameState.ShowCrib:
-                case GameState.EndOfHand:
-                case GameState.GameOver:
+                case GameState.Count:
+                    _ctrlCount.Visibility = Visibility.Visible;
+                    _txtCribOwner.Text = "";
+                    break;
                 case GameState.ScorePlayerHand:
-                case GameState.ScoreComputerHand:
-                case GameState.ScoreComputerCrib:
-                    _cgPlayer.MaxSelectedCards = 0;
+                    _txtInstructions.Text = "use the buttons on the board to set a score for your hand";
+                    break;
+                case GameState.ScorePlayerCrib:
+                    _txtInstructions.Text = "use the buttons on the board to set a score for your crib";
                     break;
                 default:
-                    Debug.Assert(false, "you forgot to add a GameState to SetState in GameView");
                     break;
             }
         }
 
-        public async Task OnGo()
+        public async Task OnGo(PlayerType playerType)
         {
             _ctrlCount.Count = 0;
             foreach (CardCtrl card in _cgDiscarded.Cards)
@@ -273,9 +301,19 @@ namespace Cribbage
                 card.Opacity = 0.8;
             }
 
-            string content = String.Format($"Go!");
-            MessageDialog dlg = new MessageDialog(content);
-            await dlg.ShowAsync();
+            await WaitForContinue(playerType);
+            
+            
+        }
+
+        private async Task WaitForContinue(PlayerType playerType)
+        {
+            if (playerType == PlayerType.Computer)
+            {
+                _btnContinue.Visibility = Visibility.Visible;
+                await _btnContinue.WhenClicked();
+                _btnContinue.Visibility = Visibility.Collapsed;
+            }            
         }
 
         public int AddScore(List<Score> scores, PlayerType playerTurn)
@@ -285,8 +323,10 @@ namespace Cribbage
                 return 0;
             foreach (Score score in scores)
             {
+                string s = playerTurn == PlayerType.Player ? "You" : "The Computer";
+
                 scoreDelta += score.Value;
-                AddScoreMessage(String.Format($"{_game.PlayerTurn}\n {score.ToString()}"));
+                AddMessage(String.Format($"{s} scored: {score.ToString()}"));
 
             }
 
@@ -294,11 +334,20 @@ namespace Cribbage
             return scoreDelta;
         }
 
-        public int ScoreHand(List<Score> scores, PlayerType playerType, HandType handType)
+
+        public async Task<int> ScoreHand(List<Score> scores, PlayerType playerType, HandType handType)
         {
             int ret = AddScore(scores, playerType);
             string message = String.Format($"{playerType} scores {ret} for their {handType}");
-            AddScoreMessage(message);
+            
+            AddMessage(message);
+            await Task.Delay(1000);
+            if (playerType == PlayerType.Computer)
+            {
+                _btnContinue.Visibility = Visibility.Visible;
+                await _btnContinue.WhenClicked();
+                _btnContinue.Visibility = Visibility.Collapsed;
+            }
             return ret;
         }
 
@@ -311,12 +360,29 @@ namespace Cribbage
         {
             await AnimationEndHand(dealer);
             ResetCards();
-            _ctrlCount.Visibility = Visibility.Collapsed;
             await Task.Delay(0);
         }
+        public void AddMessage(string msg)
+        {
+            _scoreViewCtrl.AddMessage(msg);
 
-       
+        }
 
-      
+        public CardList GetCards(CardType cardType)
+        {
+            switch (cardType)
+            {
+                case CardType.Player:
+                    return _cgPlayer.Cards;                    
+                case CardType.Computer:
+                    return _cgComputer.Cards;
+                case CardType.Deck:
+                    return _cgDeck.Cards;
+                case CardType.Crib:
+                    return _cgCrib.Cards;
+                default:
+                    throw new Exception("bad CardType enum");
+            }
+        }
     }
 }

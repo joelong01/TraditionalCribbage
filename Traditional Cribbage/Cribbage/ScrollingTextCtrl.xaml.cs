@@ -48,7 +48,7 @@ namespace Cribbage
 
             _daMoveText.BeginTime = TimeSpan.FromMilliseconds(0);
             _textBlock.Text = msg;
-            _daMoveText.Duration = new Duration(TimeSpan.FromMilliseconds(duration * .2));
+            _daMoveText.Duration = new Duration(TimeSpan.FromMilliseconds(duration * .4));
             UpdateLayout();
            
 

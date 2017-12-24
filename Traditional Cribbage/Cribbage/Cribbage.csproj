@@ -145,12 +145,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\alibaster.png" />
-    <Content Include="Assets\burledmaple.jpg" />
-    <Content Include="Assets\burledmaple.png" />
-    <Content Include="Assets\burledmaple2.png" />
+    <Content Include="Assets\burledmaple.jpeg" />
+    <Content Include="Assets\burledwalnut.jpeg" />
     <Content Include="Assets\cherry.png" />
     <Content Include="Assets\felt.png" />
-    <Content Include="Assets\maple.png" />
     <Content Include="Assets\mother of pearl.png" />
     <Content Include="Assets\ruby.png" />
     <Content Include="Assets\TraditionalBoard.png" />

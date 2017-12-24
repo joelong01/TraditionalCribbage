@@ -177,15 +177,14 @@
 
 
             <ImageBrush x:Key="bmCherry" ImageSource="Assets/cherry.png" Stretch="Fill" />
-            <ImageBrush x:Key="bmMarquetry" ImageSource="Assets/marquetry.png" Stretch="None" />
             <ImageBrush x:Key="bmAlibaster" ImageSource="Assets/alibaster.png" Stretch="None"/>
-            <ImageBrush x:Key="bmMaple" ImageSource="Assets/maple.png" Stretch="Fill" />
             <ImageBrush x:Key="bmRuby" ImageSource="Assets/ruby.png" Stretch="Fill" />
             <ImageBrush x:Key="bmMotherOfPearl" ImageSource="Assets/mother of pearl.png" Stretch="Fill" />
-            <ImageBrush x:Key="bmWalnut" ImageSource="Assets/walnut.png" Stretch="Fill" />
-            <ImageBrush x:Key="bmBurledMaple" ImageSource="Assets/burledmaple.jpg" Stretch="Fill" />
-            <ImageBrush x:Key="bmBurledMaple2" ImageSource="Assets/burledmaple2.png" Stretch="Fill" />
-            <ImageBrush x:Key="bmFelt" ImageSource="Assets/felt.png" Stretch="Fill" />
+            <ImageBrush x:Key="bmBurledWalnut" ImageSource="Assets/burledwalnut.jpeg" Stretch="UniformToFill" />
+            <ImageBrush x:Key="bmWalnut" ImageSource="Assets/burledwalnut.jpeg" Stretch="UniformToFill" />
+            <ImageBrush x:Key="bmBurledMaple" ImageSource="Assets/burledmaple.jpeg" Stretch="UniformToFill" />
+            <ImageBrush x:Key="bmMaple" ImageSource="Assets/burledmaple.jpeg" Stretch="UniformToFill" />
+            <ImageBrush x:Key="bmFelt" ImageSource="Assets/felt.png" Stretch="UniformToFill" />
 
 
         </ResourceDictionary>

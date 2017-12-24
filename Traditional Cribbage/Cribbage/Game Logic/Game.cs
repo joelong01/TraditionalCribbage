@@ -154,7 +154,7 @@ namespace Cribbage
             while (true)
             {
                 _state = state;
-              //  _gameView.SetState(state);
+                _gameView.SetState(state);
                 switch (state)
                 {
                     case GameState.Uninitialized:
@@ -209,6 +209,7 @@ namespace Cribbage
                         state = GameState.Count;
                         break;
                     case GameState.Count:
+                        
                         Debug.Assert(_computerCards.Count == 4);
                         Debug.Assert(_playerCards.Count == 4);
                         Debug.Assert(_crib.Count == 4);
@@ -219,12 +220,17 @@ namespace Cribbage
                     case GameState.CountPlayer:
                         {
                             SetPlayableCards();
-                            
+                            _gameView.SetState(state); // updates UI based on the state of the game    
                             PlayerTurn = PlayerType.Player;
-                            _currentCount = await DoCountForPlayer(_player, PlayerType.Player, _countedCards, _playerCards, _currentCount);
-                            state = GameState.CountComputer;
                             var (computerCanPlay, playerCanPlay) = CanPlay(_computerCards, _playerCards, _currentCount);
-                            
+                            state = GameState.CountComputer;
+                            if (playerCanPlay)
+                            {
+                                _currentCount = await DoCountForPlayer(_player, PlayerType.Player, _countedCards, _playerCards, _currentCount);
+                            }
+
+                            (computerCanPlay, playerCanPlay) = CanPlay(_computerCards, _playerCards, _currentCount);
+
                             if (computerCanPlay == false && playerCanPlay == false)
                             {
                                 if (_playerCards.Count == 0 && _computerCards.Count == 0)
@@ -245,10 +251,15 @@ namespace Cribbage
                         break;
                     case GameState.CountComputer:
                         {
+                            _gameView.SetState(state); // updates UI based on the state of the game
                             PlayerTurn = PlayerType.Computer;                            
                             _currentCount = await DoCountForPlayer(_computer, PlayerType.Computer, _countedCards, _computerCards, _currentCount);
                             state = GameState.CountPlayer;
                             var (computerCanPlay, playerCanPlay) = CanPlay(_computerCards, _playerCards, _currentCount);
+                            if (!computerCanPlay && playerCanPlay)
+                            {
+                                _gameView.AddMessage("Computer can't play.  Go again.");
+                            }
                             if (computerCanPlay == false && playerCanPlay == false)
                             {
                                 if (_playerCards.Count == 0 && _computerCards.Count == 0)
@@ -433,7 +444,7 @@ namespace Cribbage
             PlayerType goPlayer = LastPlayerCounted();
             AddScore(scores, goPlayer);
 
-            await _gameView.OnGo();
+            await _gameView.OnGo(goPlayer);
             _currentCount = 0;
             _countedCards.Clear();
             SetPlayableCards();
@@ -453,13 +464,12 @@ namespace Cribbage
             player.Score += scoreDelta;
         }
 
-        private Task ScoreHandAndNotifyView(List<CardCtrl> cards, List<CardCtrl> sharedCard, PlayerType playerType, Cards.HandType handType)
+        private async Task ScoreHandAndNotifyView(List<CardCtrl> cards, List<CardCtrl> sharedCard, PlayerType playerType, Cards.HandType handType)
         {
             int score = CardScoring.ScoreHand(CardCtrlToCards(cards), CardCtrlToCards(sharedCard)[0], handType, out List<Score> scores);
-            _gameView.ScoreHand(scores, playerType, handType);
+            await _gameView.ScoreHand(scores, playerType, handType);
             Player player = (playerType == PlayerType.Computer) ? _computer : _player;
-            player.Score += score;
-            return Task.FromResult(true);
+            player.Score += score;            
         }
 
       
