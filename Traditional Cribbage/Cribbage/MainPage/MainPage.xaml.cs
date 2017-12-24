@@ -313,12 +313,11 @@ namespace Cribbage
         int _testScore = 0;
         private async void OnTestAddScore(object sender, RoutedEventArgs e)
         {
+            
             try
             {
 
-                
-                delta = 37;
-
+            
                 ((Button)sender).IsEnabled = false;
 
                 int delta = 0;

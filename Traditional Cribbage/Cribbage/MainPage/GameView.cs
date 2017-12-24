@@ -16,7 +16,7 @@ using System.Diagnostics;
 namespace Cribbage
 {
 
-    public enum CardType { Player, Computer, Deck, Crib}; // all the card lists
+    public enum CardType { Player, Computer, Deck, Crib, Counted}; // all the card lists
 
     public interface IGameView
     {
@@ -46,7 +46,7 @@ namespace Cribbage
         int AddScore(List<Score> scores, PlayerType playerTurn);
         void PlayerCardDroppedToCrib(List<CardCtrl> cards);
         void SetState(GameState state);
-        Task OnGo(PlayerType player);
+        Task RestartCounting(PlayerType player);
         Task<int> ScoreHand(List<Score> scores, PlayerType playerType, HandType handType);
         Task ReturnCribCards(PlayerType dealer);
         Task EndHand(PlayerType dealer);
@@ -54,6 +54,7 @@ namespace Cribbage
         List<CardCtrl> DiscardedCards { get; }// needed after counting is over
 
         void AddMessage(string message);
+        void SetPlayableCards(int currentCount);
     }
 
     /// <summary>
@@ -293,12 +294,13 @@ namespace Cribbage
             }
         }
 
-        public async Task OnGo(PlayerType playerType)
+        public async Task RestartCounting(PlayerType playerType)
         {
             _ctrlCount.Count = 0;
             foreach (CardCtrl card in _cgDiscarded.Cards)
             {
                 card.Opacity = 0.8;
+                card.Counted = true;
             }
 
             await WaitForContinue(playerType);
@@ -380,8 +382,22 @@ namespace Cribbage
                     return _cgDeck.Cards;
                 case CardType.Crib:
                     return _cgCrib.Cards;
+                case CardType.Counted:
+                    return _cgDiscarded.Cards;
                 default:
                     throw new Exception("bad CardType enum");
+            }
+        }
+
+        public void SetPlayableCards(int count)
+        {
+            
+            foreach (var card in _cgPlayer.Cards)
+            {
+                if (card.Value + count <= 31)
+                    card.IsEnabled = true;
+                else
+                    card.IsEnabled = false;
             }
         }
     }

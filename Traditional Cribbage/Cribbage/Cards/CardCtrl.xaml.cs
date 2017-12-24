@@ -904,6 +904,15 @@ namespace CardView
             }
         }
 
+        public bool CurrentRun
+        { get
+            {
+                return (this.IsEnabled);
+            }
+        }
+
+        public bool Counted { get; set; }
+
         public void SetOrientationAsync(CardOrientation orientation, double msDuration, double msBeginTime)
         {
             if (orientation == _myOrientation) return;
