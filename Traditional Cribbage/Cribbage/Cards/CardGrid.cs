@@ -10,6 +10,9 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using LongShotHelpers;
+using System.Text;
+using Cards;
+using Cribbage;
 
 namespace CardView
 {
@@ -125,6 +128,8 @@ namespace CardView
 
         public static readonly DependencyProperty DropTargetProperty = DependencyProperty.Register("DropTarget", typeof(CardGrid), typeof(CardGrid), null);
         public static readonly DependencyProperty ParentGridProperty = DependencyProperty.Register("ParentGrid", typeof(Grid), typeof(Grid), null);
+        public Owner Owner { get; set; } = Owner.Uninitialized;
+
 
         public Location Location { get; set; } = Location.Unintialized;
         public CardGrid DropTarget
@@ -150,17 +155,7 @@ namespace CardView
                 SetValue(ParentGridProperty, value);
             }
         }
-
-
-
-
-        //new public CardCtrl Children
-        //{
-        //    get
-        //    {
-        //        throw new InvalidOperationException("You don't add Children to this kind of grid.");
-        //    }
-        //}
+        
         public CardGrid()
         {
 
@@ -188,6 +183,64 @@ namespace CardView
         public override string ToString()
         {
             return string.Format($"Name:{this.Name} Count:{_myCards.Count} Layout:{this.CardLayout}");
+        }
+
+        public string Serialize(string sep)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var card in _myCards)
+            {
+                sb.Append(card.CardName);
+                sb.Append(".");
+                sb.Append(card.Owner);
+                sb.Append(sep);
+            }
+            int sepLen = sep.Length;
+            sb.Remove(sb.Length - sepLen, sepLen);
+            return sb.ToString();
+        }
+
+        public (bool ret, string badToken) Deserialize(string saveString, string sep)
+        {
+            string[] tokens = saveString.Split(sep.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            List<Card> cards = new List<Card>();
+            foreach (var token in tokens)
+            {
+                string[] subTokens = token.Split(".".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                if (subTokens.Count() != 2)
+                {
+                    return (false, token);
+                }
+                
+                if (CardNames.TryParse(subTokens[0], out CardNames cardName))
+                {
+                    if (Owner.TryParse(subTokens[1], out Owner owner))
+                    {
+                        Card card = new Card(cardName)
+                        {
+                            Owner = owner
+                        };
+                        cards.Add(card);
+                    }
+                    else
+                    {
+                        return (false, subTokens[1]);
+                    }
+                }
+                else
+                {
+                    return (false, subTokens[0]);
+                }
+            }
+
+            _myCards.Clear();
+            List<CardCtrl> uiCards = CardCtrl.CreateCardCtrlFromListOfCards(cards);
+            foreach (CardCtrl card in uiCards)
+            {
+                _myCards.Add(card);
+            }
+
+            return (true, "" );
         }
 
         private void CardGrid_LayoutUpdated(object sender, object e)
@@ -419,6 +472,14 @@ namespace CardView
 
             _selectedCards.Add(card);
             card.Selected = true;
+        }
+
+        public void SelectCard(CardCtrl card)
+        {
+            if (!card.Selected)
+            {
+                ToggleSelect(card);
+            }
         }
 
         private void ReleaseCard(CardCtrl card)

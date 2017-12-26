@@ -1,4 +1,5 @@
 ﻿using Cards;
+using Cribbage;
 using System.Collections.Generic;
 
 
@@ -42,13 +43,15 @@ namespace Cards
             _index = 0;
         }
 
-        public List<Card> GetCards(int number)
+        public List<Card> GetCards(int number, Owner owner)
         {
             List<Card> cards = new List<Card>();
             for (int i = _index; i < number + _index; i++)
             {
-                Card c = new Card((CardNames)_randomIndeces[i]);
-
+                Card c = new Card((CardNames)_randomIndeces[i])
+                {
+                    Owner = owner
+                };
                 cards.Add(c);
             }
 

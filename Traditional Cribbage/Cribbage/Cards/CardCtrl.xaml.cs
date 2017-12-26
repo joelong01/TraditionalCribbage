@@ -174,10 +174,16 @@ namespace CardView
         /// <returns></returns>
         public static List<CardCtrl> GetCards(int number, Owner owner)
         {
-            List<CardCtrl> CardUI = new List<CardCtrl>();
+            
             Deck deck = new Deck(Environment.TickCount);
-            List<Card> Cards = deck.GetCards(number);
+            List<Card> Cards = deck.GetCards(number, owner);
+            return CreateCardCtrlFromListOfCards(Cards);
+            
+        }
 
+        public static List<CardCtrl> CreateCardCtrlFromListOfCards( List<Card> Cards)
+        {
+            List<CardCtrl> CardUI = new List<CardCtrl>();
             foreach (var card in Cards)
             {
                 CardCtrl c = new CardCtrl(card)
@@ -185,11 +191,10 @@ namespace CardView
                     Width = 125,
                     Height = 175,
                     Margin = new Thickness(0),
-                    HorizontalAlignment = HorizontalAlignment.Left,
-                    Owner = owner,
+                    HorizontalAlignment = HorizontalAlignment.Left,                    
                     VerticalAlignment = VerticalAlignment.Top,
                     Orientation = CardOrientation.FaceDown,
-                    ShowDebugInfo = false,                        
+                    ShowDebugInfo = false,
                 };
 
                 card.Tag = (object)c;
@@ -198,8 +203,6 @@ namespace CardView
                 Grid.SetRowSpan(c, 99); // should be enough...
                 CardUI.Add(c);
             }
-
-
 
             return CardUI;
         }
@@ -887,18 +890,18 @@ namespace CardView
             }
         }
 
-        Owner _owner = Owner.Uninitialized;
+        
         public Owner Owner
         {
             get
             {
-                return _owner;
+                return _card.Owner;
             }
             set
             {
-                if (value != _owner)
+                if (value != _card.Owner)
                 {
-                    _owner = value;
+                    _card.Owner = value;
                     NotifyPropertyChanged();
                 }
             }

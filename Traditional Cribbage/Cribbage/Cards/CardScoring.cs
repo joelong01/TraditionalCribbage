@@ -4,7 +4,8 @@ using System.Collections.Generic;
 
 namespace Cards
 {
-    public enum ScoreName { Fifteen, Run, Pair, ThreeOfaKind, FourOfAKind, HisNibs, HisNobs, CountedRun, ThirtyOne, Go, Flush, LastCard };
+    public enum ScoreName           { Fifteen, Run, Pair, ThreeOfaKind, FourOfAKind, HisNibs, HisNobs, CountedRun, ThirtyOne, Go, Flush, LastCard };
+   
     public class Score
     {
         public ScoreName ScoreName { get; set; }
@@ -17,12 +18,29 @@ namespace Cards
         }
         public override string ToString()
         {
-            return String.Format($"{ScoreName} for {Value} ");
+            return String.Format($"{CardScoring.PlayerScoreDescription[(int)ScoreName]} for {Value}");
+        }
+
+        public string ToString(Cribbage.PlayerType player)
+        {
+            if (player == Cribbage.PlayerType.Player)
+            {
+                return String.Format($"{CardScoring.PlayerScoreDescription[(int)ScoreName]} for {Value}");
+            }
+            else
+            {
+                return String.Format($"{CardScoring.ComputerScoreDescription[(int)ScoreName]} for {Value}");
+            }
         }
     }
 
     static class CardScoring
     {
+        //
+        //  these will have a "you" or "the computer" in front of them      Fifteen,            Run,       Pair,               ThreeOfaKind,               FourOfAKind,         HisNibs,           HisNobs,               CountedRun, ThirtyOne, Go,    Flush,             LastCard };
+
+        public static string[] PlayerScoreDescription =   new string[]  {"scored fifteen", "got a run", "scored a pair", "scored three of a kind", "scored four of a kind", "have jack of the same suit","cut a jack", "have a run","hit 31","hit go", "have a flush", "have last card"};
+        public static string[] ComputerScoreDescription = new string[] { "scored fifteen", "got a run", "scored a pair", "scored three of a kind", "scored four of a kind", "has jack of the same suit", "cut a jack", "has a run", "hit 31", "hit go", "has a flush",  "has last card" };
         public static int ScoreCountingCardsPlayed(List<Card> playedCards, Card card, int currentCount, out List<Score> scoreList)
         {
             scoreList = new List<Score>();

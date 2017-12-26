@@ -17,11 +17,12 @@ namespace CribbagePlayers
         CardGrid _cribGrid = null;
         public IGameView GameView { get; set; } = null;
 
-        public InteractivePlayer(CardGrid grid, CardGrid cribGrid, TraditionalBoard board)
+        public InteractivePlayer(CardGrid grid, CardGrid cribGrid, TraditionalBoard board, int score)
         {
             _discardedGrid = grid;
             _board = board;
             _cribGrid = cribGrid;
+            this.Score = score;
 
         }
 
