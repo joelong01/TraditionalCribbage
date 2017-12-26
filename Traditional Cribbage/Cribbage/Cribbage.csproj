@@ -113,6 +113,7 @@
     <Compile Include="MainPage\GameView.cs" />
     <Compile Include="MainPage\MainPage.xaml.cs" />
     <Compile Include="MainPage\MainPageAnimations.cs" />
+    <Compile Include="MainPage\MainPageTests.cs" />
     <Compile Include="Players\BasePlayer.cs" />
     <Compile Include="Players\CountingPlayer.cs" />
     <Compile Include="Players\DefaultPlayer.cs" />

@@ -10,6 +10,7 @@ using CardView;
 using Cards;
 using LongShotHelpers;
 using System.Diagnostics;
+using System.Text;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -303,9 +304,11 @@ namespace Cribbage
                 card.Counted = true;
             }
 
+            _cgPlayer.MaxSelectedCards = 0;
+
             await WaitForContinue(playerType);
-            
-            
+
+            _cgPlayer.MaxSelectedCards = 1;
         }
 
         private async Task WaitForContinue(PlayerType playerType)
@@ -315,6 +318,8 @@ namespace Cribbage
                 _btnContinue.Visibility = Visibility.Visible;
                 await _btnContinue.WhenClicked();
                 _btnContinue.Visibility = Visibility.Collapsed;
+
+                _btnShowScoreAgain.Visibility = _btnContinue.Visibility;
             }            
         }
 
@@ -323,32 +328,43 @@ namespace Cribbage
             int scoreDelta = 0;
             if (scores == null)
                 return 0;
-            foreach (Score score in scores)
-            {
-                string s = playerTurn == PlayerType.Player ? "You" : "The Computer";
 
-                scoreDelta += score.Value;
-                AddMessage(String.Format($"{s} scored: {score.ToString()}"));
-
-            }
-
+            scoreDelta = ShowScoreMessage(scores, playerTurn);
             _board.AnimateScoreAsync(playerTurn, scoreDelta);
             return scoreDelta;
         }
 
+        public int ShowScoreMessage(List<Score> scores, PlayerType playerTurn)
+        {
+            StringBuilder s = new StringBuilder(1024);
+            s.Append((playerTurn == PlayerType.Player) ? "You " : "The Computer ");
+            int scoreDelta = 0;
+            foreach (Score score in scores)
+            {
+                scoreDelta += score.Value;
+                s.Append(score.ToString(playerTurn));
+                s.Append(", ");
+            }
+            s.Remove(s.Length - 2, 2);
+            s.Append($" for a total of {scoreDelta}. ");
+
+            AddMessage(s.ToString());
+            return scoreDelta;
+        }
 
         public async Task<int> ScoreHand(List<Score> scores, PlayerType playerType, HandType handType)
         {
             int ret = AddScore(scores, playerType);
             string message = String.Format($"{playerType} scores {ret} for their {handType}");
             
-            AddMessage(message);
-            await Task.Delay(1000);
+            AddMessage(message);            
             if (playerType == PlayerType.Computer)
             {
                 _btnContinue.Visibility = Visibility.Visible;
+                _btnShowScoreAgain.Visibility = _btnContinue.Visibility;
                 await _btnContinue.WhenClicked();
                 _btnContinue.Visibility = Visibility.Collapsed;
+                _btnShowScoreAgain.Visibility = _btnContinue.Visibility;
             }
             return ret;
         }

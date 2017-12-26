@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using Cribbage;
 
 namespace Cards
 {
@@ -14,6 +15,7 @@ namespace Cards
         int _Rank = 0;
         Suit _Suit = Suit.Uninitialized;
         CardOrdinal _CardOrdinal = CardOrdinal.Uninitialized;
+        public Owner Owner { get; set; } = Owner.Uninitialized;
         public CardOrdinal CardOrdinal
         {
             get

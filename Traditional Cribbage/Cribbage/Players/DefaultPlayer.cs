@@ -14,7 +14,7 @@ namespace CribbagePlayers
     public class DefaultPlayer : Player
     {
         public bool UseDropTable { get; set; } = false;
-        public DefaultPlayer() { }
+        public DefaultPlayer(int score = 0) { this.Score = score; }
 
         public DefaultPlayer(bool useDropTable)
         {
@@ -133,6 +133,35 @@ namespace CribbagePlayers
                         break;
                     }
                 }
+            }
+
+            //
+            //   don't play a card that adds up to 5 because there are so many 10's
+
+            if (maxCard.Value + currentCount == 5)
+            {
+                foreach (Card c in uncountedCards)
+                {
+
+                    //
+                    //  also don't play a card that if they play the same card will give them
+                    //  both a pair and a 15
+                    if (c.Value + currentCount == 5 || (c.Value * 2 + currentCount == 15))
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        maxCard = c;
+                        break;
+                    }
+                }
+            }
+            //
+            //  if you have to play a card, play the lowest one
+            if (maxCard == null)
+            {
+                maxCard = uncountedCards[0]; 
             }
 
             return Task.FromResult(maxCard);

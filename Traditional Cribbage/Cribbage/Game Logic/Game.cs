@@ -104,13 +104,13 @@ namespace Cribbage
 
 
 
-        Player _computer = null;
-        InteractivePlayer _player = null;
+        public Player Computer { get; set; } = null;
+        public InteractivePlayer Player { get; set; } = null;
         
         public PlayerType Dealer { get; set; } = PlayerType.Computer;
         public PlayerType PlayerTurn { get; set; } = PlayerType.Computer;
 
-        int _currentCount = 0;          // 
+        public int CurrentCount { get; set; } = 0;           
       
         public Game(IGameView gameView)
         {
@@ -121,12 +121,13 @@ namespace Cribbage
 
         
 
-        public Game(IGameView gameView, Player computer, InteractivePlayer player)
+        public Game(IGameView gameView, Player computer, InteractivePlayer player, int currentCount)
         {
             _gameView = gameView;
-            _computer = computer;
-            _player = player;
-            _player.GameView = gameView;
+            Computer = computer;
+            Player = player;
+            Player.GameView = gameView;
+            CurrentCount = 0;
         }
 
         private void ToggleDealer()
@@ -156,9 +157,9 @@ namespace Cribbage
 
         }
 
-        public async Task<Player> StartGame()
+        public async Task<Player> StartGame(GameState state)
         {
-            GameState state = GameState.Start;
+            
             
             while (true)
             {
@@ -186,13 +187,13 @@ namespace Cribbage
                             
 
                             
-                            _currentCount = 0;
+                            CurrentCount = 0;
                             state = GameState.PlayerSelectsCribCards;
                         }
                         break;
                     case GameState.PlayerSelectsCribCards:
                         _gameView.SetState(state);
-                        List<CardCtrl> playerCrib = await _player.SelectCribUiCards(null, Dealer == PlayerType.Player); // when I return from this, the cards are already in the crib.                      
+                        List<CardCtrl> playerCrib = await Player.SelectCribUiCards(null, Dealer == PlayerType.Player); // when I return from this, the cards are already in the crib.                      
                         state = GameState.GiveToCrib;
                         break;
                     case GameState.GiveToCrib:
@@ -212,7 +213,7 @@ namespace Cribbage
                         Debug.Assert(ComputerCards.Count == 4);
                         Debug.Assert(PlayerCards.Count == 4);
                         Debug.Assert(CribCards.Count == 4);
-                        _currentCount = 0;                        
+                        CurrentCount = 0;                        
                         state = Dealer == PlayerType.Player ? GameState.CountComputer : GameState.CountPlayer;
                         break;
                     case GameState.CountPlayer:
@@ -220,14 +221,14 @@ namespace Cribbage
                             SetPlayableCards();
                             _gameView.SetState(state); // updates UI based on the state of the game    
                             PlayerTurn = PlayerType.Player;
-                            var (computerCanPlay, playerCanPlay) = CanPlay(ComputerCards, PlayerCards, _currentCount);
+                            var (computerCanPlay, playerCanPlay) = CanPlay(ComputerCards, PlayerCards, CurrentCount);
                             state = GameState.CountComputer;
                             if (playerCanPlay)
                             {
-                                _currentCount = await DoCountForPlayer(_player, PlayerType.Player, CountedCards, PlayerCards, _currentCount);
+                                CurrentCount = await DoCountForPlayer(Player, PlayerType.Player, CountedCards, PlayerCards, CurrentCount);
                             }
 
-                            (computerCanPlay, playerCanPlay) = CanPlay(ComputerCards, PlayerCards, _currentCount);
+                            (computerCanPlay, playerCanPlay) = CanPlay(ComputerCards, PlayerCards, CurrentCount);
 
                             if (computerCanPlay == false && playerCanPlay == false)
                             {
@@ -251,9 +252,9 @@ namespace Cribbage
                         {
                             _gameView.SetState(state); // updates UI based on the state of the game
                             PlayerTurn = PlayerType.Computer;                            
-                            _currentCount = await DoCountForPlayer(_computer, PlayerType.Computer, CountedCards, ComputerCards, _currentCount);
+                            CurrentCount = await DoCountForPlayer(Computer, PlayerType.Computer, CountedCards, ComputerCards, CurrentCount);
                             state = GameState.CountPlayer;
-                            var (computerCanPlay, playerCanPlay) = CanPlay(ComputerCards, PlayerCards, _currentCount);
+                            var (computerCanPlay, playerCanPlay) = CanPlay(ComputerCards, PlayerCards, CurrentCount);
                             if (!computerCanPlay && playerCanPlay)
                             {
                                 _gameView.AddMessage("Computer can't play.  Go again.");
@@ -332,14 +333,14 @@ namespace Cribbage
                         break;
                 }
 
-                if (_player.Score > 120)
+                if (Player.Score > 120)
                 {
-                    return _player;
+                    return Player;
                 }
-                if (_computer.Score > 120)
+                if (Computer.Score > 120)
 
                 {
-                    return _computer;
+                    return Computer;
                 }
             }
 
@@ -355,7 +356,7 @@ namespace Cribbage
             if (uncountedCards.Count == 0)
                 return currentCount;
 
-            Card cardPlayed  = await player.GetCountCard(countedCards, uncountedCards, _currentCount); 
+            Card cardPlayed  = await player.GetCountCard(countedCards, uncountedCards, CurrentCount); 
             
 
             if (cardPlayed != null)
@@ -373,6 +374,14 @@ namespace Cribbage
             }
             
             return currentCount;
+        }
+
+        public async Task<CardCtrl> GetSuggestionForCount()
+        {
+            if (PlayerCards.Count == 0) return null;
+
+            Card cardPlayed = await Computer.GetCountCard(CountedCards, PlayerCards, CurrentCount);
+            return cardPlayed.Tag as CardCtrl;
         }
 
         private (bool computerCanPlay, bool playerCanPlay) CanPlay(List<Card> computerCards, List<Card> playerCards, int currentCount)
@@ -407,7 +416,7 @@ namespace Cribbage
 
             do
             {
-                enteredScore = await _player.GetScoreFromUser(playerScore, _autoEnterScore);
+                enteredScore = await Player.GetScoreFromUser(playerScore, _autoEnterScore);
                 if (enteredScore != playerScore)
                 {
                     _autoEnterScore = await StaticHelpers.AskUserYesNoQuestion("Cribbage", $"{enteredScore} is the wrong score.\n\nWould you like the computer to set the score?", "Yes", "No");
@@ -454,7 +463,7 @@ namespace Cribbage
             AddScore(scores, goPlayer);
 
             await _gameView.RestartCounting(goPlayer);
-            _currentCount = 0;
+            CurrentCount = 0;
            
             SetPlayableCards();
             return goPlayer;
@@ -468,7 +477,7 @@ namespace Cribbage
             if (scores.Count == 0)
                 return;
 
-            Player player = (playerTurn == PlayerType.Computer) ? _computer : _player;
+            Player player = (playerTurn == PlayerType.Computer) ? Computer : Player;
             int scoreDelta = _gameView.AddScore(scores, playerTurn);
             player.Score += scoreDelta;
         }
@@ -477,7 +486,7 @@ namespace Cribbage
         {
             int score = CardScoring.ScoreHand(cards, sharedCard, handType, out List<Score> scores);
             await _gameView.ScoreHand(scores, playerType, handType);
-            Player player = (playerType == PlayerType.Computer) ? _computer : _player;
+            Player player = (playerType == PlayerType.Computer) ? Computer : Player;
             player.Score += score;            
         }
 
@@ -501,13 +510,13 @@ namespace Cribbage
 
         public List<CardCtrl> ComputerSelectCrib(List<CardCtrl> cards, bool computerCrib)
         {
-            List<Card> crib = _computer.SelectCribCards(CardCtrlToCards(cards), computerCrib).Result;
+            List<Card> crib = Computer.SelectCribCards(CardCtrlToCards(cards), computerCrib).Result;
             return CardsToCardCtrl(crib);
         }
 
           
 
-        private List<Card> CardCtrlToCards(List<CardCtrl> uiCards)
+        public static List<Card> CardCtrlToCards(List<CardCtrl> uiCards)
         {
             List<Card> cards = new List<Card>();
             foreach (var uiCard in uiCards)
@@ -518,7 +527,7 @@ namespace Cribbage
             return cards;
         }
 
-        private List<CardCtrl> CardsToCardCtrl(List<Card> hand)
+        public static List<CardCtrl> CardsToCardCtrl(List<Card> hand)
         {
             List<CardCtrl> newHand = new List<CardCtrl>();
             foreach (var card in hand)
@@ -532,7 +541,7 @@ namespace Cribbage
         {
             foreach (var card in PlayerCardCtrls)
             {
-                if (card.Value + _currentCount <= 31)
+                if (card.Value + CurrentCount <= 31)
                     card.IsEnabled = true;
                 else
                     card.IsEnabled = false;

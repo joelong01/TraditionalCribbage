@@ -100,7 +100,7 @@ namespace Cribbage
             ctrl.Phase1Completed += Phase1AnmiationComplete;
             ctrl.Phase2Completed += Phase2AnmiationComplete;
             LayoutRoot.Children.Add(ctrl);
-            ctrl.BeginAnimation(message, 5000, this.ActualWidth);
+            ctrl.BeginAnimation(message, 3000, this.ActualWidth);
         }
 
        

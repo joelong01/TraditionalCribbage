@@ -22,6 +22,10 @@ using CardView;
 using LongShotHelpers;
 using CribbagePlayers;
 using System.Threading;
+using System.Text;
+using Windows.Storage.Pickers;
+using Windows.Storage;
+using Windows.Storage.Provider;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -223,26 +227,37 @@ namespace Cribbage
             MyMenu.IsPaneOpen = !MyMenu.IsPaneOpen;
         }
 
-        private void OnOpenGame(object sender, RoutedEventArgs e)
-        {
+     
 
-        }
-
-        private void OnGetSuggestion(object sender, RoutedEventArgs e)
+        private async void OnGetSuggestion(object sender, RoutedEventArgs e)
         {
-            if (_game.State != GameState.PlayerSelectsCribCards)
+            if (_game == null)
             {
+                await StaticHelpers.ShowErrorText("Hit + to start a game.", "Cribbage");
                 return;
             }
 
-            foreach (var c in _cgPlayer.Cards)
+            if (_game.State == GameState.PlayerSelectsCribCards)
             {
-                c.Selected = false;
+
+                foreach (var c in _cgPlayer.Cards)
+                {
+                    c.Selected = false;
+                }
+                _cgPlayer.SelectedCards.Clear();
+                _cgPlayer.SelectedCards = _game.ComputerSelectCrib(_cgPlayer.Cards, _game.Dealer == PlayerType.Player);
+                _cgPlayer.SelectedCards[0].Selected = true;
+                _cgPlayer.SelectedCards[1].Selected = true;
+                return;
+
             }
-            _cgPlayer.SelectedCards.Clear();
-            _cgPlayer.SelectedCards = _game.ComputerSelectCrib(_cgPlayer.Cards, _game.Dealer == PlayerType.Player);
-            _cgPlayer.SelectedCards[0].Selected = true;
-            _cgPlayer.SelectedCards[1].Selected = true;
+
+            if (_game.State == GameState.CountPlayer)
+            {
+                CardCtrl cardPlayed = await _game.GetSuggestionForCount();
+                _cgPlayer.SelectCard(cardPlayed);
+                    
+            }
 
 
         }
@@ -274,12 +289,12 @@ namespace Cribbage
                     }
                     await Reset();
                     _txtInstructions.Text = "";
-                    InteractivePlayer player = new InteractivePlayer(_cgDiscarded, _cgCrib, _board);
-                    DefaultPlayer computer = new DefaultPlayer();
+                    InteractivePlayer player = new InteractivePlayer(_cgDiscarded, _cgCrib, _board, 0);
+                    DefaultPlayer computer = new DefaultPlayer(0);
                     computer.Init("-usedroptable");
-                    _game = new Game(this, computer, player);
+                    _game = new Game(this, computer, player, 0);
                     ((Button)sender).IsEnabled = true;
-                    await _game.StartGame();
+                    await _game.StartGame(GameState.Start);
 
 
 
@@ -296,78 +311,88 @@ namespace Cribbage
 
         }
 
-        private async void OnTestCribToOwner(object sender, RoutedEventArgs e)
+       
+        private void OnShowScore(object sender, RoutedEventArgs e)
         {
-            await this.AnimateMoveCribCardsBackToOwner(PlayerType.Computer);
-        }
 
-        private async void OnTestEndHandAnimation(object sender, RoutedEventArgs e)
-        {
-            await AnimationEndHand(PlayerType.Computer);
-        }
+            if (_game.State == GameState.ScoreComputerCrib || _game.State == GameState.ScoreComputerHand)
+            {
 
-        private void OnTestMoveToCrib(object sender, RoutedEventArgs e)
-        {
-            MoveCrib(PlayerType.Computer);
+                List<Card> hand = Game.CardCtrlToCards(_cgComputer.Cards);
+                Card sharedCard = (Card)_cgDeck.Cards[0].Card;
+                HandType handType = HandType.Hand;
+                if (_game.State == GameState.ScoreComputerCrib) handType = HandType.Crib;
+
+
+                StringBuilder s = new StringBuilder(1024);
+                s.Append((_game.PlayerTurn == PlayerType.Player) ? "You " : "The Computer ");
+
+                CardScoring.ScoreHand(hand, sharedCard, handType, out List<Score> scores);
+                ShowScoreMessage(scores, PlayerType.Computer);
+            }
+                        
+
         }
-        int _testScore = 0;
-        private async void OnTestAddScore(object sender, RoutedEventArgs e)
+        
+
+        private async void OnSaveGame(object sender, RoutedEventArgs e)
         {
+            FileSavePicker savePicker = new FileSavePicker
+            {
+                SuggestedStartLocation = PickerLocationId.DocumentsLibrary
+            };
+            // Dropdown of file types the user can save the file as
+            savePicker.FileTypeChoices.Add("Crib File", new List<string>() { ".crib" });
+            // Default file name if the user does not type one in or select a file to replace
+            savePicker.SuggestedFileName = "New Game";
+
+            StorageFile file = await savePicker.PickSaveFileAsync();
+            if (file != null)
+            {
+                // Prevent updates to the remote version of the file until we finish making changes and call CompleteUpdatesAsync.
+                CachedFileManager.DeferUpdates(file);
+                // write to file
+                await FileIO.WriteTextAsync(file, GetSaveString());
+                // Let Windows know that we're finished changing the file so the other app can update the remote version of the file.
+                // Completing updates may require Windows to ask for user input.
+                FileUpdateStatus status = await CachedFileManager.CompleteUpdatesAsync(file);
+                
+            }
             
-            try
-            {
-
-            
-                ((Button)sender).IsEnabled = false;
-
-                int delta = 0;
-                if (_testScore < 80)
-                {
-
-                    delta = 84;
-                }
-                else if (_testScore > 85)
-                {
-                    delta = 5;
-
-                }
-                else
-                {
-                    delta = 1;
-                }
-
-                _testScore += delta;
-
-                List<Task> taskList = new List<Task>();
-                _board.TraceBackPegPosition();
-                taskList.AddRange(_board.AnimateScore(PlayerType.Player, delta));
-                taskList.AddRange(_board.AnimateScore(PlayerType.Computer, delta));
-                await Task.WhenAll(taskList);
-                _board.TraceBackPegPosition();
-
-            }
-            catch (Exception ex)
-            {
-
-                this.TraceMessage($"Exception: {ex.Message}");
-
-            }
-            finally
-            {
-
-                ((Button)sender).IsEnabled = true;
-
-            }
-
         }
 
-        private async void OnTestReset(object sender, RoutedEventArgs e)
+
+        /*
+         *  Need the following state
+         *  1. GameState
+         *  2. each of the CardGrid Cards
+         *  3. Scores
+         *  4. Current Count
+         *  5. who dealt
+         */
+
+        private string GetSaveString()
         {
-            _testScore = 0;
-            await _board.Reset();
+            StringBuilder s = new StringBuilder();
 
+            s.Append("[Game]\r\n");
+            s.Append(StaticHelpers.SetValue("CurrentCount", _game.CurrentCount));
+            s.Append(StaticHelpers.SetValue("State", _game.State));
+            s.Append(StaticHelpers.SetValue("PlayerScore", _game.Player.Score));
+            s.Append(StaticHelpers.SetValue("ComputerScore", _game.Computer.Score));
+            s.Append(StaticHelpers.SetValue("Dealer", _game.Dealer));
+            s.Append("[Cards]\r\n");
+            s.Append(StaticHelpers.SetValue("Computer", StaticHelpers.SerializeList(_cgComputer.Cards, ",")));
+            s.Append(StaticHelpers.SetValue("Player", StaticHelpers.SerializeList(_cgPlayer.Cards, ",")));
+            s.Append(StaticHelpers.SetValue("Counted", StaticHelpers.SerializeList(_cgDiscarded.Cards, ",")));
+            s.Append(StaticHelpers.SetValue("Crib", StaticHelpers.SerializeList(_cgCrib.Cards, ",")));
+            s.Append(StaticHelpers.SetValue("SharedCard", StaticHelpers.SerializeList(_cgDeck.Cards, ",")));
+            return s.ToString();
+        }
+
+        private void OnOpenGame(object sender, RoutedEventArgs e)
+        {
 
         }
-      
     }
 }

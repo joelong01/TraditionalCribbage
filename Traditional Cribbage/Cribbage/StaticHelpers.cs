@@ -819,9 +819,9 @@ namespace LongShotHelpers
             return returnDictionary;
         }
 
-        public static async Task ShowErrorText(string s)
+        public static async Task ShowErrorText(string s, string title = "")
         {
-            MessageDialog dlg = new MessageDialog(s);
+            MessageDialog dlg = new MessageDialog(s, title);
             await dlg.ShowAsync();
         }
 
