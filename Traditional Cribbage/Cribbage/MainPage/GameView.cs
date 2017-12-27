@@ -82,12 +82,15 @@ namespace Cribbage
         {
             _ctrlCount.Count = count;
         }
+
+        //
+        //  if this is the computer, do the animation to move it to the shared grid and then flip the card.
+        //
+        //  if this is the player, update which cards can be played.
+        //
         public async Task CountCard(CardCtrl card, int newCount)
         {
-            if (newCount == 31) newCount = 0;
-
-            _ctrlCount.Count = newCount;
-            
+              
             if (_game.PlayerTurn == PlayerType.Computer)
             {
                 List<Task> tList = new List<Task>();
@@ -105,7 +108,7 @@ namespace Cribbage
 
 
             _game.SetPlayableCards(); // both enables playable cards and disables non-playable ones
-            _cgPlayer.MaxSelectedCards = 1;
+            
 
         }
 
@@ -360,8 +363,8 @@ namespace Cribbage
 
         public async Task<int> ScoreHand(List<Score> scores, PlayerType playerType, HandType handType)
         {
-            int ret = AddScore(scores, playerType);
-            string message = String.Format($"{playerType} scores {ret} for their {handType}");
+            int scoreDelta = AddScore(scores, playerType);
+            string message = String.Format($"{playerType} scores {scoreDelta} for their {handType}");
             
             AddMessage(message);            
             if (playerType == PlayerType.Computer)
@@ -372,7 +375,7 @@ namespace Cribbage
                 _btnContinue.Visibility = Visibility.Collapsed;
                 _btnShowScoreAgain.Visibility = _btnContinue.Visibility;
             }
-            return ret;
+            return scoreDelta;
         }
 
         public async Task ReturnCribCards(PlayerType dealer)

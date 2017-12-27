@@ -173,33 +173,34 @@ namespace CribbagePlayers
             Combinations<Card> combinations = new Combinations<Card>(hand, 4);
             List<Card> maxCrib = null;
             double maxScore = -1000.0;
-
-            foreach (List<Card> cards in combinations)
+            if (hand.Count == 6)
             {
-                double score = (double)CardScoring.ScoreHand(cards, null, HandType.Hand, out List<Score> scoreList);
-                List<Card> crib = GetCrib(hand, cards);
-                if (UseDropTable)
+                foreach (List<Card> cards in combinations)
                 {
-                    double expectedValue = 0.0;
-                    if (myCrib)
+                    double score = (double)CardScoring.ScoreHand(cards, null, HandType.Hand, out List<Score> scoreList);
+                    List<Card> crib = GetCrib(hand, cards);
+                    if (UseDropTable)
                     {
-                        expectedValue = CribbageStats.dropTableToMyCrib[crib[0].Rank - 1, crib[1].Rank - 1];
-                        score += expectedValue;
-                    }
-                    else
-                    {
-                        expectedValue = CribbageStats.dropTableToYouCrib[crib[0].Rank - 1, crib[1].Rank - 1];
-                        score -= expectedValue;
-                    }
+                        double expectedValue = 0.0;
+                        if (myCrib)
+                        {
+                            expectedValue = CribbageStats.dropTableToMyCrib[crib[0].Rank - 1, crib[1].Rank - 1];
+                            score += expectedValue;
+                        }
+                        else
+                        {
+                            expectedValue = CribbageStats.dropTableToYouCrib[crib[0].Rank - 1, crib[1].Rank - 1];
+                            score -= expectedValue;
+                        }
 
-                }
-                if (score > maxScore)
-                {
-                    maxScore = score;
-                    maxCrib = crib;
+                    }
+                    if (score > maxScore)
+                    {
+                        maxScore = score;
+                        maxCrib = crib;
+                    }
                 }
             }
-
             return Task.FromResult(maxCrib);
         }
 
