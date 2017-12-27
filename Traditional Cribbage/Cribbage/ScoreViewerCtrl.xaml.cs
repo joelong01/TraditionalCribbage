@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Text;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -68,16 +69,30 @@ namespace Cribbage
           //  _timer.Start();
         }
 
+        int _maxLength = 25;
+
         private void BeginAnimation(string message)
         {
+            int len = message.Length;
+            _maxLength = Math.Max(len, _maxLength);
+            StringBuilder sb = new StringBuilder(message);
+            for (int i = len; i<_maxLength; i++)
+            {
+                sb.Append(".");
+            }
 
+            this.UpdateLayout();
             ScrollingTextCtrl ctrl = new ScrollingTextCtrl
             {
                 HorizontalAlignment = HorizontalAlignment.Left,
                 VerticalAlignment = VerticalAlignment.Center,
-                TranslateX = this.ActualWidth
+                TranslateX = this.ActualWidth,
+                Message = sb.ToString()
+
             };
-            this.UpdateLayout();
+
+          
+
             EventHandler< object > Phase2AnmiationComplete = null;
             void Phase1AnmiationComplete(object s, object ex)
             {
@@ -100,7 +115,7 @@ namespace Cribbage
             ctrl.Phase1Completed += Phase1AnmiationComplete;
             ctrl.Phase2Completed += Phase2AnmiationComplete;
             LayoutRoot.Children.Add(ctrl);
-            ctrl.BeginAnimation(message, 3000, this.ActualWidth);
+            ctrl.BeginAnimation();
         }
 
        

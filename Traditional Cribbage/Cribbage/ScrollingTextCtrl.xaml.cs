@@ -1,8 +1,11 @@
-﻿using System;
+﻿using LongShotHelpers;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Text;
+using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -43,33 +46,56 @@ namespace Cribbage
             }
         }
 
-        public void BeginAnimation(string msg, double duration, double width)
+        public string Message
         {
+            get
+            {
+                return _textBlock.Text;
+            }
+            set
+            {
+                _textBlock.Text = value;
+            }
+        }
 
-            _daMoveText.BeginTime = TimeSpan.FromMilliseconds(0);
-            _textBlock.Text = msg;
-            _daMoveText.Duration = new Duration(TimeSpan.FromMilliseconds(duration * .6));
+
+
+        public void BeginAnimation()
+        {
+            
+            _textBlock.UpdateLayout();
             UpdateLayout();
-           
 
-            _daMoveText.To = TranslateX -this.ActualWidth - 25; // 25 pixel gap guaranteed
+            //_textBlock.Measure(new Size(Double.PositiveInfinity, Double.PositiveInfinity));
+            //_textBlock.Arrange(new Rect(0, 0, TranslateX, this.ActualHeight)); 
+
+
+            double durationPerChar = 25;
+            double duration = durationPerChar * Message.Length;
+            duration = Math.Max(3000, duration);
+            this.TraceMessage($"Len:{Message.Length} Animation Duration {duration} for {Message} ");
+            _daMoveText.BeginTime = TimeSpan.FromMilliseconds(0);            
+            _daMoveText.Duration = new Duration(TimeSpan.FromMilliseconds(duration));
+            _daMoveText.To = TranslateX - (this.ActualWidth);
+            _textBlock.Text = _textBlock.Text.Replace('.', ' ');
 
             EventHandler<object> Animation_Phase1_Completed = null;
             EventHandler<object> Animation_Phase2_Completed = null;
-
+            
             Animation_Phase1_Completed = (s, ex) =>
             {
                 _sbMoveText.Completed -= Animation_Phase1_Completed;
                 _sbMoveText.Completed += Animation_Phase2_Completed;
                 _daMoveText.To =  -this.ActualWidth;
-                _daMoveText.Duration = new Duration(TimeSpan.FromMilliseconds(duration * .8));
+                _daMoveText.Duration = new Duration(TimeSpan.FromMilliseconds(duration));
                 _sbMoveText.Begin();
                 Phase1Completed?.Invoke(this, ex);
             };
 
-            Animation_Phase2_Completed = (s, ex) =>
+            Animation_Phase2_Completed = async (s, ex) =>
             {
                 _sbMoveText.Completed -= Animation_Phase1_Completed;
+               await Task.Delay(0);
                 Phase2Completed?.Invoke(this, ex);
 
             };

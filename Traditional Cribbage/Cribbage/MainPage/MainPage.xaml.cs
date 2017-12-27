@@ -240,14 +240,21 @@ namespace Cribbage
             if (_game.State == GameState.PlayerSelectsCribCards)
             {
 
+                if (_cgPlayer.Cards.Count != 6)
+                    return;
+
                 foreach (var c in _cgPlayer.Cards)
                 {
                     c.Selected = false;
                 }
-                _cgPlayer.SelectedCards.Clear();
+                _cgPlayer.SelectedCards?.Clear();
                 _cgPlayer.SelectedCards = _game.ComputerSelectCrib(_cgPlayer.Cards, _game.Dealer == PlayerType.Player);
-                _cgPlayer.SelectedCards[0].Selected = true;
-                _cgPlayer.SelectedCards[1].Selected = true;
+                
+                if (_cgPlayer.SelectedCards?.Count == 2)
+                {
+                    _cgPlayer.SelectedCards[0].Selected = true;
+                    _cgPlayer.SelectedCards[1].Selected = true;
+                }
                 return;
 
             }
@@ -379,8 +386,15 @@ namespace Cribbage
             s.Append(StaticHelpers.SetValue("Version", "1.0"));
             s.Append(StaticHelpers.SetValue("CurrentCount", _game.CurrentCount));
             s.Append(StaticHelpers.SetValue("State", _game.State));
-            s.Append(StaticHelpers.SetValue("PlayerScore", _game.Player.Score));
-            s.Append(StaticHelpers.SetValue("ComputerScore", _game.Computer.Score));
+
+            var scores = _board.GetScores();
+
+            s.Append(StaticHelpers.SetValue("PlayerScoreDelta", scores.playerScore - scores.playerBackScore));
+            s.Append(StaticHelpers.SetValue("PlayerBackScore", scores.playerBackScore));
+            s.Append(StaticHelpers.SetValue("ComputerScoreDelta", scores.computerScore - scores.computerBackScore));
+            s.Append(StaticHelpers.SetValue("ComputerBackScore", scores.computerBackScore));
+
+
             s.Append(StaticHelpers.SetValue("Dealer", _game.Dealer));
             s.Append("[Cards]\r\n");
             s.Append(StaticHelpers.SetValue("Computer", _cgComputer.Serialize()));
@@ -430,10 +444,16 @@ namespace Cribbage
                     }
                     
                     _game.CurrentCount = Int32.Parse(settings["Game"]["CurrentCount"]);                    
-                    _game.Player.Score = Int32.Parse(settings["Game"]["PlayerScore"]);
+                    _game.Player.Score = Int32.Parse(settings["Game"]["PlayerBackScore"]);
                     _board.AnimateScoreAsync(PlayerType.Player, _game.Player.Score);
-                    _game.Computer.Score = Int32.Parse(settings["Game"]["ComputerScore"]);
+                    _game.Player.Score = Int32.Parse(settings["Game"]["PlayerScoreDelta"]);
+                    _board.AnimateScoreAsync(PlayerType.Player, _game.Player.Score);
+
+                    _game.Computer.Score = Int32.Parse(settings["Game"]["ComputerBackScore"]);
                     _board.AnimateScoreAsync(PlayerType.Computer, _game.Computer.Score);
+                    _game.Computer.Score = Int32.Parse(settings["Game"]["ComputerScoreDelta"]);
+                    _board.AnimateScoreAsync(PlayerType.Computer, _game.Computer.Score);
+
                     _game.Dealer = StaticHelpers.ParseEnum<PlayerType>(settings["Game"]["Dealer"]);
                     _game.State = StaticHelpers.ParseEnum<GameState>(settings["Game"]["State"]);
                     await MoveCrib(_game.Dealer);

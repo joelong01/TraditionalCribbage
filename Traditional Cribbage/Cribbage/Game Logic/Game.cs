@@ -519,6 +519,7 @@ namespace Cribbage
 
         public List<CardCtrl> ComputerSelectCrib(List<CardCtrl> cards, bool computerCrib)
         {
+            if (cards.Count != 6) return null;
             List<Card> crib = Computer.SelectCribCards(CardCtrlToCards(cards), computerCrib).Result;
             return CardsToCardCtrl(crib);
         }

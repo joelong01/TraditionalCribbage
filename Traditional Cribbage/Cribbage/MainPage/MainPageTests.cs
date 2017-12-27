@@ -36,9 +36,12 @@ namespace Cribbage
             await this.AnimateMoveCribCardsBackToOwner(PlayerType.Computer);
         }
 
-        private async void OnTestEndHandAnimation(object sender, RoutedEventArgs e)
+        private void OnShowScrollingText(object sender, RoutedEventArgs e)
         {
-            await AnimationEndHand(PlayerType.Computer);
+            _scoreViewCtrl.AddMessage("one");
+            _scoreViewCtrl.AddMessage("This is the first one");            
+            _scoreViewCtrl.AddMessage("This is the second one 55555555555555555555555555555555555555555555555555555555555555555555555555555555555555");
+
         }
 
         private void OnTestMoveToCrib(object sender, RoutedEventArgs e)

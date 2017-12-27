@@ -43,17 +43,6 @@ namespace Cribbage
 
        
 
-        void Animate(PegControl peg, Point to, double duration, List<Task<object>> taskList, bool reletive, double angle)
-        {
-
-            
-        }
-
-    
-
-
-      
-
         private void ButtonDownScore_Click(object sender, RoutedEventArgs e)
         {
 
@@ -186,38 +175,6 @@ namespace Cribbage
         }
 
 
-
-        public async Task UpdatePegsForResolution()
-        {
-            int pBackScore = _board.PlayerBackScore;
-            if (pBackScore == -1) pBackScore = 0;
-            int pDelta = _board.PlayerFrontScore - pBackScore;
-
-            int cBackScore = _board.ComputerBackScore;
-            if (cBackScore == -1) cBackScore = 0;
-            int cDelta = _board.ComputerFrontScore - cBackScore; ;
-
-            await _board.Reset();
-
-            List<Task> taskList = new List<Task>();
-
-             
-            if (pBackScore > 0)
-                taskList.AddRange(_board.AnimateScore(PlayerType.Player, pBackScore, false));
-
-            if (pDelta > 0)
-                taskList.AddRange(_board.AnimateScore(PlayerType.Player, pDelta, false));
-
-            if (cBackScore > 0)
-                taskList.AddRange(_board.AnimateScore(PlayerType.Computer, cBackScore, false));
-
-            if (cDelta > 0)
-                taskList.AddRange(_board.AnimateScore(PlayerType.Computer, cDelta, false));
-
-            await Task.WhenAll(taskList);
-        }
-
-
         public List<Task> AnimateScore(PlayerType playerType, int score)
         {
             
@@ -238,6 +195,11 @@ namespace Cribbage
         }
 
       
+        public (int computerBackScore, int computerScore, int playerBackScore, int playerScore) GetScores()
+        {
+            return (_board.ComputerBackScore, _board.ComputerFrontScore, _board.PlayerBackScore, _board.PlayerFrontScore);
+        }
+
     }
 
 
