@@ -429,13 +429,14 @@ namespace Cribbage
                         return;
                     }
                     
-                    _game.CurrentCount = Int32.Parse(settings["Game"]["CurrentCount"]);
+                    _game.CurrentCount = Int32.Parse(settings["Game"]["CurrentCount"]);                    
                     _game.Player.Score = Int32.Parse(settings["Game"]["PlayerScore"]);
                     _board.AnimateScoreAsync(PlayerType.Player, _game.Player.Score);
                     _game.Computer.Score = Int32.Parse(settings["Game"]["ComputerScore"]);
                     _board.AnimateScoreAsync(PlayerType.Computer, _game.Computer.Score);
                     _game.Dealer = StaticHelpers.ParseEnum<PlayerType>(settings["Game"]["Dealer"]);
                     _game.State = StaticHelpers.ParseEnum<GameState>(settings["Game"]["State"]);
+                    await MoveCrib(_game.Dealer);
 
                     var retTuple = LoadCardsIntoGrid(_cgComputer, settings["Cards"]["Computer"]);
                     if (!retTuple.ret)
@@ -464,7 +465,7 @@ namespace Cribbage
                     retTuple = LoadCardsIntoGrid(_cgDeck, settings["Cards"]["SharedCard"]);
                     if (!retTuple.ret)
                     {
-                        throw new Exception(retTuple.badToken);e
+                        throw new Exception(retTuple.badToken);
                     }
 
                     if ((int)_game.State > (int)GameState.GiveToCrib)
@@ -481,6 +482,10 @@ namespace Cribbage
                     {
                         card.SetOrientationAsync(CardOrientation.FaceUp, 0, 0);
                     }
+
+                    
+
+                    await _game.StartGame(_game.State);
 
                 }
             }
@@ -500,6 +505,7 @@ namespace Cribbage
             foreach (var card in grid.Cards)
             {
                 LayoutRoot.Children.Add(card);
+                
             }
 
             grid.SetCardPositionsNoAnimation();

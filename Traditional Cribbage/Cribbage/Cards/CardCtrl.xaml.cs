@@ -195,6 +195,7 @@ namespace CardView
                     VerticalAlignment = VerticalAlignment.Top,
                     Orientation = CardOrientation.FaceDown,
                     ShowDebugInfo = false,
+                    IsEnabled = card.IsEnabled
                 };
 
                 card.Tag = (object)c;

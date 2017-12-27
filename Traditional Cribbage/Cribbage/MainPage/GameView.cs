@@ -56,6 +56,8 @@ namespace Cribbage
 
         void AddMessage(string message);
         void SetPlayableCards(int currentCount);
+
+        void SetCount(int count);
     }
 
     /// <summary>
@@ -75,7 +77,11 @@ namespace Cribbage
         {
             throw new NotImplementedException();
         }
-
+         
+        public void SetCount(int count)
+        {
+            _ctrlCount.Count = count;
+        }
         public async Task CountCard(CardCtrl card, int newCount)
         {
             if (newCount == 31) newCount = 0;

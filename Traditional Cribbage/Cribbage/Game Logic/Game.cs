@@ -110,7 +110,22 @@ namespace Cribbage
         public PlayerType Dealer { get; set; } = PlayerType.Computer;
         public PlayerType PlayerTurn { get; set; } = PlayerType.Computer;
 
-        public int CurrentCount { get; set; } = 0;           
+        int _currentCount = 0;
+        public int CurrentCount
+        {
+            get
+            {
+                return _currentCount;
+            }
+            set
+            {
+                if (_currentCount != value)
+                {
+                    _currentCount = value;
+                    _gameView.SetCount(value);
+                }
+            }
+        }
       
         public Game(IGameView gameView)
         {
@@ -180,13 +195,7 @@ namespace Cribbage
                             PlayerTurn = (Dealer == PlayerType.Computer) ? PlayerType.Player : PlayerType.Computer;
                             var (computerCards, playerCards, sharedCard) = Game.GetHands();
                             List<CardCtrl> crib = ComputerSelectCrib(computerCards, Dealer == PlayerType.Computer);
-
-                            await _gameView.Deal(playerCards, computerCards, sharedCard, crib, Dealer);
-                            
-
-                            
-
-                            
+                            await _gameView.Deal(playerCards, computerCards, sharedCard, crib, Dealer);                           
                             CurrentCount = 0;
                             state = GameState.PlayerSelectsCribCards;
                         }

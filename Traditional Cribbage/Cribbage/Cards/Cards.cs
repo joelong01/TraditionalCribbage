@@ -36,6 +36,7 @@ namespace Cards
         }
 
         public object Tag { get; set; } = null;
+        public bool IsEnabled { get; set; } = true;
 
         public override string ToString()
         {
