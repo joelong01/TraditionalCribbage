@@ -227,7 +227,7 @@ namespace LongShotHelpers
 
         }
 
-        public static bool IsPositiveOrZero(this double d)
+        public static bool IsPositiveOrZero(this double d)        
         {
             return (d >= 0);
         }
@@ -769,25 +769,27 @@ namespace LongShotHelpers
 
         public static async Task<Dictionary<string, Dictionary<string, string>>> LoadSettingsFile(StorageFolder folder, string filename)
         {
+           
+
             var file = await folder.GetFileAsync(filename);
             string contents = await FileIO.ReadTextAsync(file);
+            contents = contents.Replace('\r', '\n');
             return await LoadSettingsFile(contents, filename);
         }
+
         public static async Task<Dictionary<string, Dictionary<string, string>>> LoadSettingsFile(string contents, string filename)
         {
-            contents = contents.Replace('\r', '\n');
-
             KeyValuePair<string, string> currentKvp = new KeyValuePair<string, string>();
-            Dictionary<string, string> sectionsDict = null;
             Dictionary<string, Dictionary<string, string>> returnDictionary = new Dictionary<string, Dictionary<string, string>>();
 
+            Dictionary<string, string> sectionsDict = null;
             try
             {
                 sectionsDict = StaticHelpers.GetSections(contents);
             }
             catch (Exception e)
             {
-                string content = String.Format($"Error parsing file {filename}.\nIn File: {filename}\n\nSuggest deleting it.\n\nError parsing sections.\nException info: {e.ToString()}");
+                string content = String.Format($"Error parsing file {filename}.\n\nSuggest deleting it.\n\nError parsing sections.\nException info: {e.ToString()}");
                 MessageDialog dlg = new MessageDialog(content);
                 await dlg.ShowAsync();
                 return returnDictionary;
@@ -795,7 +797,7 @@ namespace LongShotHelpers
 
             if (sectionsDict.Count == 0)
             {
-                string content = String.Format($"There appears to be no sections in {filename}.\nIn File: {filename}\n\nSuggest deleting it.\n\nError parsing sections.");
+                string content = String.Format($"There appears to be no sections in {filename}.\n\nSuggest deleting it.\n\nError parsing sections.");
                 MessageDialog dlg = new MessageDialog(content);
                 await dlg.ShowAsync();
                 return returnDictionary;
@@ -813,7 +815,7 @@ namespace LongShotHelpers
             }
             catch
             {
-                string content = String.Format($"Error parsing values in {filename}.\nSuggest deleting it.\n\nError in section '{currentKvp.Key}' and value '{currentKvp.Value}'");
+                string content = String.Format($"Error parsing values {filename}.\nSuggest deleting it.\n\nError in section '{currentKvp.Key}' and value '{currentKvp.Value}'");
                 MessageDialog dlg = new MessageDialog(content);
                 await dlg.ShowAsync();
 
@@ -821,8 +823,10 @@ namespace LongShotHelpers
 
 
             return returnDictionary;
+
         }
-        public static async Task ShowErrorText(string s, string title = "")
+
+            public static async Task ShowErrorText(string s, string title = "")
         {
             MessageDialog dlg = new MessageDialog(s, title);
             await dlg.ShowAsync();
@@ -867,6 +871,32 @@ namespace LongShotHelpers
 
 
             return s;
+        }
+
+
+        /*
+         * 
+         *  Creates something that looks like AceOfSpaces.Computer, AceOfClubs.Computer, ... 
+         * 
+         */
+        public static string SerilizeListToOneLine<T>(this IList<T> list, string sep = ",", string methodName="Serialize")
+        {
+           
+            StringBuilder sb = new StringBuilder();
+            if (list != null)
+            {
+                MethodInfo methodInfo = typeof(T).GetTypeInfo().GetDeclaredMethod(methodName);
+                foreach (T item in list)
+                {                    
+                    string propValue = methodInfo.Invoke(item, null).ToString();
+                    sb.Append(propValue);
+                    sb.Append(sep);
+                }
+            }
+
+            sb.Remove(sb.Length - sep.Length, sep.Length);
+
+            return sb.ToString();
         }
 
         public static string SerializeList<T>(this IList<T> list, string sep = StaticHelpers.listSeperator)
@@ -940,6 +970,7 @@ namespace LongShotHelpers
             }
             return list;
         }
+
 
         public static List<T> DeserializeEnumList<T>(this string s, string sep = StaticHelpers.listSeperator)
         {
@@ -1138,7 +1169,7 @@ namespace LongShotHelpers
         //}
 
 
-
+       
         static public void SetFlipAnimationSpeed(Storyboard sb, double milliseconds)
         {
 

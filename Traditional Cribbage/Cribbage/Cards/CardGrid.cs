@@ -195,7 +195,9 @@ namespace CardView
             {
                 sb.Append(card.CardName);
                 sb.Append(".");
-                sb.Append(card.Owner);
+                sb.Append(card.Owner);                
+                sb.Append(".");
+                sb.Append(card.IsEnabled);
                 sb.Append(sep);
             }
             int sepLen = sep.Length;
@@ -213,7 +215,7 @@ namespace CardView
             foreach (var token in tokens)
             {
                 string[] subTokens = token.Split(".".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-                if (subTokens.Count() != 2)
+                if (subTokens.Count() != 3)
                 {
                     return (false, token);
                 }
@@ -222,11 +224,20 @@ namespace CardView
                 {
                     if (Owner.TryParse(subTokens[1], out Owner owner))
                     {
-                        Card card = new Card(cardName)
+                        if (bool.TryParse(subTokens[2], out bool enabled))
                         {
-                            Owner = owner
-                        };
-                        cards.Add(card);
+                            Card card = new Card(cardName)
+                            {
+                                Owner = owner,
+                                IsEnabled = enabled
+                            };
+                            cards.Add(card);
+                        }
+                        else
+                        {
+                            return (false, "IsEnabled incorrectly set");
+                        }
+                        
                     }
                     else
                     {
