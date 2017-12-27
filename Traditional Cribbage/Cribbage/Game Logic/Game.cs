@@ -40,9 +40,9 @@ namespace Cribbage
     /// </summary>
     class Game
     {
-        private GameState _state = GameState.Uninitialized;
+        
+        public GameState State { get; set; } = GameState.Uninitialized;
 
-       
         IGameView _gameView;
 
         public List<Card> PlayerCards
@@ -117,7 +117,7 @@ namespace Cribbage
             _gameView = gameView;
         }
 
-        public GameState State { get { return _state; } }
+        
 
         
 
@@ -163,7 +163,7 @@ namespace Cribbage
             
             while (true)
             {
-                _state = state;
+                State = state;
                 _gameView.SetState(state);
                 switch (state)
                 {

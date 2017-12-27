@@ -185,8 +185,11 @@ namespace CardView
             return string.Format($"Name:{this.Name} Count:{_myCards.Count} Layout:{this.CardLayout}");
         }
 
-        public string Serialize(string sep)
+        public string Serialize(string sep = ",")
         {
+            if (_myCards.Count == 0)
+                return "";
+
             StringBuilder sb = new StringBuilder();
             foreach (var card in _myCards)
             {
@@ -202,6 +205,9 @@ namespace CardView
 
         public (bool ret, string badToken) Deserialize(string saveString, string sep)
         {
+            if (saveString == "")
+                return (true, "");
+
             string[] tokens = saveString.Split(sep.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             List<Card> cards = new List<Card>();
             foreach (var token in tokens)

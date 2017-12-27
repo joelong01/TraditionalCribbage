@@ -376,22 +376,136 @@ namespace Cribbage
             StringBuilder s = new StringBuilder();
 
             s.Append("[Game]\r\n");
+            s.Append(StaticHelpers.SetValue("Version", "1.0"));
             s.Append(StaticHelpers.SetValue("CurrentCount", _game.CurrentCount));
             s.Append(StaticHelpers.SetValue("State", _game.State));
             s.Append(StaticHelpers.SetValue("PlayerScore", _game.Player.Score));
             s.Append(StaticHelpers.SetValue("ComputerScore", _game.Computer.Score));
             s.Append(StaticHelpers.SetValue("Dealer", _game.Dealer));
             s.Append("[Cards]\r\n");
-            s.Append(StaticHelpers.SetValue("Computer", StaticHelpers.SerializeList(_cgComputer.Cards, ",")));
-            s.Append(StaticHelpers.SetValue("Player", StaticHelpers.SerializeList(_cgPlayer.Cards, ",")));
-            s.Append(StaticHelpers.SetValue("Counted", StaticHelpers.SerializeList(_cgDiscarded.Cards, ",")));
-            s.Append(StaticHelpers.SetValue("Crib", StaticHelpers.SerializeList(_cgCrib.Cards, ",")));
-            s.Append(StaticHelpers.SetValue("SharedCard", StaticHelpers.SerializeList(_cgDeck.Cards, ",")));
+            s.Append(StaticHelpers.SetValue("Computer", _cgComputer.Serialize()));
+            s.Append(StaticHelpers.SetValue("Player", _cgPlayer.Serialize()));
+            s.Append(StaticHelpers.SetValue("Counted", _cgDiscarded.Serialize()));
+            s.Append(StaticHelpers.SetValue("Crib", _cgCrib.Serialize()));
+            s.Append(StaticHelpers.SetValue("SharedCard", _cgDeck.Serialize()));
             return s.ToString();
         }
 
-        private void OnOpenGame(object sender, RoutedEventArgs e)
+        private async void OnOpenGame(object sender, RoutedEventArgs e)
         {
+
+            if (await StaticHelpers.AskUserYesNoQuestion("Cribbage", "Abondon this game and open an old one?", "yes", "no") == false)
+            {
+                return;
+            }
+
+
+            FileOpenPicker openPicker = new FileOpenPicker();
+            openPicker.ViewMode = PickerViewMode.Thumbnail;
+            openPicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
+            openPicker.FileTypeFilter.Add(".crib");
+
+            
+
+            StorageFile file = await openPicker.PickSingleFileAsync();
+
+            await Reset();
+            _txtInstructions.Text = "";
+            InteractivePlayer player = new InteractivePlayer(_cgDiscarded, _cgCrib, _board, 0);
+            DefaultPlayer computer = new DefaultPlayer(0);
+            computer.Init("-usedroptable");
+            _game = new Game(this, computer, player, 0);
+
+
+            try
+            {
+                if (file != null)
+                {
+                    string contents = await FileIO.ReadTextAsync(file);
+                    var settings = await StaticHelpers.LoadSettingsFile(contents, file.Name);
+                    if (settings["Game"]["Version"] != "1.0")
+                    {
+                        await StaticHelpers.ShowErrorText($"Bad Version {settings["Game"]["Version"]}");
+                        return;
+                    }
+                    
+                    _game.CurrentCount = Int32.Parse(settings["Game"]["CurrentCount"]);
+                    _game.Player.Score = Int32.Parse(settings["Game"]["PlayerScore"]);
+                    _board.AnimateScoreAsync(PlayerType.Player, _game.Player.Score);
+                    _game.Computer.Score = Int32.Parse(settings["Game"]["ComputerScore"]);
+                    _board.AnimateScoreAsync(PlayerType.Computer, _game.Computer.Score);
+                    _game.Dealer = StaticHelpers.ParseEnum<PlayerType>(settings["Game"]["Dealer"]);
+                    _game.State = StaticHelpers.ParseEnum<GameState>(settings["Game"]["State"]);
+
+                    var retTuple = LoadCardsIntoGrid(_cgComputer, settings["Cards"]["Computer"]);
+                    if (!retTuple.ret)
+                    {
+                        throw new Exception(retTuple.badToken);
+                    }
+
+                    retTuple = LoadCardsIntoGrid(_cgPlayer, settings["Cards"]["Player"]);
+                    if (!retTuple.ret)
+                    {
+                        throw new Exception(retTuple.badToken);
+                    }
+
+                    retTuple = LoadCardsIntoGrid(_cgDiscarded, settings["Cards"]["Counted"]);
+                    if (!retTuple.ret)
+                    {
+                        throw new Exception(retTuple.badToken);
+                    }
+
+                    retTuple = LoadCardsIntoGrid(_cgCrib, settings["Cards"]["Crib"]);
+                    if (!retTuple.ret)
+                    {
+                        throw new Exception(retTuple.badToken);
+                    }
+
+                    retTuple = LoadCardsIntoGrid(_cgDeck, settings["Cards"]["SharedCard"]);
+                    if (!retTuple.ret)
+                    {
+                        throw new Exception(retTuple.badToken);e
+                    }
+
+                    if ((int)_game.State > (int)GameState.GiveToCrib)
+                    {
+                        _cgDeck.Cards[0].SetOrientationAsync(CardOrientation.FaceUp, 500, 0);
+                    }
+
+                    foreach (var card in _cgPlayer.Cards)
+                    {
+                        card.SetOrientationAsync(CardOrientation.FaceUp, 0, 0);
+                    }
+
+                    foreach (var card in _cgDiscarded.Cards)
+                    {
+                        card.SetOrientationAsync(CardOrientation.FaceUp, 0, 0);
+                    }
+
+                }
+            }
+            catch(Exception ex)
+            {
+                await StaticHelpers.ShowErrorText($"Error loading file {file.Name}\n\nYou should delete the file.\n\nTechnical details:\n{ex.ToString()}");
+            }
+            
+        }
+
+        private (bool ret, string badToken) LoadCardsIntoGrid(CardGrid grid, string saveString)
+        {
+            var ret = grid.Deserialize(saveString, ",");
+            if (!ret.ret)
+                return ret;
+            
+            foreach (var card in grid.Cards)
+            {
+                LayoutRoot.Children.Add(card);
+            }
+
+            grid.SetCardPositionsNoAnimation();
+
+
+            return (true, "");
 
         }
     }
