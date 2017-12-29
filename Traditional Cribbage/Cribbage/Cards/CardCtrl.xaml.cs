@@ -96,8 +96,6 @@ namespace CardView
             }
         }
 
-    
-
         public Card Card
         {
             get
@@ -106,13 +104,24 @@ namespace CardView
             }
         }
 
-        public void SetCardImage(SvgImageSource imgSource)
+
+        private void SetImageForCard(CardNames cardName)
         {
-            _frontImage.Source = imgSource;
-            _frontImage.Stretch = Stretch.Fill;
+            string s = $"ms-appx:///Assets/Cards/{cardName}.svg";
+            var uri = new Uri(s);
+            var file = StorageFile.GetFileFromApplicationUriAsync(uri).AsTask().Result;
+            SvgImageSource svgImage = new SvgImageSource();
+            using (var stream = file.OpenStreamForReadAsync().Result)
+            {
+                stream.Seek(0, SeekOrigin.Begin);
+                var rd = stream.AsRandomAccessStream();
+                svgImage.RasterizePixelHeight = Math.Max(_frontImage.ActualHeight, 175); // _cardImage.ActualHeight;
+                svgImage.RasterizePixelWidth = Math.Max( _frontImage.ActualWidth, 124); // _cardImage.ActualWidth;
+                svgImage.SetSourceAsync(rd).AsTask();
+            }
 
+            _frontImage.Source = svgImage;
         }
-
 
         public static readonly DependencyProperty CardNameProperty = DependencyProperty.Register("CardName", typeof(CardNames), typeof(Card), new PropertyMetadata(CardNames.AceOfSpades, CardNameChanged));
         public CardNames CardName
@@ -136,13 +145,10 @@ namespace CardView
         }
         private static void CardNameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            CardCtrl depPropClass = d as CardCtrl;
+            CardCtrl cardCtrl = d as CardCtrl;
             CardNames cardName = (CardNames)e.NewValue;
-            depPropClass.SetCardName(cardName);
-            if (_cardNameToSvgImage.Count == 0) InitializeCards();
 
-            SvgImageSource svgImage = _cardNameToSvgImage[cardName];
-            depPropClass.SetCardImage(svgImage);
+            cardCtrl.SetImageForCard(cardName);
 
 
         }
