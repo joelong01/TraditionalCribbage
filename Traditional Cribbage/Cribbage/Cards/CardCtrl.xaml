@@ -5,9 +5,8 @@
     xmlns:local="using:CardView"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"   
-    mc:Ignorable="d"    
-    d:DesignHeight="175"
-    d:DesignWidth="125" PointerEntered="OnPointerEntered" PointerExited="OnPointerExited">
+    Background="Transparent"
+    mc:Ignorable="d" PointerEntered="OnPointerEntered" PointerExited="OnPointerExited" Height="175" Width="125">
 
     <UserControl.Resources>
         <Storyboard x:Name="sbFlip">
@@ -29,10 +28,18 @@
             <DoubleAnimation x:Name="MoveCardDoubleAnimationAngle"  Duration="0" To="0" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.Rotation)"     Storyboard.TargetName="LayoutRoot"/>
         </Storyboard>
 
-
+        <RectangleGeometry xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Key="_clip1" Rect="0, 0, 164, 250"/>
+        <LinearGradientBrush xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"  x:Key="_Radial2" >
+            <LinearGradientBrush.GradientStops>
+                <GradientStopCollection>
+                    <GradientStop Color="#FF2B6B97" Offset="0"/>
+                    <GradientStop Color="Black" Offset="1"/>
+                </GradientStopCollection>
+            </LinearGradientBrush.GradientStops>
+        </LinearGradientBrush>
     </UserControl.Resources>
 
-    <Grid Name="LayoutRoot" Background="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RenderTransformOrigin="0.5 0.5" CornerRadius="3" >
+    <Grid Name="LayoutRoot" Background="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RenderTransformOrigin="0.5 0.5" CornerRadius="10" >
         <Grid.RowDefinitions>
             <RowDefinition Height="3"/>
             <RowDefinition Height="30" MinHeight="30"/>
@@ -50,141 +57,23 @@
 
         <Border Name="_highlightBorder" Grid.RowSpan="4" Grid.ColumnSpan="4" BorderThickness="2" Margin="0" BorderBrush="{StaticResource SelectColor}" CornerRadius="3" Visibility="Collapsed"  />
 
-        <Grid Name="FrontGrid" Background="White"  Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="1" Grid.RowSpan="2" CornerRadius="3" BorderBrush="Black" BorderThickness="2">
+        <Grid Name="FrontGrid" Background="Transparent"  Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="1" Grid.RowSpan="2" >
             <Grid.Projection>
                 <PlaneProjection x:Name="_ppFrontGrid"/>
             </Grid.Projection>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="15*"/>
-                <RowDefinition Height="10*"/>
-                <RowDefinition Height="15*"/>
-                <RowDefinition Height="22*"/>
-                <RowDefinition Height="22*"/>
-                <RowDefinition Height="22*"/>
-                <RowDefinition Height="22*"/>
-                <RowDefinition Height="22*"/>
-                <RowDefinition Height="10*"/>
-                <RowDefinition Height="15*"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="15*"/>
-                <ColumnDefinition Width="32*"/>
-                <ColumnDefinition Width="32*"/>
-                <ColumnDefinition Width="31*"/>
-                <ColumnDefinition Width="15*"/>
-            </Grid.ColumnDefinitions>
-
-
-
-
-
-            <Viewbox>
-                <TextBlock Name="_tbCardRankUpperLeft" Text="10" FontFamily="French Script MT" Padding="0" HorizontalAlignment="Center" VerticalAlignment="Center" TextLineBounds="Tight"  />
-            </Viewbox>
-            <Viewbox Grid.Row="1">
-                <TextBlock x:Name="_tbSuitUpperLeft"  FontFamily="Symbol" FontSize="15" Grid.Column="0" VerticalAlignment="Top" HorizontalAlignment="Center"  Padding="0"  Grid.RowSpan="1"  TextLineBounds="Tight" Text="§" />
-            </Viewbox>
-            <Viewbox Grid.Column="4" Grid.Row="9" >
-                <TextBlock Name="_tbCardRankLowerRight" Text="10" FontFamily="French Script MT" Padding="0" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="8" Grid.Column="4" RenderTransformOrigin="0.5,0.5"  Grid.RowSpan="2" TextLineBounds="Tight" >
-                    <TextBlock.RenderTransform>
-                        <CompositeTransform Rotation="180"/>
-                    </TextBlock.RenderTransform>
-                </TextBlock>
-            </Viewbox>
-            <Viewbox Grid.Column="4" Grid.Row="8" >
-                <TextBlock Name="_tbSuitLowerRight" Text="§" FontFamily="Symbol" FontSize="15" Grid.Column="4" Grid.Row="8" VerticalAlignment="Top" HorizontalAlignment="Center"  Padding="0" RenderTransformOrigin="0.5,0.5" Grid.RowSpan="2" TextLineBounds="Tight">
-                    <TextBlock.RenderTransform>
-                        <CompositeTransform Rotation="180"/>
-                    </TextBlock.RenderTransform>
-                </TextBlock>
-            </Viewbox>
-
-
-
-            <Grid Name="GlyphGrid" Grid.Row="1" Grid.Column="1" Grid.RowSpan="8" Grid.ColumnSpan="3" Background="Transparent" Visibility="Visible" CornerRadius="3">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="100*"/>
-                    <RowDefinition Height="100*"/>
-                    <RowDefinition Height="100*"/>
-                    <RowDefinition Height="100*"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="100*"/>
-                    <ColumnDefinition Width="100*"/>
-                    <ColumnDefinition Width="100*"/>
-                </Grid.ColumnDefinitions>
-
-                <Viewbox Name="_vb1" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="1" Grid.RowSpan="1" Opacity="1">
-                    <TextBlock Text="§" FontFamily="Symbol" VerticalAlignment="Center" HorizontalAlignment="Center"  TextLineBounds="Tight" />
-                </Viewbox>
-
-
-                <Viewbox Name="_vb2" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="1" Grid.RowSpan="1" Opacity="1">
-                    <TextBlock Text="§" FontFamily="Symbol" VerticalAlignment="Center" HorizontalAlignment="Center"  TextLineBounds="Tight" />
-                </Viewbox>
-
-                <Viewbox  Name="_vb3" Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="1" Grid.RowSpan="1" Opacity="1">
-                    <TextBlock Text="§" FontFamily="Symbol" VerticalAlignment="Center" HorizontalAlignment="Center"  TextLineBounds="Tight" />
-                </Viewbox>
-
-                <Viewbox Name="_vb4" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="1" Grid.RowSpan="2" Opacity="1">
-                    <TextBlock Text="§" FontFamily="Symbol" VerticalAlignment="Center" HorizontalAlignment="Center"  TextLineBounds="Tight" />
-                </Viewbox>
-
-                <Viewbox Name="_vb10" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="1" Grid.RowSpan="2" Opacity="1"  >
-                    <TextBlock Text="§" FontFamily="Symbol" VerticalAlignment="Center" HorizontalAlignment="Center"  TextLineBounds="Tight"  />
-                </Viewbox>
-
-                <Viewbox Name="_vb5" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="1" Grid.RowSpan="1" Opacity="1">
-                    <TextBlock Text="§" FontFamily="Symbol" VerticalAlignment="Center" HorizontalAlignment="Center"  TextLineBounds="Tight" />
-                </Viewbox>
-                <Viewbox Name="_vbThreeTwo" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="1" Grid.RowSpan="1" Opacity="1">
-                    <TextBlock Text="§" FontFamily="Symbol" VerticalAlignment="Center" HorizontalAlignment="Center"  TextLineBounds="Tight" />
-                </Viewbox>
-
-
-                <Viewbox Name="_vb6" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="1" Grid.RowSpan="1" Opacity="1">
-                    <TextBlock Text="§" FontFamily="Symbol" VerticalAlignment="Center" HorizontalAlignment="Center"  TextLineBounds="Tight" />
-                </Viewbox>
-                <Viewbox Name="_vb7" Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="1" Grid.RowSpan="1" Opacity="1">
-                    <TextBlock Text="§" FontFamily="Symbol" VerticalAlignment="Center" HorizontalAlignment="Center"  TextLineBounds="Tight" />
-                </Viewbox>
-
-                <Viewbox Name="_vb8" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="1" Grid.RowSpan="1" Opacity="1">
-                    <TextBlock Text="§" FontFamily="Symbol" VerticalAlignment="Center" HorizontalAlignment="Center"  TextLineBounds="Tight" />
-                </Viewbox>
-                <Viewbox Name="_vb9" Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="1" Grid.RowSpan="1" Opacity="1">
-                    <TextBlock Text="§" FontFamily="Symbol" VerticalAlignment="Center" HorizontalAlignment="Center"  TextLineBounds="Tight" />
-                </Viewbox>
-
-
-
-
-                <Viewbox Name="_vb11" Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="1" Grid.RowSpan="1" Opacity="1">
-                    <TextBlock Text="§" FontFamily="Symbol" VerticalAlignment="Center" HorizontalAlignment="Center"  TextLineBounds="Tight" />
-                </Viewbox>
-
-                <Viewbox Name="_vbCenter" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="1" Grid.RowSpan="2" Opacity="1">
-                    <TextBlock Text="§" FontFamily="Symbol" VerticalAlignment="Center" HorizontalAlignment="Center"  TextLineBounds="Tight" />
-                </Viewbox>
-
-                <Viewbox Name="_vbFaceCard" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Grid.RowSpan="4" Opacity="1">
-                    <TextBlock Name="_tbFaceCard" Text="Q" FontFamily="French Script MT" VerticalAlignment="Center" HorizontalAlignment="Center"  TextLineBounds="Full" />
-                </Viewbox>
-
-                <Viewbox Name="_vb12" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="1" Grid.RowSpan="2" Opacity="1">
-                    <TextBlock Text="§" FontFamily="Symbol" VerticalAlignment="Center" HorizontalAlignment="Center"  TextLineBounds="Tight" />
-                </Viewbox>
-                <Viewbox Name="_vb13" Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="1" Grid.RowSpan="2" Opacity="1">
-                    <TextBlock Text="§" FontFamily="Symbol" VerticalAlignment="Center" HorizontalAlignment="Center"  TextLineBounds="Tight" />
-                </Viewbox>
-
-            </Grid>
+            <Border CornerRadius="10" BorderBrush="Black" BorderThickness="2" Margin="-1">
+            <Image Name="_frontImage" Stretch="Fill" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0, 0" RenderTransformOrigin=".5 .5" >
+                <Image.RenderTransform>
+                    <CompositeTransform ScaleX="1.10" ScaleY="1.02"/>
+                </Image.RenderTransform>
+                    
+            </Image>
+            </Border>
 
         </Grid>
-        <Grid Name="BackGrid"   RenderTransformOrigin="0.5,0.5" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="1" Grid.RowSpan="2" CornerRadius="3"  BorderBrush="Black" BorderThickness="3" Background="{StaticResource CardColor}" >
+        <Grid Name="BackGrid"   RenderTransformOrigin="0.5,0.5" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="1" Grid.RowSpan="2" CornerRadius="10"  BorderBrush="Black" BorderThickness="3" Background="{StaticResource CardColor}" >
             <Grid.Projection>
-                <PlaneProjection x:Name="_ppBackGrid" RotationY="0"/>
+                <PlaneProjection x:Name="_ppBackGrid" RotationY="90"/>
             </Grid.Projection>
             <Grid.RenderTransform>
                 <CompositeTransform/>
@@ -204,7 +93,7 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
 
-
+            
 
             <Grid Name="DebugGrid" Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="1" Grid.RowSpan="3" Background="DarkGray" Margin="5,0" Visibility="Collapsed" Canvas.ZIndex="9" CornerRadius="3">
                 <Grid.ColumnDefinitions>
@@ -217,46 +106,14 @@
                 <TextBox x:Name="_txtDebug" Text="{x:Bind Info, Mode=TwoWay}" AcceptsReturn="True" FontFamily="Lucida Console" FontSize="12"  />
 
             </Grid>
-
-
-            <Grid Name="BackCenterGrid" Grid.Row="2" Grid.Column="1" Margin="0" Grid.RowSpan="2" Grid.ColumnSpan="2" CornerRadius="0" Background="{StaticResource CardColor}" BorderBrush="White" BorderThickness="1" >
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="1*"/>
-                    <RowDefinition Height="1*"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="1*"/>
-                </Grid.ColumnDefinitions>
-
-
-
-
-
-                <Viewbox Grid.Row="0" Grid.Column="0">
-                    <TextBlock FontFamily="Symbol" TextLineBounds="Tight" Text="§" IsHoldingEnabled="False" IsRightTapEnabled="False" IsTapEnabled="False"  />
-                </Viewbox>
-                <Viewbox Grid.Row="0" Grid.Column="1">
-                    <TextBlock FontFamily="Symbol" TextLineBounds="Tight" Text="¨" Foreground="DarkRed" IsHoldingEnabled="False" IsRightTapEnabled="False" IsTapEnabled="False"  />
-                </Viewbox>
-                <Viewbox Grid.Row="1" Grid.Column="0">
-                    <TextBlock FontFamily="Symbol" TextLineBounds="Tight" Text="©" Foreground="DarkRed"  IsHoldingEnabled="False" IsRightTapEnabled="False" IsTapEnabled="False"  />
-                </Viewbox>
-                <Viewbox Grid.Row="1" Grid.Column="1">
-                    <TextBlock FontFamily="Symbol" TextLineBounds="Tight" Text="ª" IsHoldingEnabled="False" IsRightTapEnabled="False" IsTapEnabled="False"  />
-                </Viewbox>
-
-
-
-
-            </Grid>
-
-            <Border BorderBrush="White" BorderThickness="1" Grid.Row="0" Grid.RowSpan="5" Grid.ColumnSpan="4" Margin="5" />
-            <Border BorderBrush="White" BorderThickness="1" Grid.Row="0" Grid.RowSpan="5" Grid.ColumnSpan="4" Margin="9" />
-
-
+            <Viewbox Grid.ColumnSpan="5" Grid.RowSpan="5" VerticalAlignment="Top">
+                <TextBlock Text="&#x1f302;" FontFamily="/Assets/Cards/cardback.ttf#icomoon" FontSize="100" />
+            </Viewbox>
+            <Viewbox Grid.ColumnSpan="5" Grid.RowSpan="5" VerticalAlignment="Bottom">
+                <TextBlock Text="&#x1f301;" FontFamily="/Assets/Cards/cardback.ttf#icomoon" FontSize="100"/>
+            </Viewbox>
         </Grid>
-        <Grid Name="SelectedGrid" Visibility="Collapsed" Grid.ColumnSpan="3" Grid.RowSpan="4" CornerRadius="3" >
+        <Grid Name="SelectedGrid" Visibility="Collapsed" Grid.ColumnSpan="3" Grid.RowSpan="4" CornerRadius="10" >
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="4"/>
                 <ColumnDefinition Width="6"/>
