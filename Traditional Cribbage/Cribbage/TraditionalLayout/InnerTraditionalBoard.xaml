@@ -200,7 +200,7 @@
             <RowDefinition Height="25*" />
         </Grid.RowDefinitions>
 
-        <Grid x:Name="_gridWinning" Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="2" VerticalAlignment="Bottom" Canvas.ZIndex="999999"
+        <Grid x:Name="_gridWinning" Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="2" VerticalAlignment="Bottom" 
               Height="{Binding Path=ControlWidth, ConverterParameter=0.15, Converter={StaticResource DoubleToDoubleConverter},  FallbackValue=30, Mode=OneWay}">
             <Ellipse  x:Name="_ellipseWinningPeg"  Grid.Row="1"  Grid.Column="0" Grid.ColumnSpan="8" HorizontalAlignment="Center" Style="{StaticResource EllipsePegStyle}" VerticalAlignment="Center"
                           Width="{Binding Path=PegHoleDiameter, Mode=OneWay, FallbackValue=12.0}" 

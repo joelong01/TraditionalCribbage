@@ -39,7 +39,7 @@
         </LinearGradientBrush>
     </UserControl.Resources>
 
-    <Grid Name="LayoutRoot" Background="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RenderTransformOrigin="0.5 0.5" CornerRadius="10" >
+    <Grid Name="LayoutRoot" Background="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RenderTransformOrigin="0.5 0.5" CornerRadius="8" >
         <Grid.RowDefinitions>
             <RowDefinition Height="3"/>
             <RowDefinition Height="30" MinHeight="30"/>
@@ -61,7 +61,7 @@
             <Grid.Projection>
                 <PlaneProjection x:Name="_ppFrontGrid"/>
             </Grid.Projection>
-            <Border CornerRadius="10" BorderBrush="Black" BorderThickness="2" Margin="-1">
+            <Border CornerRadius="8" BorderBrush="Black" BorderThickness="2" Margin="-1">
             <Image Name="_frontImage" Stretch="Fill" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0, 0" RenderTransformOrigin=".5 .5" >
                 <Image.RenderTransform>
                     <CompositeTransform ScaleX="1.10" ScaleY="1.02"/>
@@ -71,7 +71,7 @@
             </Border>
 
         </Grid>
-        <Grid Name="BackGrid"   RenderTransformOrigin="0.5,0.5" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="1" Grid.RowSpan="2" CornerRadius="10"  BorderBrush="Black" BorderThickness="3" Background="{StaticResource CardColor}" >
+        <Grid Name="BackGrid"   RenderTransformOrigin="0.5,0.5" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="1" Grid.RowSpan="2" CornerRadius="8"  BorderBrush="Black" BorderThickness="3" Background="{StaticResource CardColor}" >
             <Grid.Projection>
                 <PlaneProjection x:Name="_ppBackGrid" RotationY="90"/>
             </Grid.Projection>
@@ -113,7 +113,7 @@
                 <TextBlock Text="&#x1f301;" FontFamily="/Assets/Cards/cardback.ttf#icomoon" FontSize="100"/>
             </Viewbox>
         </Grid>
-        <Grid Name="SelectedGrid" Visibility="Collapsed" Grid.ColumnSpan="3" Grid.RowSpan="4" CornerRadius="10" >
+        <Grid Name="SelectedGrid" Visibility="Collapsed" Grid.ColumnSpan="3" Grid.RowSpan="4" CornerRadius="8" >
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="4"/>
                 <ColumnDefinition Width="6"/>
