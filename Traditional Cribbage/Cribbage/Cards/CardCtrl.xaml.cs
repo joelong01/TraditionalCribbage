@@ -111,12 +111,19 @@ namespace CardView
             var uri = new Uri(s);
             var file = StorageFile.GetFileFromApplicationUriAsync(uri).AsTask().Result;
             SvgImageSource svgImage = new SvgImageSource();
+
+            double cardWidth = FrontGrid.ColumnDefinitions[1].ActualWidth;
+            double cardHeight = FrontGrid.RowDefinitions[1].ActualHeight;
+
+            cardWidth = Math.Max(cardWidth, 115);
+            cardHeight = Math.Max(cardHeight, 165);
+
             using (var stream = file.OpenStreamForReadAsync().Result)
             {
                 stream.Seek(0, SeekOrigin.Begin);
                 var rd = stream.AsRandomAccessStream();
-                svgImage.RasterizePixelHeight = Math.Max(_frontImage.ActualHeight, 175); // _cardImage.ActualHeight;
-                svgImage.RasterizePixelWidth = Math.Max( _frontImage.ActualWidth, 124); // _cardImage.ActualWidth;
+                svgImage.RasterizePixelHeight = cardHeight;
+                svgImage.RasterizePixelWidth = cardWidth;
                 svgImage.SetSourceAsync(rd).AsTask();
             }
 
