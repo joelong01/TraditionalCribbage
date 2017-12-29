@@ -42,13 +42,13 @@
     <Grid Name="LayoutRoot" Background="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RenderTransformOrigin="0.5 0.5" CornerRadius="8" >
         <Grid.RowDefinitions>
             <RowDefinition Height="3"/>
-            <RowDefinition Height="30" MinHeight="30"/>
-            <RowDefinition Height="145*" MinHeight="139"/>
+            <RowDefinition Height="30" />
+            <RowDefinition Height="139"/>
             <RowDefinition Height="3"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="3"/>
-            <ColumnDefinition Width="125*" MinWidth="119"/>
+            <ColumnDefinition Width="119"/>
             <ColumnDefinition Width="3"/>
         </Grid.ColumnDefinitions>
         <Grid.RenderTransform>
@@ -57,18 +57,34 @@
 
         <Border Name="_highlightBorder" Grid.RowSpan="4" Grid.ColumnSpan="4" BorderThickness="2" Margin="0" BorderBrush="{StaticResource SelectColor}" CornerRadius="3" Visibility="Collapsed"  />
 
-        <Grid Name="FrontGrid" Background="Transparent"  Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="1" Grid.RowSpan="2" >
+        <Grid Name="FrontGrid" Background="Transparent"  Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="1" Grid.RowSpan="2"  >
             <Grid.Projection>
                 <PlaneProjection x:Name="_ppFrontGrid"/>
             </Grid.Projection>
-            <Border CornerRadius="8" BorderBrush="Black" BorderThickness="2" Margin="-1">
-            <Image Name="_frontImage" Stretch="Fill" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0, 0" RenderTransformOrigin=".5 .5" >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="2" />
+                <RowDefinition Height="165" /> <!--Actual Card Height-->
+                <RowDefinition Height="2" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2" />
+                <ColumnDefinition Width="115" /> <!--Actual Card Width-->
+                <ColumnDefinition Width="2" />
+            </Grid.ColumnDefinitions>
+
+            <Rectangle Fill="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0, 0" RenderTransformOrigin=".5 .5" Grid.Row="1" Grid.Column="1" />
+
+            <Image Name="_frontImage" Stretch="None" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0, 0" RenderTransformOrigin=".5 .5" Grid.Row="1" Grid.Column="1" >
                 <Image.RenderTransform>
-                    <CompositeTransform ScaleX="1.10" ScaleY="1.02"/>
+                    <CompositeTransform ScaleX="1" ScaleY="1"/>
                 </Image.RenderTransform>
-                    
+                <Image.Clip>
+                    <RectangleGeometry Rect="2, 2, 113, 163" />
+                </Image.Clip>
             </Image>
-            </Border>
+
+            <Rectangle Name="_clipGrid" Grid.ColumnSpan="3" Grid.RowSpan="3"  RadiusX="4" RadiusY="4" Stroke="Black" StrokeThickness="2" Margin="0" Fill="Transparent"/>
+
 
         </Grid>
         <Grid Name="BackGrid"   RenderTransformOrigin="0.5,0.5" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="1" Grid.RowSpan="2" CornerRadius="8"  BorderBrush="Black" BorderThickness="3" Background="{StaticResource CardColor}" >
