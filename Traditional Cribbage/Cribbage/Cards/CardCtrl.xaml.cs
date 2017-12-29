@@ -19,6 +19,8 @@ using Windows.UI.Xaml.Navigation;
 using Cribbage;
 using LongShotHelpers;
 using Cards;
+using Windows.Storage;
+using Windows.UI.Xaml.Media.Imaging;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -33,10 +35,7 @@ namespace CardView
 
 
 
-        string _sClub = "§";
-        string _sDiamond = "¨";
-        string _sHearts = "©";
-        string _sSpade = "ª";
+    
 
         CardOrientation _myOrientation = CardOrientation.FaceUp;
         SolidColorBrush _red = new SolidColorBrush(Colors.DarkRed);
@@ -44,7 +43,60 @@ namespace CardView
         private bool _highlightCards = false;
         Location _location = Location.Unintialized;
 
+        public static Dictionary<CardNames, SvgImageSource> _cardNameToSvgImage = new Dictionary<CardNames, SvgImageSource>();
+
+
         Card _card = null;
+
+
+        public CardCtrl()
+        {
+            this.InitializeComponent();
+            this.DataContext = this;            
+            InitializeCards();
+            
+        }
+
+        public CardCtrl(Card card)
+        {
+            this.InitializeComponent();
+            this.DataContext = this;
+            _card = card;
+            CardName = _card.CardName;
+
+            InitializeCards();
+
+        }
+
+        private static void InitializeCards()
+        {
+            if (_cardNameToSvgImage.Count == 0)
+            {
+                foreach (CardNames cardName in Enum.GetValues(typeof(CardNames)))
+                {
+                    if (cardName == CardNames.Uninitialized)
+                        continue;
+
+                    string s = $"ms-appx:///Assets/Cards/{cardName}.svg";
+                    var uri = new Uri(s);
+                    var file = StorageFile.GetFileFromApplicationUriAsync(uri).AsTask().Result;
+                    SvgImageSource svgImage = new SvgImageSource();
+                    using (var stream = file.OpenStreamForReadAsync().Result)
+                    {
+                        stream.Seek(0, SeekOrigin.Begin);
+                        var rd = stream.AsRandomAccessStream();
+                        svgImage.RasterizePixelHeight = 175; // _cardImage.ActualHeight;
+                        svgImage.RasterizePixelWidth = 125; // _cardImage.ActualWidth;
+                        svgImage.SetSourceAsync(rd).AsTask();
+                    }
+
+                    _cardNameToSvgImage[cardName] = svgImage;
+
+                }
+            }
+        }
+
+    
 
         public Card Card
         {
@@ -52,6 +104,13 @@ namespace CardView
             {
                 return _card;
             }
+        }
+
+        public void SetCardImage(SvgImageSource imgSource)
+        {
+            _frontImage.Source = imgSource;
+            _frontImage.Stretch = Stretch.Fill;
+
         }
 
 
@@ -65,8 +124,7 @@ namespace CardView
                     if ((CardNames)GetValue(CardNameProperty) != _card.CardName)
                     {
                         CardName = _card.CardName;
-                        SetSuit(_card.Suit);
-                        UpdateCardLayout(_card.CardOrdinal);
+                                                
                     }
                 }
 
@@ -79,16 +137,21 @@ namespace CardView
         private static void CardNameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             CardCtrl depPropClass = d as CardCtrl;
-            CardNames depPropValue = (CardNames)e.NewValue;
-            depPropClass.SetCardName(depPropValue);
+            CardNames cardName = (CardNames)e.NewValue;
+            depPropClass.SetCardName(cardName);
+            if (_cardNameToSvgImage.Count == 0) InitializeCards();
+
+            SvgImageSource svgImage = _cardNameToSvgImage[cardName];
+            depPropClass.SetCardImage(svgImage);
+
+
         }
         private void SetCardName(CardNames value)
         {
             if (_card == null)
             {
                 _card = new Card(value);
-                SetSuit(_card.Suit);
-                UpdateCardLayout(_card.CardOrdinal);
+                                
             }
             else
             {
@@ -131,23 +194,9 @@ namespace CardView
             }
         }
 
-        public CardCtrl(Card card)
-        {
-            this.InitializeComponent();
-            this.DataContext = this;
-            _card = card;
-            CardName = _card.CardName;
-            SetSuit(_card.Suit);
-            UpdateCardLayout(_card.CardOrdinal);
+       
 
-        }
-
-        public CardCtrl()
-        {
-            this.InitializeComponent();
-            this.DataContext = this;
-        }
-
+      
 
 
         public Location Location
@@ -541,281 +590,9 @@ namespace CardView
         }
 
         #endregion
-        #region CARD_LAYOUT
-        private void UpdateCardLayout(CardOrdinal cardOrdinal)
-        {
-            switch (cardOrdinal)
-            {
-                case CardOrdinal.Ace:
-                    ShowAce();
-                    break;
-                case CardOrdinal.Two:
-                    ShowTwo();
-                    break;
-                case CardOrdinal.Three:
-                    ShowThree();
-                    break;
-                case CardOrdinal.Four:
-                    ShowFour();
-                    break;
-                case CardOrdinal.Five:
-                    ShowFive();
-                    break;
-                case CardOrdinal.Six:
-                    ShowSix();
-                    break;
-                case CardOrdinal.Seven:
-                    ShowSeven();
-                    break;
-                case CardOrdinal.Eight:
-                    ShowEight();
-                    break;
-                case CardOrdinal.Nine:
-                    ShowNine();
-                    break;
-                case CardOrdinal.Ten:
-                    ShowTen();
-                    break;
-                case CardOrdinal.Jack:
-                    ShowFaceCard("J", false);
-                    break;
-                case CardOrdinal.Queen:
-                    ShowFaceCard("Q", true);
-                    break;
-                case CardOrdinal.King:
-                    ShowFaceCard("K", true);
-                    break;
-                default:
-                    break;
-            }
-        }
-        private void SetTextLineBounds(bool tight)
-        {
-            TextLineBounds tlb = tight ? TextLineBounds.Tight : TextLineBounds.Full;
-            _tbCardRankLowerRight.TextLineBounds = tlb;
-            _tbCardRankUpperLeft.TextLineBounds = tlb;
-        }
-        private void ShowFaceCard(string s, bool tight)
-        {
-            HideAllGlyphs();
-            SetTextLineBounds(tight);
-            _vbFaceCard.Visibility = Visibility.Visible;
-            _tbFaceCard.Text = s;
-            _tbCardRankLowerRight.Text = s;
-            _tbCardRankUpperLeft.Text = s;
-        }
-        private void ShowTen()
-        {
-            HideAllGlyphs();
+    
 
-
-            _vb1.Visibility = Visibility.Visible;
-            _vb3.Visibility = Visibility.Visible;
-            _vb4.Visibility = Visibility.Visible;
-            _vb5.Visibility = Visibility.Visible;
-            _vbThreeTwo.Visibility = Visibility.Visible;
-
-            _vb6.Visibility = Visibility.Visible;
-            _vb7.Visibility = Visibility.Visible;
-            _vb8.Visibility = Visibility.Visible;
-            _vb9.Visibility = Visibility.Visible;
-            _vb10.Visibility = Visibility.Visible;
-
-
-
-
-            _tbCardRankLowerRight.Text = "10";
-            _tbCardRankUpperLeft.Text = "10";
-        }
-        private void ShowNine()
-        {
-            HideAllGlyphs();
-            _vb1.Visibility = Visibility.Visible;
-            _vb3.Visibility = Visibility.Visible;
-            _vb5.Visibility = Visibility.Visible;
-            _vbThreeTwo.Visibility = Visibility.Visible;
-            _vb6.Visibility = Visibility.Visible;
-            _vb7.Visibility = Visibility.Visible;
-            _vb8.Visibility = Visibility.Visible;
-            _vb9.Visibility = Visibility.Visible;
-            _vbCenter.Visibility = Visibility.Visible;
-
-
-
-            _tbCardRankLowerRight.Text = "9";
-            _tbCardRankUpperLeft.Text = "9";
-        }
-        private void ShowEight()
-        {
-            HideAllGlyphs();
-            _vb1.Visibility = Visibility.Visible;
-            _vb3.Visibility = Visibility.Visible;
-            _vb4.Visibility = Visibility.Visible;
-            _vb8.Visibility = Visibility.Visible;
-            _vb9.Visibility = Visibility.Visible;
-            _vb12.Visibility = Visibility.Visible;
-            _vb13.Visibility = Visibility.Visible;
-            _vb10.Visibility = Visibility.Visible;
-
-
-
-            _tbCardRankLowerRight.Text = "8";
-            _tbCardRankUpperLeft.Text = "8";
-        }
-        private void ShowSeven()
-        {
-            HideAllGlyphs();
-            _vb1.Visibility = Visibility.Visible;
-            _vb3.Visibility = Visibility.Visible;
-            _vb8.Visibility = Visibility.Visible;
-            _vb9.Visibility = Visibility.Visible;
-            _vb12.Visibility = Visibility.Visible;
-            _vb13.Visibility = Visibility.Visible;
-            //  _vb10.Visibility = Visibility.Visible;
-            _vbCenter.Visibility = Visibility.Visible;
-
-            _tbCardRankLowerRight.Text = "7";
-            _tbCardRankUpperLeft.Text = "7";
-        }
-        private void ShowSix()
-        {
-            HideAllGlyphs();
-            _vb1.Visibility = Visibility.Visible;
-            _vb3.Visibility = Visibility.Visible;
-            _vb8.Visibility = Visibility.Visible;
-            _vb9.Visibility = Visibility.Visible;
-            _vb12.Visibility = Visibility.Visible;
-            _vb13.Visibility = Visibility.Visible;
-
-
-            _tbCardRankLowerRight.Text = "6";
-            _tbCardRankUpperLeft.Text = "6";
-        }
-        private void ShowFive()
-        {
-            HideAllGlyphs();
-            _vb1.Visibility = Visibility.Visible;
-            _vb3.Visibility = Visibility.Visible;
-            _vb8.Visibility = Visibility.Visible;
-            _vb9.Visibility = Visibility.Visible;
-            _vbCenter.Visibility = Visibility.Visible;
-            _tbCardRankLowerRight.Text = "5";
-            _tbCardRankUpperLeft.Text = "5";
-        }
-        private void ShowFour()
-        {
-            HideAllGlyphs();
-            _vb1.Visibility = Visibility.Visible;
-            _vb3.Visibility = Visibility.Visible;
-            _vb8.Visibility = Visibility.Visible;
-            _vb9.Visibility = Visibility.Visible;
-            _tbCardRankLowerRight.Text = "4";
-            _tbCardRankUpperLeft.Text = "4";
-        }
-        private void ShowThree()
-        {
-            HideAllGlyphs();
-            _vb2.Visibility = Visibility.Visible;
-            _vb11.Visibility = Visibility.Visible;
-            _vbCenter.Visibility = Visibility.Visible;
-            _tbCardRankLowerRight.Text = "3";
-            _tbCardRankUpperLeft.Text = "3";
-        }
-        private void HideAllGlyphs()
-        {
-            foreach (var el in GlyphGrid.Children)
-            {
-                if (el.GetType() == typeof(Viewbox))
-                {
-                    el.Visibility = Visibility.Collapsed;
-                }
-            }
-
-            SetTextLineBounds(true);
-        }
-        private void ShowTwo()
-        {
-            HideAllGlyphs();
-
-            _vb4.Visibility = Visibility.Visible;
-            _vb10.Visibility = Visibility.Visible;
-            _tbCardRankLowerRight.Text = "2";
-            _tbCardRankUpperLeft.Text = "2";
-        }
-        private void ShowAce()
-        {
-            HideAllGlyphs();
-            _vbCenter.Visibility = Visibility.Visible;
-            _tbCardRankLowerRight.Text = "A";
-            _tbCardRankUpperLeft.Text = "A";
-        }
-        #endregion
-
-
-
-
-        public string GetGlyph(Suit suit)
-        {
-
-            string ret = _sClub;
-            switch (suit)
-            {
-                case Suit.Clubs:
-                    ret = _sClub;
-                    break;
-                case Suit.Hearts:
-                    ret = _sHearts;
-                    break;
-                case Suit.Diamonds:
-                    ret = _sDiamond;
-                    break;
-                case Suit.Spades:
-                    ret = _sSpade;
-                    break;
-                default:
-                    break;
-            }
-            return ret;
-
-        }
-
-        private SolidColorBrush SuitBrush
-        {
-            get
-            {
-                if (_card?.Suit == Suit.Clubs || _card?.Suit == Suit.Spades)
-                    return _black;
-
-                return _red;
-            }
-        }
-
-        private void SetSuit(Suit suit)
-        {
-            string glyph = GetGlyph(suit);
-            SolidColorBrush br = this.SuitBrush;
-            foreach (var el in GlyphGrid.Children)
-            {
-                if (el.GetType() == typeof(Viewbox))
-                {
-                    Viewbox vb = (Viewbox)el;
-                    if (vb.Child.GetType() == typeof(TextBlock))
-                    {
-                        TextBlock tb = vb.Child as TextBlock;
-                        tb.Text = glyph;
-                        tb.Foreground = br;
-                    }
-                }
-            }
-
-            _tbCardRankUpperLeft.Foreground = br;
-            _tbSuitUpperLeft.Foreground = br;
-            _tbSuitUpperLeft.Text = glyph;
-
-            _tbCardRankLowerRight.Foreground = br;
-            _tbSuitLowerRight.Foreground = br;
-            _tbSuitLowerRight.Text = glyph;
-        }
+       
 
         private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
         {
