@@ -99,10 +99,10 @@ namespace Cribbage
                 ((Button)sender).IsEnabled = false;
 
                 int delta = 0;
-                if (_testScore < 80)
+                if (_testScore < 79)
                 {
 
-                    delta = 84;
+                    delta = 79;
                 }
                 else if (_testScore > 85)
                 {

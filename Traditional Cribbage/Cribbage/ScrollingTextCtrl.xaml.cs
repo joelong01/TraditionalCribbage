@@ -73,7 +73,7 @@ namespace Cribbage
             double durationPerChar = 25;
             double duration = durationPerChar * Message.Length;
             duration = Math.Max(3000, duration);
-            this.TraceMessage($"Len:{Message.Length} Animation Duration {duration} for {Message} ");
+//            this.TraceMessage($"Len:{Message.Length} Animation Duration {duration} for {Message} ");
             _daMoveText.BeginTime = TimeSpan.FromMilliseconds(0);            
             _daMoveText.Duration = new Duration(TimeSpan.FromMilliseconds(duration));
             _daMoveText.To = TranslateX - (this.ActualWidth);

@@ -139,7 +139,7 @@
         </Storyboard>
     </UserControl.Resources>
 
-    <Grid x:Name="LayoutRoot" Background="{StaticResource bmBurledMaple}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
+    <Grid x:Name="LayoutRoot" Background="Transparent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
             <ColumnDefinition/>

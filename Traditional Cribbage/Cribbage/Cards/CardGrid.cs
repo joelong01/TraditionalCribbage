@@ -13,12 +13,15 @@ using LongShotHelpers;
 using System.Text;
 using Cards;
 using Cribbage;
+using Windows.UI;
 
 namespace CardView
 {
     public enum CardLayout { Overlapped, Stacked, Normal };
     public enum AnimateMoveOptions { MoveSequentlyStartingAtZero, MoveSequentlyEndingAtZero, StackAtZero };
     public delegate Task<bool> CardDroppedDelegate(List<CardCtrl> cards, int currentMax);
+
+    public enum ListChangedAction { Added, Removed, Inserted, Cleared };
 
     /// <summary>
     ///  we need this class because we want to hook into all of the calls to add or remove something so that we can subscibe/unsubsribe
@@ -28,11 +31,16 @@ namespace CardView
     public class CardList : List<CardCtrl>
     {
         CardGrid _parent = null;
+        public delegate void ListChanged(ListChangedAction action, CardList list, CardCtrl card);
+        public event ListChanged OnListChanged;
 
         public CardList(CardGrid parent)
         {
             _parent = parent;
+
         }
+
+
 
         new public void Add(CardCtrl card)
         {
@@ -47,13 +55,14 @@ namespace CardView
             }
 
             base.Add(card);
+            OnListChanged?.Invoke(ListChangedAction.Added, this, card);
         }
 
         private bool Selectable
         {
             get
             {
-                bool selectable = _parent.MaxSelectedCards > 0;                
+                bool selectable = _parent.MaxSelectedCards > 0;
                 return selectable;
             }
         }
@@ -77,7 +86,8 @@ namespace CardView
         {
             if (Selectable) card.PointerPressed += _parent.CardGrid_PointerPressed;
             base.Insert(index, card);
-            
+            OnListChanged?.Invoke(ListChangedAction.Inserted, this, card);
+
         }
 
         new public void Clear()
@@ -91,12 +101,21 @@ namespace CardView
             }
 
             base.Clear();
+            OnListChanged?.Invoke(ListChangedAction.Cleared, this, null);
         }
 
         new public bool Remove(CardCtrl card)
         {
             if (Selectable) card.PointerPressed -= _parent.CardGrid_PointerPressed;
-            return base.Remove(card);
+
+            bool ret = base.Remove(card);
+            if (ret)
+            {
+                OnListChanged?.Invoke(ListChangedAction.Removed, this, card);
+            }
+
+            return ret;
+
         }
     }
 
@@ -117,7 +136,8 @@ namespace CardView
         bool _acceptsDroppedCards = false;
         Rect _bounds = new Rect();
         CardList _myCards = null;
-        
+        TextBlock _tbDescription = null;
+
         public event CardDroppedDelegate OnBeginCardDropped;
         public event CardDroppedDelegate OnEndCardDropped;
 
@@ -133,6 +153,39 @@ namespace CardView
 
 
         public Location Location { get; set; } = Location.Unintialized;
+
+
+        public CardGrid()
+        {
+
+            _myCards = new CardList(this);
+            _myCards.OnListChanged += OnListChanged;
+            this.DataContext = this;
+            this.LayoutUpdated += CardGrid_LayoutUpdated;
+            this.UpdateLayout();
+            this.Loaded += CardGrid_Loaded;
+            _tbDescription = new TextBlock()
+            {
+                Text = "Uninitialized",
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                FontSize = 36,
+                Foreground = new SolidColorBrush(Colors.White),
+
+            };
+            Canvas.SetZIndex(_tbDescription, 1);
+            Grid.SetColumnSpan(_tbDescription, 99);
+            Grid.SetRowSpan(_tbDescription, 99);
+
+            this.Children.Add(_tbDescription);
+
+        }
+
+        private void OnListChanged(ListChangedAction action, CardList list, CardCtrl card)
+        {
+            _tbDescription.Visibility = (list.Count == 0) ? Visibility.Visible : Visibility.Collapsed;
+        }
+
         public CardGrid DropTarget
         {
             get
@@ -156,18 +209,27 @@ namespace CardView
                 SetValue(ParentGridProperty, value);
             }
         }
-        
-        public CardGrid()
+
+        public string Description
         {
+            get
+            {
+                return _tbDescription.Text;
+            }
+            set
+            {
+                if (value != Description)
+                {
+                    _tbDescription.Text = value;
+                }
+            }
+        }
 
-            _myCards = new CardList(this);
-
-            this.DataContext = this;
-            this.LayoutUpdated += CardGrid_LayoutUpdated;
-            this.UpdateLayout();
-            this.Loaded += CardGrid_Loaded;
-
-
+        public void Reset()
+        {
+            Cards.Clear();
+            this.Children.Clear();
+            this.Children.Add(_tbDescription);
         }
 
         private void CardGrid_Loaded(object sender, RoutedEventArgs e)
@@ -196,7 +258,7 @@ namespace CardView
             {
                 sb.Append(card.CardName);
                 sb.Append(".");
-                sb.Append(card.Owner);                
+                sb.Append(card.Owner);
                 sb.Append(".");
                 sb.Append(card.IsEnabled);
                 sb.Append(sep);
@@ -220,7 +282,7 @@ namespace CardView
                 {
                     return (false, token);
                 }
-                
+
                 if (CardNames.TryParse(subTokens[0], out CardNames cardName))
                 {
                     if (Owner.TryParse(subTokens[1], out Owner owner))
@@ -238,7 +300,7 @@ namespace CardView
                         {
                             return (false, "IsEnabled incorrectly set");
                         }
-                        
+
                     }
                     else
                     {
@@ -258,7 +320,7 @@ namespace CardView
                 _myCards.Add(card);
             }
 
-            return (true, "" );
+            return (true, "");
         }
 
         private void CardGrid_LayoutUpdated(object sender, object e)
@@ -345,7 +407,7 @@ namespace CardView
                 {
                     this.Cards.AddPointerPressed();
                 }
-                
+
             }
         }
 
@@ -388,22 +450,12 @@ namespace CardView
             }
         }
 
-
-        private bool MouseOutOfSource(PointerRoutedEventArgs e)
-        {
-            if (DropTarget != null)
-            {
-
-
-                //Point pt = e.GetCurrentPoint(DropTarget).Position; // get the mouse position in the context of the drop target                
-                //return DropTarget.Bounds.Contains(pt);
-                Point pt = e.GetCurrentPoint(this).Position; // if they've left the source, let it go to the target
-                return !DropTarget.Bounds.Contains(pt);
-            }
-
-            return false;
-        }
-
+        /// <summary>
+        ///     true of the mouse is in the specified grid, othewise false
+        /// </summary>
+        /// <param name="grid"></param>
+        /// <param name="e"></param>
+        /// <returns></returns>
         private static bool MouseInGrid(CardGrid grid, PointerRoutedEventArgs e)
         {
             if (grid != null)
@@ -429,7 +481,7 @@ namespace CardView
                 CardCtrl card = cards[i];
                 if (fromGrid.Cards.Contains(card))
                 {
-                   // card.TraceMessage($"Moving {card.ToString()} from {fromGrid} to {toGrid}");
+                    // card.TraceMessage($"Moving {card.ToString()} from {fromGrid} to {toGrid}");
                     fromGrid.Cards.Remove(card);
                     if (toGrid.CardLayout == CardLayout.Normal)
                     {
@@ -544,7 +596,7 @@ namespace CardView
             GeneralTransform gt = this.TransformToVisual(card);
 
             Point position = gt.TransformPoint(pt);
-           // this.TraceMessage($"Pos: {position} for {card.CardName} at location:{card.Location} as index {index}");
+            // this.TraceMessage($"Pos: {position} for {card.CardName} at location:{card.Location} as index {index}");
 
             return position;
         }
@@ -702,7 +754,7 @@ namespace CardView
                 if (DropTarget != null)
                 {
 
-                    if (MouseOutOfSource(e))
+                    if (MouseInGrid(DropTarget, e))
                     {
                         DropTarget.Highlight(true);
                     }
@@ -742,14 +794,14 @@ namespace CardView
 
                    Point exitPoint = e.GetCurrentPoint(cardClickedOn).Position;
 
-                   if (MouseOutOfSource(e))
+                   if (!MouseInGrid(this, e)) // if we've moved the mouse out of the grid -- send it on its way.  no undo.
                    {
                        if (DropTarget.AcceptDrop(dragList) == true)  // there might be a bug here where the view accepts the drop, but something fails...
                        {
                            await DropTarget.BeginDropCards(dragList);
 
                            foreach (CardCtrl card in dragList)
-                           {                               
+                           {
                                Point to = DropTarget.GetNextCardPosition(card);
                                await card.AnimateTo(to, false, false, 250, 0); // need to await it so that it ends in the right spot before moving to crib
                            }
@@ -811,7 +863,7 @@ namespace CardView
                 card.AnimateToAsync(p, false, 250);
             }
 
-            
+
 
         }
 
@@ -1017,7 +1069,7 @@ namespace CardView
             return ret;
         }
 
-       
+
     }
 
 

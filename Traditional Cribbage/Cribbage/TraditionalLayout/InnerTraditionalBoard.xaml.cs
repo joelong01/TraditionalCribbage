@@ -277,6 +277,8 @@ namespace Cribbage
                 Animate(data, newScore, taskList, 500, false);
             }
             data.BackPeg.Score = newScore;
+            NotifyPropertyChanged("PlayerFrontScore");
+            NotifyPropertyChanged("ComputerFrontScore");
             return taskList;
 
         }
@@ -517,7 +519,7 @@ namespace Cribbage
             if (newScore > 85)
                 rotateAnimation.To = 180;
 
-            duration = (Math.Min(animateScore, 85) - Math.Max(data.BackPeg.Score, 81)) * durationPerPoint * 4;
+            duration = (Math.Min(animateScore, 85) - Math.Max(data.BackPeg.Score, 80)) * durationPerPoint * 4;
 
             if (duration < 0) duration = 0; // HACK
            // this.TraceMessage($"AnimateAroundBottom: newScore:{newScore} Duration:{duration} CenterX:{pegRotate.CenterX} CenterY:{pegRotate.CenterY} Angle: {rotateAnimation.To}"); 
@@ -604,7 +606,7 @@ namespace Cribbage
             return duration;
         }
 
-        Brush _brushHighlight = new SolidColorBrush(Colors.Red);
+        Brush _brushHighlight = new SolidColorBrush(Colors.DarkGreen);
         public void HighlightPeg(PlayerType playerType, int score, bool highlight)
         {
             if (score > 121) score = 121;
