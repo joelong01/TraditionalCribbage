@@ -462,25 +462,44 @@ namespace Cribbage
                         throw new Exception(retTuple.badToken);
                     }
 
+                    List<Task> taskList = new List<Task>();
+                    Task t = null;
+
                     if ((int)_game.State > (int)GameState.GiveToCrib)
                     {
-                        _cgDeck.Cards[0].SetOrientationAsync(CardOrientation.FaceUp, 500, 0);
+
+                      t =  _cgDeck.Cards[0].SetOrientationTask(CardOrientation.FaceUp, 500, 0);
+                        taskList.Add(t);
                     }
 
                     foreach (var card in _cgPlayer.Cards)
                     {
-                        card.SetOrientationAsync(CardOrientation.FaceUp, 0, 0);
+                       t = card.SetOrientationTask(CardOrientation.FaceUp, 0, 0);
+                        taskList.Add(t);
                     }
 
                     foreach (var card in _cgDiscarded.Cards)
                     {
-                        card.SetOrientationAsync(CardOrientation.FaceUp, 0, 0);
+                        t = card.SetOrientationTask(CardOrientation.FaceUp, 0, 0);
+                        taskList.Add(t);
                     }
 
+                    await Task.WhenAll(taskList);
+
                     
+                    PlayerType winner = await _game.StartGame(_game.State);
+                    string msg = "";
+                    if (winner == PlayerType.Player)
+                    {
+                        msg = "Congratulations, you won!";
+                    }
+                    else
+                    {
+                        msg = "Oh well. /n/nThe computer won.  Better luck next time!";
+                    }
 
-                    await _game.StartGame(_game.State);
-
+                    await StaticHelpers.ShowErrorText(msg, "Cribbage");
+                    this.SetState(GameState.GameOver);
                 }
             }
             catch(Exception ex)

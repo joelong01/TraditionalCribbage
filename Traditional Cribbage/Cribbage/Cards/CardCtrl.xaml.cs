@@ -21,6 +21,7 @@ using LongShotHelpers;
 using Cards;
 using Windows.Storage;
 using Windows.UI.Xaml.Media.Imaging;
+using Windows.UI.Xaml.Markup;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -54,7 +55,7 @@ namespace CardView
             this.InitializeComponent();
             this.DataContext = this;            
             InitializeCards();
-            
+            Selected = false;
         }
 
         public CardCtrl(Card card)
@@ -63,9 +64,8 @@ namespace CardView
             this.DataContext = this;
             _card = card;
             CardName = _card.CardName;
-
             InitializeCards();
-
+            Selected = false;
         }
 
         public double ZoomRatio { get; set; } = 1.0;
@@ -107,7 +107,7 @@ namespace CardView
         }
 
 
-        public void SetImageForCard(CardNames cardName)
+        public void SetImageForCard2(CardNames cardName)
         {
             string s = $"ms-appx:///Assets/Cards/{cardName}.svg";
             var uri = new Uri(s);
@@ -130,6 +130,16 @@ namespace CardView
             }
 
             _frontImage.Source = svgImage;
+        }
+
+        public void SetImageForCard(CardNames cardName)
+        {
+            string s = $"ms-appx:///Assets/Cards/xaml/{cardName}.xaml";
+            var uri = new Uri(s);
+            var file = StorageFile.GetFileFromApplicationUriAsync(uri).AsTask().Result;
+            string xaml = FileIO.ReadTextAsync(file).AsTask().Result;
+            UIElement elCard = (UIElement)XamlReader.Load(xaml);
+            _vbCard.Child = elCard;
         }
 
         public static readonly DependencyProperty CardNameProperty = DependencyProperty.Register("CardName", typeof(CardNames), typeof(Card), new PropertyMetadata(CardNames.AceOfSpades, CardNameChanged));
@@ -255,11 +265,13 @@ namespace CardView
                     Width = 125,
                     Height = 175,
                     Margin = new Thickness(0),
-                    HorizontalAlignment = HorizontalAlignment.Left,                    
+                    HorizontalAlignment = HorizontalAlignment.Left,
                     VerticalAlignment = VerticalAlignment.Top,
                     Orientation = CardOrientation.FaceDown,
                     ShowDebugInfo = false,
-                    IsEnabled = card.IsEnabled
+                    IsEnabled = card.IsEnabled,
+                    Selected = false
+
                 };
 
                 card.Tag = (object)c;
@@ -656,6 +668,7 @@ namespace CardView
             {
                 bool currentlySelected = (SelectedGrid.Visibility == Visibility.Visible) ? true : false;
 
+                Highlight = value;
 
                 if (value)
                 {
