@@ -172,7 +172,7 @@ namespace Cribbage
 
         }
 
-        public async Task<Player> StartGame(GameState state)
+        public async Task<PlayerType> StartGame(GameState state)
         {
             
             
@@ -333,7 +333,7 @@ namespace Cribbage
                         state = GameState.Deal;
                         break;
                     case GameState.GameOver:
-                        return null;                       
+                        break;            
                     case GameState.None:
                         break;
                     case GameState.SelectCrib:
@@ -344,12 +344,12 @@ namespace Cribbage
 
                 if (Player.Score > 120)
                 {
-                    return Player;
+                    return PlayerType.Player;
                 }
                 if (Computer.Score > 120)
 
                 {
-                    return Computer;
+                    return PlayerType.Computer;
                 }
             }
 
