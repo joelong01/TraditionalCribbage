@@ -68,6 +68,8 @@ namespace CardView
 
         }
 
+        public double ZoomRatio { get; set; } = 1.0;
+
         private static void InitializeCards()
         {
             if (_cardNameToSvgImage.Count == 0)
@@ -105,7 +107,7 @@ namespace CardView
         }
 
 
-        private void SetImageForCard(CardNames cardName)
+        public void SetImageForCard(CardNames cardName)
         {
             string s = $"ms-appx:///Assets/Cards/{cardName}.svg";
             var uri = new Uri(s);
@@ -115,9 +117,9 @@ namespace CardView
             double cardWidth = FrontGrid.ColumnDefinitions[1].ActualWidth;
             double cardHeight = FrontGrid.RowDefinitions[1].ActualHeight;
 
-            cardWidth = Math.Max(cardWidth, 115);
-            cardHeight = Math.Max(cardHeight, 165);
-
+            cardWidth =  115 * ZoomRatio;
+            cardHeight = 165 * ZoomRatio;
+            
             using (var stream = file.OpenStreamForReadAsync().Result)
             {
                 stream.Seek(0, SeekOrigin.Begin);

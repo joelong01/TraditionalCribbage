@@ -77,6 +77,7 @@ namespace CardView
         {
             if (Selectable) card.PointerPressed += _parent.CardGrid_PointerPressed;
             base.Insert(index, card);
+            
         }
 
         new public void Clear()
@@ -433,7 +434,7 @@ namespace CardView
                     if (toGrid.CardLayout == CardLayout.Normal)
                     {
                         if (pushCards)
-                            toGrid.Cards.Insert(0, card); // preserves the order of Cars as they may be sorted    
+                            toGrid.Cards.Insert(0, card); // preserves the order of Cards as they may be sorted    
                         else
                             toGrid.Cards.Add(card);
                     }
@@ -543,6 +544,7 @@ namespace CardView
             GeneralTransform gt = this.TransformToVisual(card);
 
             Point position = gt.TransformPoint(pt);
+           // this.TraceMessage($"Pos: {position} for {card.CardName} at location:{card.Location} as index {index}");
 
             return position;
         }
@@ -808,6 +810,8 @@ namespace CardView
                 Point p = GetNextCardPosition(card, i);
                 card.AnimateToAsync(p, false, 250);
             }
+
+            
 
         }
 
