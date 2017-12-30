@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--This file is compatible with Silverlight-->
+<Canvas xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" Name="svg2629" Width="150" Height="225">
+  <Canvas.RenderTransform>
+    <TranslateTransform X="0" Y="0"/>
+  </Canvas.RenderTransform>
+  <Canvas.Resources/>
+  <!--Unknown tag: metadata-->
+  <!--Unknown tag: sodipodi:namedview-->
+  <Canvas Name="g2627">
+    <Canvas.RenderTransform>
+      <MatrixTransform Matrix="1 0 0 1 -1371 -271"/>
+    </Canvas.RenderTransform>
+    <Canvas Name="g2625">
+      <Canvas Name="g2623">
+        
+        <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path2601" Fill="#ffffff" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M1379.13 507.274C1371.28 507.274 1364.88 500.882 1364.88 493.024L1364.88 274.41C1364.88 266.553 1371.28 260.16 1379.13 260.16L1512.71 260.16C1520.57 260.16 1526.96 266.553 1526.96 274.41L1526.96 493.024C1526.96 500.882 1520.57 507.274 1512.71 507.274L1379.13 507.274Z"/>
+        <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path2605" Fill="#C80000" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M1445.92 402.143C1449.13 396.766 1457.54 387.518 1462.93 383.718C1457.54 379.918 1449.13 370.67 1445.92 365.293C1442.71 370.67 1434.3 379.918 1428.91 383.718C1434.3 387.518 1442.71 396.766 1445.92 402.143Z"/>
+        <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path2607" Fill="#C80000" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M1380.72 314.859C1382.06 312.619 1385.56 308.765 1387.81 307.182C1385.56 305.598 1382.06 301.745 1380.72 299.504C1379.39 301.745 1375.88 305.598 1373.63 307.182C1375.88 308.765 1379.39 312.619 1380.72 314.859Z"/>
+        <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path2609" Fill="#C80000" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M1380.72 452.575C1379.39 454.816 1375.88 458.669 1373.63 460.253C1375.88 461.836 1379.39 465.69 1380.72 467.931C1382.06 465.69 1385.56 461.836 1387.81 460.253C1385.56 458.669 1382.06 454.816 1380.72 452.575Z"/>
+        <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path2611" Fill="#C80000" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M1511.12 452.575C1509.78 454.816 1506.27 458.669 1504.03 460.253C1506.27 461.836 1509.78 465.69 1511.12 467.931C1512.45 465.69 1515.96 461.836 1518.2 460.253C1515.96 458.669 1512.45 454.816 1511.12 452.575Z"/>
+        <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path2613" Fill="#C80000" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M1511.12 314.859C1512.45 312.619 1515.96 308.765 1518.2 307.182C1515.96 305.598 1512.45 301.745 1511.12 299.504C1509.78 301.745 1506.27 305.598 1504.03 307.182C1506.27 308.765 1509.78 312.619 1511.12 314.859Z"/>
+        <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path2615" Fill="#C80000" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M1379.11 287.45L1380.73 281.028L1382.33 287.45L1379.11 287.45ZM1385.96 291.7L1381.88 275.033L1379.69 275.033L1375.45 291.7L1374.83 291.7L1374.83 294.2L1378.63 294.2L1378.63 291.7L1378.03 291.7L1378.48 289.95L1382.95 289.95L1383.38 291.7L1382.8 291.7L1382.8 294.2L1386.63 294.2L1386.63 291.7L1385.96 291.7Z"/>
+        <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path2617" Fill="#C80000" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M1509.5 287.45L1511.13 281.028L1512.72 287.45L1509.5 287.45ZM1516.35 291.7L1512.27 275.033L1510.08 275.033L1505.85 291.7L1505.23 291.7L1505.23 294.2L1509.02 294.2L1509.02 291.7L1508.43 291.7L1508.87 289.95L1513.34 289.95L1513.78 291.7L1513.19 291.7L1513.19 294.2L1517.03 294.2L1517.03 291.7L1516.35 291.7Z"/>
+        <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path2619" Fill="#C80000" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M1382.36 480.209L1380.73 486.63L1379.14 480.209L1382.36 480.209ZM1375.51 475.959L1379.59 492.625L1381.78 492.625L1386.01 475.959L1386.63 475.959L1386.63 473.459L1382.84 473.459L1382.84 475.959L1383.43 475.959L1382.99 477.709L1378.52 477.709L1378.08 475.959L1378.67 475.959L1378.67 473.459L1374.83 473.459L1374.83 475.959L1375.51 475.959Z"/>
+        <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path2621" Fill="#C80000" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M1512.75 480.209L1511.13 486.63L1509.53 480.209L1512.75 480.209ZM1505.9 475.959L1509.99 492.625L1512.17 492.625L1516.41 475.959L1517.03 475.959L1517.03 473.459L1513.24 473.459L1513.24 475.959L1513.83 475.959L1513.38 477.709L1508.91 477.709L1508.48 475.959L1509.06 475.959L1509.06 473.459L1505.23 473.459L1505.23 475.959L1505.9 475.959Z"/>
+      </Canvas>
+    </Canvas>
+  </Canvas>
+</Canvas>

@@ -11,6 +11,7 @@ using Cards;
 using LongShotHelpers;
 using System.Diagnostics;
 using System.Text;
+using Windows.Foundation;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -118,10 +119,10 @@ namespace Cribbage
             sharedCard[0].zIndex = 40;
             AddCardsToDeckVisually(playerCards);
             AddCardsToDeckVisually(computerCards);
+            await Task.Delay(10);
             _cgDeck.SetCardPositionsNoAnimation();
             await MoveCrib(dealer);
             await AnimateDeal(playerCards, computerCards, computerGribCards, dealer);
-
             _txtCribOwner.Text = dealer.ToString() + "'s Crib";
         }
 
@@ -162,8 +163,13 @@ namespace Cribbage
             {
                 LayoutRoot.Children.Add(c);
                 _cgDeck.Cards.Insert(0, c);
-                //   c.Tapped += Card_DebugTapped;
+                
+                //   c.Tapped += Card_DebugTapped; // if you want to debug card info
+                
+
             }
+           
+            _cgDeck.SetCardPositionsNoAnimation();
         }
 
         private void Card_DebugTapped(object sender, TappedRoutedEventArgs e)
@@ -189,7 +195,9 @@ namespace Cribbage
                 cards[1].Owner = Owner.Computer;
                 AddCardsToDeckVisually(cards);
                 _cgDeck.SetCardPositionsNoAnimation();
+                await Task.Delay(10);
                 await DealOneCardEach();
+                await Task.Delay(10);
                 await Reset();
                 ResetCards();
                 if (cards[0].Card.CardOrdinal == cards[1].Card.CardOrdinal)

@@ -28,6 +28,20 @@ using Windows.UI.Xaml.Media.Animation;
 namespace LongShotHelpers
 {
     public enum AnimationSpeedSetting { Fast, Regular, Slow };
+
+    public static class ViewBoxExtensions
+    {
+        public static double GetScaleFactor(this Viewbox viewbox)
+        {
+            if (viewbox.Child == null ||
+                (viewbox.Child is FrameworkElement) == false)
+            {
+                return double.NaN;
+            }
+            FrameworkElement child = viewbox.Child as FrameworkElement;
+            return viewbox.ActualWidth / child.ActualWidth;
+        }
+    }
     public class AnimationSpeedsClass
     {
         public double VerySlow { get; set; }

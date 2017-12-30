@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--This file is compatible with Silverlight-->
+<Canvas xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" Name="svg692" Width="150" Height="225">
+  <Canvas.RenderTransform>
+    <TranslateTransform X="0" Y="0"/>
+  </Canvas.RenderTransform>
+  <Canvas.Resources/>
+  <!--Unknown tag: metadata-->
+  <!--Unknown tag: sodipodi:namedview-->
+  <Canvas Name="g690">
+    <Canvas.RenderTransform>
+      <MatrixTransform Matrix="1 0 0 1 -351 -1291"/>
+    </Canvas.RenderTransform>
+    <Canvas Name="g688">
+      <Canvas Name="g654">
+        <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path650" Fill="#ffffff" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M358.659 1527.75C350.802 1527.75 344.409 1521.35 344.409 1513.5L344.409 1294.88C344.409 1287.03 350.802 1280.63 358.659 1280.63L492.234 1280.63C500.091 1280.63 506.484 1287.03 506.484 1294.88L506.484 1513.5C506.484 1521.35 500.091 1527.75 492.234 1527.75L358.659 1527.75Z"/>
+      </Canvas>
+      <Canvas Name="g686">
+        <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path656" Fill="#C80000" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M388.597 1337.58C391.803 1332.2 400.219 1322.95 405.605 1319.15C400.219 1315.35 391.803 1306.1 388.597 1300.73C385.391 1306.1 376.974 1315.35 371.588 1319.15C376.974 1322.95 385.391 1332.2 388.597 1337.58Z"/>
+        <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path658" Fill="#C80000" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M462.297 1337.58C465.503 1332.2 473.919 1322.95 479.305 1319.15C473.919 1315.35 465.503 1306.1 462.297 1300.73C459.091 1306.1 450.674 1315.35 445.289 1319.15C450.674 1322.95 459.091 1332.2 462.297 1337.58Z"/>
+        <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path660" Fill="#C80000" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M425.447 1428.28C422.241 1433.66 413.825 1442.91 408.439 1446.71C413.825 1450.51 422.241 1459.76 425.447 1465.13C428.653 1459.76 437.07 1450.51 442.456 1446.71C437.07 1442.91 428.653 1433.66 425.447 1428.28Z"/>
+        <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path662" Fill="#C80000" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M388.597 1422.62C391.803 1417.24 400.219 1407.99 405.605 1404.19C400.219 1400.39 391.803 1391.14 388.597 1385.77C385.391 1391.14 376.974 1400.39 371.588 1404.19C376.974 1407.99 385.391 1417.24 388.597 1422.62Z"/>
+        <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path664" Fill="#C80000" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M462.297 1422.62C465.503 1417.24 473.919 1407.99 479.305 1404.19C473.919 1400.39 465.503 1391.14 462.297 1385.77C459.091 1391.14 450.674 1400.39 445.289 1404.19C450.674 1407.99 459.091 1417.24 462.297 1422.62Z"/>
+        <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path666" Fill="#C80000" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M388.597 1470.81C385.391 1476.18 376.974 1485.43 371.588 1489.23C376.974 1493.03 385.391 1502.28 388.597 1507.66C391.803 1502.28 400.219 1493.03 405.605 1489.23C400.219 1485.43 391.803 1476.18 388.597 1470.81Z"/>
+        <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path668" Fill="#C80000" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M462.297 1470.81C459.091 1476.18 450.674 1485.43 445.289 1489.23C450.674 1493.03 459.091 1502.28 462.297 1507.66C465.503 1502.28 473.919 1493.03 479.305 1489.23C473.919 1485.43 465.503 1476.18 462.297 1470.81Z"/>
+        <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path670" Fill="#C80000" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M360.25 1335.33C361.586 1333.09 365.093 1329.24 367.337 1327.65C365.093 1326.07 361.586 1322.22 360.25 1319.98C358.914 1322.22 355.407 1326.07 353.163 1327.65C355.407 1329.24 358.914 1333.09 360.25 1335.33Z"/>
+        <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path672" Fill="#C80000" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M360.25 1473.05C358.914 1475.29 355.407 1479.14 353.163 1480.73C355.407 1482.31 358.914 1486.16 360.25 1488.4C361.586 1486.16 365.093 1482.31 367.337 1480.73C365.093 1479.14 361.586 1475.29 360.25 1473.05Z"/>
+        <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path674" Fill="#C80000" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M490.644 1473.05C489.308 1475.29 485.8 1479.14 483.556 1480.73C485.8 1482.31 489.308 1486.16 490.644 1488.4C491.979 1486.16 495.487 1482.31 497.731 1480.73C495.487 1479.14 491.979 1475.29 490.644 1473.05Z"/>
+        <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path676" Fill="#C80000" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M490.644 1335.33C491.979 1333.09 495.487 1329.24 497.731 1327.65C495.487 1326.07 491.979 1322.22 490.644 1319.98C489.308 1322.22 485.8 1326.07 483.556 1327.65C485.8 1329.24 489.308 1333.09 490.644 1335.33Z"/>
+        <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path678" Fill="#C80000" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M361.491 1314.66L358.991 1314.63C359.037 1309.08 361.332 1301.7 362.677 1297.85C360.779 1297.86 358.59 1297.85 357.248 1297.84L357.248 1299.25L354.748 1299.25L354.748 1295.16L356.003 1295.17C356.005 1295.17 361.528 1295.2 364.492 1295.17L366.354 1295.15L365.663 1297C363.673 1302.31 361.532 1309.74 361.491 1314.66Z"/>
+        <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path680" Fill="#C80000" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M491.885 1314.66L489.385 1314.63C489.431 1309.08 491.726 1301.7 493.07 1297.85C491.173 1297.86 488.983 1297.85 487.642 1297.84L487.642 1299.25L485.142 1299.25L485.142 1295.16L486.396 1295.17C486.398 1295.17 491.922 1295.2 494.886 1295.17L496.748 1295.15L496.057 1297C494.066 1302.31 491.926 1309.74 491.885 1314.66Z"/>
+        <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path682" Fill="#C80000" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M359.611 1493.58L362.111 1493.6C362.064 1499.15 359.77 1506.53 358.425 1510.38C360.322 1510.38 362.513 1510.38 363.854 1510.39L363.854 1508.99L366.354 1508.99L366.354 1513.07L365.099 1513.06C365.098 1513.06 359.574 1513.04 356.61 1513.06L354.747 1513.08L355.439 1511.23C357.43 1505.92 359.57 1498.5 359.611 1493.58Z"/>
+        <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path684" Fill="#C80000" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M490.005 1493.58L492.505 1493.6C492.458 1499.15 490.163 1506.53 488.818 1510.38C490.716 1510.38 492.906 1510.38 494.248 1510.39L494.248 1508.99L496.748 1508.99L496.748 1513.07L495.492 1513.06C495.491 1513.06 489.968 1513.04 487.004 1513.06L485.141 1513.08L485.833 1511.23C487.823 1505.92 489.964 1498.5 490.005 1493.58Z"/>
+      </Canvas>
+    </Canvas>
+  </Canvas>
+</Canvas>

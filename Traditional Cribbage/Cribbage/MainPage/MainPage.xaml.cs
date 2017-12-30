@@ -47,15 +47,22 @@ namespace Cribbage
             this.DataContext = this;
             ResetCards();
             _board.HideAsync();
+            this.SizeChanged += MainPage_SizeChanged;
 
 
 
         }
 
+        private void MainPage_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            //double ratio = _vbLayoutRoot.GetScaleFactor();
+            //foreach (CardCtrl card in _cgPlayer.Cards)
 
-
-        
-
+            //{
+            //    card.ZoomRatio = ratio;
+            //    card.SetImageForCard(card.CardName);
+            //}
+        }
 
         public ObservableCollection<CardCtrl> PlayerCards
         {
@@ -180,42 +187,9 @@ namespace Cribbage
 
 
 
-        private async Task OnDeal()
-        {
-            ResetCards();
+ 
 
-            var (computerCards, playerCards, sharedCard) = Game.GetHands();
-
-            await this.Deal(playerCards, computerCards, sharedCard, new List<CardCtrl> { computerCards[0], computerCards[2] }, PlayerType.Computer);
-            List<CardCtrl> playerCribCards = new List<CardCtrl>() { _cgPlayer.Cards[0], _cgPlayer.Cards[1] };
-            int index = 2;
-            foreach (CardCtrl card in playerCribCards)
-            {
-                await CardGrid.AnimateMoveOneCard(_cgPlayer, _cgDiscarded, card, index++, false, MOVE_CARDS_ANIMATION_DURATION, 0);
-            }
-
-            CardGrid.TransferCards(_cgPlayer, _cgDiscarded, playerCribCards);
-        }
-
-        private async void OnTestDeal(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                MyMenu.IsPaneOpen = false;
-                await OnDeal();
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Exception in OnDeal: {ex.Message}");
-            }
-            finally
-            {
-                ((Button)(sender)).IsEnabled = true;
-            }
-
-             ((Button)(sender)).IsEnabled = true;
-
-        }
+      
 
         private async void OnPageLoaded(object sender, RoutedEventArgs e)
         {
@@ -533,6 +507,11 @@ namespace Cribbage
 
             return (true, "");
 
+        }
+
+        private void Viewbox_SizedChanged(object sender, SizeChangedEventArgs e)
+        {
+            this.TraceMessage($"ScaleFactor: {_vbLayoutRoot.GetScaleFactor()}");
         }
     }
 }
