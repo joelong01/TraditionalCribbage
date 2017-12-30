@@ -46,7 +46,7 @@
 
     </Page.Resources>
 
-    <SplitView x:Name="MyMenu" IsPaneOpen="False" CompactPaneLength="35" OpenPaneLength="175" DisplayMode="CompactOverlay">
+    <SplitView x:Name="MyMenu" IsPaneOpen="true" CompactPaneLength="35" OpenPaneLength="175" DisplayMode="CompactOverlay">
         <SplitView.Pane>
 
             <StackPanel Background="{StaticResource CardColor}"  >
@@ -68,31 +68,33 @@
                     <Button Name="_btnSuggestion"  Click="OnGetSuggestion"  ToolTipService.ToolTip="Suggestion" Content="&#xE11B;" FontFamily="Segoe UI Symbol" Foreground="White" Style="{StaticResource HamburgerButton}" />
                     <TextBlock Text="Suggestion" Style="{StaticResource HamburgerText}"  />
                 </StackPanel>
-                <StackPanel Orientation="Horizontal"  Margin="0,500, 0, 0">
-                    <Button Content="1" Click="OnTestDeal" Foreground="White" />
-                    <TextBlock Text="Deal"  Style="{StaticResource HamburgerText}"  />
-                </StackPanel>
-                <StackPanel Orientation="Horizontal"  Margin="0,10, 0, 0">
-                    <Button Content="2" Click="OnTestMoveToCrib" Foreground="White" />
-                    <TextBlock Text="Move to Crib"  Style="{StaticResource HamburgerText}"  />
-                </StackPanel>
-                <StackPanel Orientation="Horizontal"  Margin="0,10, 0, 0">
-                    <Button Content="3" Click="OnTestCribToOwner" Foreground="White" />
-                    <TextBlock Text="Crib to Owner"  Style="{StaticResource HamburgerText}"  />
-                </StackPanel>
-                <StackPanel Orientation="Horizontal"  Margin="0,10, 0, 0">
-                    <Button Content="4" Click="OnShowScrollingText" Foreground="White" />
-                    <TextBlock Text="Show Scrolling Text"  Style="{StaticResource HamburgerText}"  />
-                </StackPanel>
-                <StackPanel Orientation="Horizontal"  Margin="0,10, 0, 0">
-                    <Button Content="5" Click="OnTestAddScore" Foreground="White" />
-                    <TextBlock Text="Add Score"  Style="{StaticResource HamburgerText}"  />
-                </StackPanel>
-                <StackPanel Orientation="Horizontal"  Margin="0,10, 0, 0">
-                    <Button Content="6" Click="OnTestReset" Foreground="White" />
-                    <TextBlock Text="Reset"  Style="{StaticResource HamburgerText}"  />
-                </StackPanel>
+                <StackPanel Orientation="Vertical" Visibility="Collapsed">
+                    <StackPanel Orientation="Horizontal"  Margin="0,500, 0, 0">
+                        <Button Content="1" Click="OnTestDeal" Foreground="White" />
+                        <TextBlock Text="Deal"  Style="{StaticResource HamburgerText}"  />
+                    </StackPanel>
 
+                    <StackPanel Orientation="Horizontal"  Margin="0,10, 0, 0">
+                        <Button Content="2" Click="OnTestMoveToCrib" Foreground="White" />
+                        <TextBlock Text="Move to Crib"  Style="{StaticResource HamburgerText}"  />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal"  Margin="0,10, 0, 0">
+                        <Button Content="3" Click="OnTestCribToOwner" Foreground="White" />
+                        <TextBlock Text="Crib to Owner"  Style="{StaticResource HamburgerText}"  />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal"  Margin="0,10, 0, 0">
+                        <Button Content="4" Click="OnShowScrollingText" Foreground="White" />
+                        <TextBlock Text="Show Scrolling Text"  Style="{StaticResource HamburgerText}"  />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal"  Margin="0,10, 0, 0">
+                        <Button Content="5" Click="OnTestAddScore" Foreground="White" />
+                        <TextBlock Text="Add Score"  Style="{StaticResource HamburgerText}"  />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal"  Margin="0,10, 0, 0">
+                        <Button Content="6" Click="OnTestReset" Foreground="White" />
+                        <TextBlock Text="Reset"  Style="{StaticResource HamburgerText}"  />
+                    </StackPanel>
+                </StackPanel>
             </StackPanel>
         </SplitView.Pane>
         <SplitView.Content>
@@ -144,7 +146,7 @@
 
 
 
-                        <cardView:CardGrid x:Name="_cgComputer" Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="3" Style="{StaticResource CardGridStyle}" MaxSelectedCards="0" Location="Computer" 
+                        <cardView:CardGrid x:Name="_cgComputer" Grid.Row="1" Description="Computer Cards" Grid.Column="3" Grid.ColumnSpan="3" Style="{StaticResource CardGridStyle}" MaxSelectedCards="0" Location="Computer" 
                                        HorizontalAlignment="Center"
                                        DropTarget="{Binding ElementName=_cgDiscarded}" ParentGrid="{Binding ElementName=LayoutRoot}" >
                             <cardView:CardGrid.ColumnDefinitions>
@@ -157,14 +159,14 @@
                                 <ColumnDefinition Width="125"/>
                                 <ColumnDefinition Width="0"/>
                             </cardView:CardGrid.ColumnDefinitions>
-                            <cardView:CardCtrl CardName="FiveOfSpades"   Grid.Column="1" Orientation="FaceUp" />
+                            <!--<cardView:CardCtrl CardName="FiveOfSpades"   Grid.Column="1" Orientation="FaceUp" />
                             <cardView:CardCtrl CardName="JackOfClubs"   Grid.Column="2"      />
                             <cardView:CardCtrl CardName="JackOfSpades"   Grid.Column="3"     />
                             <cardView:CardCtrl CardName="QueenOfSpades"  Grid.Column="4"   />
                             <cardView:CardCtrl CardName="KingOfSpades"    Grid.Column="5"     />
-                            <cardView:CardCtrl CardName="KingOfClubs"     Grid.Column="6"     />
+                            <cardView:CardCtrl CardName="KingOfClubs"     Grid.Column="6"     />-->
                         </cardView:CardGrid>
-                        <cardView:CardGrid x:Name="_cgPlayer"   Grid.Row="5" Grid.Column="3" Grid.ColumnSpan="3" AllowDrop="True" MaxSelectedCards="2"  Location="Player" 
+                        <cardView:CardGrid x:Name="_cgPlayer" Description="Player Cards"   Grid.Row="5" Grid.Column="3" Grid.ColumnSpan="3" AllowDrop="True" MaxSelectedCards="2"  Location="Player" 
                                         HorizontalAlignment="Center"
                                         CardLayout="Normal"  Style="{StaticResource CardGridStyle}" ParentGrid="{Binding ElementName=LayoutRoot}" >
                             <cardView:CardGrid.ColumnDefinitions>
@@ -185,7 +187,7 @@
                             <cardView:CardCtrl CardName="KingOfClubs"      Grid.Column="6"  HighlightCards="True" />-->
                         </cardView:CardGrid>
 
-                        <cardView:CardGrid x:Name="_cgDiscarded"   Grid.Row="3" Grid.Column="3" Grid.ColumnSpan="1" AllowDrop="True" MaxSelectedCards="0" Location="Discarded"                                        
+                        <cardView:CardGrid x:Name="_cgDiscarded" Description="Counted Cards"  Grid.Row="3" Grid.Column="3" Grid.ColumnSpan="1" AllowDrop="True" MaxSelectedCards="0" Location="Discarded"                                        
                                        DropTarget="{Binding ElementName=_cgCrib}"  CardLayout="Overlapped"  
                                        Style="{StaticResource CardGridStyle}" ParentGrid="{Binding ElementName=LayoutRoot}"
 					                   HorizontalAlignment="Left" VerticalAlignment="Stretch">
@@ -212,16 +214,16 @@
                             <cardView:CardCtrl   Grid.Column="8" Grid.ColumnSpan="2" HighlightCards="True" Canvas.ZIndex="8"/>-->
                         </cardView:CardGrid>
 
-                        <cardView:CardGrid x:Name="_cgCrib" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="1" Location="Crib" CardLayout="Stacked" Margin="0" Grid.RowSpan="1" Style="{StaticResource CardGridStyle}" MaxSelectedCards="0" ParentGrid="{Binding ElementName=LayoutRoot}" >
+                        <cardView:CardGrid x:Name="_cgCrib" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="1" Location="Crib" CardLayout="Stacked" Description="Crib"
+                                           Margin="0" Grid.RowSpan="1" Style="{StaticResource CardGridStyle}" MaxSelectedCards="0" ParentGrid="{Binding ElementName=LayoutRoot}" >
                             <cardView:CardGrid.RenderTransform>
                                 <CompositeTransform />
                             </cardView:CardGrid.RenderTransform>
-                            <cardView:CardCtrl CardName="AceOfHearts"   Grid.Column="1"  HighlightCards="True" FaceDown="True" />
+                            <!--<cardView:CardCtrl CardName="AceOfHearts"   Grid.Column="1"  HighlightCards="True" FaceDown="True" />-->
                         </cardView:CardGrid>
-
                         <local:CountCtrl x:Name="_ctrlCount" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="1"  Grid.RowSpan="1" Visibility="Collapsed" Canvas.ZIndex="54" />
 
-                        <cardView:CardGrid x:Name="_cgDeck" Grid.Row="3" Grid.Column="5" CardLayout="Stacked" Location="Deck" Margin="0" Grid.RowSpan="1"  Style="{StaticResource CardGridStyle}" Canvas.ZIndex="0" ParentGrid="{Binding ElementName=LayoutRoot}" MaxSelectedCards="0" >
+                        <cardView:CardGrid x:Name="_cgDeck" Grid.Row="3" Grid.Column="5" CardLayout="Stacked" Location="Deck" Margin="0" Grid.RowSpan="1" Description="Deck" Style="{StaticResource CardGridStyle}" Canvas.ZIndex="0" ParentGrid="{Binding ElementName=LayoutRoot}" MaxSelectedCards="0" >
                             <cardView:CardCtrl  CardName="FiveOfSpades"    Grid.Column="1"  HighlightCards="True" FaceDown="True" />
                         </cardView:CardGrid>
 

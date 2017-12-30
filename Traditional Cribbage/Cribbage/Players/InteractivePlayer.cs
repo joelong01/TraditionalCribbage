@@ -63,7 +63,14 @@ namespace CribbagePlayers
             Task<bool> OnEndCardsDropped(List<CardCtrl> droppedCards, int currentMax)
             {
                 totalCards.AddRange(droppedCards);
-                if (count > 1) GameView.PlayerCardDroppedToCrib(totalCards); // reduces the max # of cards that the player can select
+                if (count > 1)
+                {
+                    GameView.PlayerCardDroppedToCrib(totalCards); // reduces the max # of cards that the player can select                    
+                }
+                if (droppedCards.Count == 1 && totalCards.Count == 1)
+                {
+                    GameView.SetInstructions("Drop one more card to the crib");
+                }
                 if (totalCards.Count == count)
                 {
                     tcs.TrySetResult(totalCards);
@@ -81,7 +88,7 @@ namespace CribbagePlayers
                 {
                     dropTarget.OnBeginCardDropped += OnBeginCardsDropped;
                 }
-                dropTarget.OnEndCardDropped += OnEndCardsDropped;                
+                dropTarget.OnEndCardDropped += OnEndCardsDropped;
                 List<CardCtrl> retList = await tcs.Task;
                 return retList;
             }

@@ -59,6 +59,8 @@ namespace Cribbage
         void SetPlayableCards(int currentCount);
 
         void SetCount(int count);
+
+        void SetInstructions(string message);
     }
 
     /// <summary>
@@ -264,7 +266,7 @@ namespace Cribbage
 
         public void PlayerCardDroppedToCrib(List<CardCtrl> cards)
         {
-            _cgPlayer.MaxSelectedCards = 4 - _cgDiscarded.Cards.Count;
+            _cgPlayer.MaxSelectedCards = 2 - _cgDiscarded.Cards.Count;
 
         }
 
@@ -402,7 +404,10 @@ namespace Cribbage
             _scoreViewCtrl.AddMessage(msg);
 
         }
-
+        public void SetInstructions(string message)
+        {
+            _txtInstructions.Text = message;
+        }
         public CardList GetCards(CardType cardType)
         {
             switch (cardType)

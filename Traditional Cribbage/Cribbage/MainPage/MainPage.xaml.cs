@@ -168,18 +168,13 @@ namespace Cribbage
                 }
             }
 
+            _cgComputer.Reset();
+            _cgPlayer.Reset();
+            _cgCrib.Reset();
+            _cgDiscarded.Reset();
+            _cgDeck.Reset();
 
-            _cgComputer.Cards.Clear();
-            _cgPlayer.Cards.Clear();
-            _cgDiscarded.Cards.Clear();
-            _cgDeck.Cards.Clear();
-            _cgCrib.Cards.Clear();
-
-            _cgComputer.Children.Clear();
-            _cgPlayer.Children.Clear();
-            _cgDiscarded.Children.Clear();
-            _cgDeck.Children.Clear();
-            _cgCrib.Children.Clear();
+            
 
         }
 
@@ -256,6 +251,9 @@ namespace Cribbage
 
         private async void OnNewGame(object sender, RoutedEventArgs e)
         {
+            MyMenu.IsPaneOpen = false;
+            await Task.Delay(500);
+
             try
             {
 
@@ -318,6 +316,9 @@ namespace Cribbage
 
         private async void OnSaveGame(object sender, RoutedEventArgs e)
         {
+            MyMenu.IsPaneOpen = false;
+            
+
             FileSavePicker savePicker = new FileSavePicker
             {
                 SuggestedStartLocation = PickerLocationId.DocumentsLibrary
@@ -381,6 +382,8 @@ namespace Cribbage
 
         private async void OnOpenGame(object sender, RoutedEventArgs e)
         {
+            MyMenu.IsPaneOpen = false;
+            
 
             if (await StaticHelpers.AskUserYesNoQuestion("Cribbage", "Abondon this game and open an old one?", "yes", "no") == false)
             {
