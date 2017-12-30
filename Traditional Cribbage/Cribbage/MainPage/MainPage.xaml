@@ -68,7 +68,7 @@
                     <Button Name="_btnSuggestion"  Click="OnGetSuggestion"  ToolTipService.ToolTip="Suggestion" Content="&#xE11B;" FontFamily="Segoe UI Symbol" Foreground="White" Style="{StaticResource HamburgerButton}" />
                     <TextBlock Text="Suggestion" Style="{StaticResource HamburgerText}"  />
                 </StackPanel>
-                <StackPanel Orientation="Vertical" Visibility="Collapsed">
+                <StackPanel Orientation="Vertical" Visibility="Visible">
                     <StackPanel Orientation="Horizontal"  Margin="0,500, 0, 0">
                         <Button Content="1" Click="OnTestDeal" Foreground="White" />
                         <TextBlock Text="Deal"  Style="{StaticResource HamburgerText}"  />

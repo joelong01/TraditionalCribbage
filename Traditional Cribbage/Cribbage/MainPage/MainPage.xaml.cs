@@ -26,6 +26,7 @@ using System.Text;
 using Windows.Storage.Pickers;
 using Windows.Storage;
 using Windows.Storage.Provider;
+using Windows.UI.Popups;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -174,7 +175,7 @@ namespace Cribbage
             _cgDiscarded.Reset();
             _cgDeck.Reset();
 
-            
+
 
         }
 
@@ -182,9 +183,9 @@ namespace Cribbage
 
 
 
- 
 
-      
+
+
 
         private async void OnPageLoaded(object sender, RoutedEventArgs e)
         {
@@ -196,7 +197,7 @@ namespace Cribbage
             MyMenu.IsPaneOpen = !MyMenu.IsPaneOpen;
         }
 
-     
+
 
         private async void OnGetSuggestion(object sender, RoutedEventArgs e)
         {
@@ -218,7 +219,7 @@ namespace Cribbage
                 }
                 _cgPlayer.SelectedCards?.Clear();
                 _cgPlayer.SelectedCards = _game.ComputerSelectCrib(_cgPlayer.Cards, _game.Dealer == PlayerType.Player);
-                
+
                 if (_cgPlayer.SelectedCards?.Count == 2)
                 {
                     _cgPlayer.SelectedCards[0].Selected = true;
@@ -232,7 +233,7 @@ namespace Cribbage
             {
                 CardCtrl cardPlayed = await _game.GetSuggestionForCount();
                 _cgPlayer.SelectCard(cardPlayed);
-                    
+
             }
 
 
@@ -273,7 +274,7 @@ namespace Cribbage
                     computer.Init("-usedroptable");
                     _game = new Game(this, computer, player, 0);
                     ((Button)sender).IsEnabled = true;
-                    await _game.StartGame(GameState.Start);
+                    await this.StartGame(GameState.Start);
 
 
 
@@ -290,34 +291,53 @@ namespace Cribbage
 
         }
 
-       
-        private void OnShowScore(object sender, RoutedEventArgs e)
+
+        private async void OnShowScore(object sender, RoutedEventArgs e)
         {
+            List<Card> hand = null;
+            HandType handType = HandType.Hand;
+            Card sharedCard = _cgDeck.Cards[0].Card;
 
-            if (_game.State == GameState.ScoreComputerCrib || _game.State == GameState.ScoreComputerHand)
+            switch (_game.State)
             {
+                case GameState.ScoreComputerCrib:
+                    handType = HandType.Crib;
+                    hand = Game.CardCtrlToCards(_cgComputer.Cards);
 
-                List<Card> hand = Game.CardCtrlToCards(_cgComputer.Cards);
-                Card sharedCard = (Card)_cgDeck.Cards[0].Card;
-                HandType handType = HandType.Hand;
-                if (_game.State == GameState.ScoreComputerCrib) handType = HandType.Crib;
+                    break;
+                case GameState.ScoreComputerHand:
+                    handType = HandType.Hand;
+                    hand = Game.CardCtrlToCards(_cgComputer.Cards);
+
+                    break;
+                case GameState.ScorePlayerCrib:
+                    handType = HandType.Crib;
+                    hand = Game.CardCtrlToCards(_cgPlayer.Cards);
+
+                    break;
+                case GameState.ScorePlayerHand:
+                    handType = HandType.Hand;
+                    hand = Game.CardCtrlToCards(_cgPlayer.Cards);
+
+                    break;
+                default:
+                    return;
 
 
-                StringBuilder s = new StringBuilder(1024);
-                s.Append((_game.PlayerTurn == PlayerType.Player) ? "You " : "The Computer ");
-
-                CardScoring.ScoreHand(hand, sharedCard, handType, out List<Score> scores);
-                ShowScoreMessage(scores, PlayerType.Computer);
             }
-                        
 
+            CardScoring.ScoreHand(hand, sharedCard, handType, out List<Score> scores);
+            var message = FormatScoreMessage(scores, _game.PlayerTurn, true);
+            MessageDialog dlg = new MessageDialog(message.message, "Cribbage");
+            await dlg.ShowAsync();            
+            
         }
-        
+
 
         private async void OnSaveGame(object sender, RoutedEventArgs e)
         {
             MyMenu.IsPaneOpen = false;
-            
+
 
             FileSavePicker savePicker = new FileSavePicker
             {
@@ -338,9 +358,9 @@ namespace Cribbage
                 // Let Windows know that we're finished changing the file so the other app can update the remote version of the file.
                 // Completing updates may require Windows to ask for user input.
                 FileUpdateStatus status = await CachedFileManager.CompleteUpdatesAsync(file);
-                
+
             }
-            
+
         }
 
 
@@ -361,6 +381,7 @@ namespace Cribbage
             s.Append(StaticHelpers.SetValue("Version", "1.0"));
             s.Append(StaticHelpers.SetValue("CurrentCount", _game.CurrentCount));
             s.Append(StaticHelpers.SetValue("State", _game.State));
+            s.Append(StaticHelpers.SetValue("AutoEnterScore", _game.AutoEnterScore));
 
             var scores = _board.GetScores();
 
@@ -383,7 +404,7 @@ namespace Cribbage
         private async void OnOpenGame(object sender, RoutedEventArgs e)
         {
             MyMenu.IsPaneOpen = false;
-            
+
 
             if (await StaticHelpers.AskUserYesNoQuestion("Cribbage", "Abondon this game and open an old one?", "yes", "no") == false)
             {
@@ -396,7 +417,7 @@ namespace Cribbage
             openPicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
             openPicker.FileTypeFilter.Add(".crib");
 
-            
+
 
             StorageFile file = await openPicker.PickSingleFileAsync();
 
@@ -419,20 +440,25 @@ namespace Cribbage
                         await StaticHelpers.ShowErrorText($"Bad Version {settings["Game"]["Version"]}");
                         return;
                     }
-                    
-                    _game.CurrentCount = Int32.Parse(settings["Game"]["CurrentCount"]);                    
+
+                    _game.CurrentCount = Int32.Parse(settings["Game"]["CurrentCount"]);
                     _game.Player.Score = Int32.Parse(settings["Game"]["PlayerBackScore"]);
+                    _game.AutoEnterScore = bool.Parse(settings["Game"]["AutoEnterScore"]);
+
                     _board.AnimateScoreAsync(PlayerType.Player, _game.Player.Score);
-                    _game.Player.Score = Int32.Parse(settings["Game"]["PlayerScoreDelta"]);
-                    _board.AnimateScoreAsync(PlayerType.Player, _game.Player.Score);
+                    int scoreDelta = Int32.Parse(settings["Game"]["PlayerScoreDelta"]);
+                    _board.AnimateScoreAsync(PlayerType.Player, scoreDelta);
+                    _game.Player.Score += scoreDelta;
 
                     _game.Computer.Score = Int32.Parse(settings["Game"]["ComputerBackScore"]);
                     _board.AnimateScoreAsync(PlayerType.Computer, _game.Computer.Score);
-                    _game.Computer.Score = Int32.Parse(settings["Game"]["ComputerScoreDelta"]);
-                    _board.AnimateScoreAsync(PlayerType.Computer, _game.Computer.Score);
+                    scoreDelta = Int32.Parse(settings["Game"]["ComputerScoreDelta"]);
+                    _board.AnimateScoreAsync(PlayerType.Computer, scoreDelta);
+                    _game.Computer.Score += scoreDelta;
 
                     _game.Dealer = StaticHelpers.ParseEnum<PlayerType>(settings["Game"]["Dealer"]);
                     _game.State = StaticHelpers.ParseEnum<GameState>(settings["Game"]["State"]);
+                    this.SetState(_game.State);
                     await MoveCrib(_game.Dealer);
 
                     var retTuple = LoadCardsIntoGrid(_cgComputer, settings["Cards"]["Computer"]);
@@ -471,13 +497,13 @@ namespace Cribbage
                     if ((int)_game.State > (int)GameState.GiveToCrib)
                     {
 
-                      t =  _cgDeck.Cards[0].SetOrientationTask(CardOrientation.FaceUp, 500, 0);
+                        t = _cgDeck.Cards[0].SetOrientationTask(CardOrientation.FaceUp, 500, 0);
                         taskList.Add(t);
                     }
 
                     foreach (var card in _cgPlayer.Cards)
                     {
-                       t = card.SetOrientationTask(CardOrientation.FaceUp, 0, 0);
+                        t = card.SetOrientationTask(CardOrientation.FaceUp, 0, 0);
                         taskList.Add(t);
                     }
 
@@ -487,41 +513,54 @@ namespace Cribbage
                         taskList.Add(t);
                     }
 
+                    if ((int)_game.State >= (int)GameState.ScoreComputerHand)
+                    {
+                        foreach (var card in _cgComputer.Cards)
+                        {
+                            t = card.SetOrientationTask(CardOrientation.FaceUp, 0, 0);
+                            taskList.Add(t);
+                        }
+                    }
+
                     await Task.WhenAll(taskList);
 
-                    
-                    PlayerType winner = await _game.StartGame(_game.State);
-                    string msg = "";
-                    if (winner == PlayerType.Player)
-                    {
-                        msg = "Congratulations, you won!";
-                    }
-                    else
-                    {
-                        msg = "Oh well. /n/nThe computer won.  Better luck next time!";
-                    }
+                    await StartGame(_game.State);
 
-                    await StaticHelpers.ShowErrorText(msg, "Cribbage");
-                    this.SetState(GameState.GameOver);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 await StaticHelpers.ShowErrorText($"Error loading file {file.Name}\n\nYou should delete the file.\n\nTechnical details:\n{ex.ToString()}");
             }
-            
+
         }
 
+        private async Task StartGame(GameState state)
+        {
+            PlayerType winner = await _game.StartGame(state);
+            string msg = "";
+            if (winner == PlayerType.Player)
+            {
+                msg = "Congratulations, you won!";
+            }
+            else
+            {
+                msg = "Oh well. /n/nThe computer won.  Better luck next time!";
+            }
+
+            await StaticHelpers.ShowErrorText(msg, "Cribbage");
+            this.SetState(GameState.GameOver);
+        }
         private (bool ret, string badToken) LoadCardsIntoGrid(CardGrid grid, string saveString)
         {
             var ret = grid.Deserialize(saveString, ",");
             if (!ret.ret)
                 return ret;
-            
+
             foreach (var card in grid.Cards)
             {
                 LayoutRoot.Children.Add(card);
-                
+
             }
 
             grid.SetCardPositionsNoAnimation();
@@ -533,7 +572,7 @@ namespace Cribbage
 
         private void Viewbox_SizedChanged(object sender, SizeChangedEventArgs e)
         {
-            this.TraceMessage($"ScaleFactor: {_vbLayoutRoot.GetScaleFactor()}");
+            //this.TraceMessage($"ScaleFactor: {_vbLayoutRoot.GetScaleFactor()}");
         }
     }
 }

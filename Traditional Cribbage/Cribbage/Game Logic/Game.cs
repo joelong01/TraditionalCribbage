@@ -341,6 +341,7 @@ namespace Cribbage
                     default:
                         break;
                 }
+                
 
                 if (Player.Score > 120)
                 {
@@ -417,7 +418,7 @@ namespace Cribbage
             return (computerCanPlay: cCanPlay, playerCanPlay: pCanPlay );
         }
 
-        bool _autoEnterScore = false;
+        public bool AutoEnterScore { get; set; } = false;
         private async Task<int> GetScoreFromPlayer(List<Card> cards, Card sharedCard, HandType handType)
         {            
             int playerScore = CardScoring.ScoreHand(cards, sharedCard, handType, out List<Score> scores);
@@ -425,10 +426,10 @@ namespace Cribbage
 
             do
             {
-                enteredScore = await Player.GetScoreFromUser(playerScore, _autoEnterScore);
+                enteredScore = await Player.GetScoreFromUser(playerScore, AutoEnterScore);
                 if (enteredScore != playerScore)
                 {
-                    _autoEnterScore = await StaticHelpers.AskUserYesNoQuestion("Cribbage", $"{enteredScore} is the wrong score.\n\nWould you like the computer to set the score?", "Yes", "No");
+                    AutoEnterScore = await StaticHelpers.AskUserYesNoQuestion("Cribbage", $"{enteredScore} is the wrong score.\n\nWould you like the computer to set the score?", "Yes", "No");
                 }
             } while (enteredScore != playerScore);
 

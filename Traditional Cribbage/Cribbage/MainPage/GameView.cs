@@ -18,7 +18,7 @@ using Windows.Foundation;
 namespace Cribbage
 {
 
-    public enum CardType { Player, Computer, Deck, Crib, Counted}; // all the card lists
+    public enum CardType { Player, Computer, Deck, Crib, Counted }; // all the card lists
 
     public interface IGameView
     {
@@ -80,7 +80,7 @@ namespace Cribbage
         {
             throw new NotImplementedException();
         }
-         
+
         public void SetCount(int count)
         {
             _ctrlCount.Count = count;
@@ -93,7 +93,7 @@ namespace Cribbage
         //
         public async Task CountCard(CardCtrl card, int newCount)
         {
-              
+
             if (_game.PlayerTurn == PlayerType.Computer)
             {
                 List<Task> tList = new List<Task>();
@@ -111,7 +111,7 @@ namespace Cribbage
 
 
             _game.SetPlayableCards(); // both enables playable cards and disables non-playable ones
-            
+
 
         }
 
@@ -165,12 +165,12 @@ namespace Cribbage
             {
                 LayoutRoot.Children.Add(c);
                 _cgDeck.Cards.Insert(0, c);
-                
+
                 //   c.Tapped += Card_DebugTapped; // if you want to debug card info
-                
+
 
             }
-           
+
             _cgDeck.SetCardPositionsNoAnimation();
         }
 
@@ -283,7 +283,7 @@ namespace Cribbage
             _cgPlayer.MaxSelectedCards = 0;
             _txtInstructions.Text = "";
             _ctrlCount.Visibility = Visibility.Collapsed;
-
+            _btnShowScoreAgain.Visibility = Visibility.Collapsed;
             switch (state)
             {
                 case GameState.PlayerSelectsCribCards:
@@ -297,17 +297,23 @@ namespace Cribbage
                     _ctrlCount.Visibility = Visibility.Visible;
                     _txtInstructions.Text = "Drop the card to be counted";
                     break;
-
+                case GameState.ScoreComputerCrib:
+                case GameState.ScoreComputerHand:
+                    _btnShowScoreAgain.Visibility = Visibility.Visible;
+                    break;
                 case GameState.CountComputer:
                 case GameState.Count:
+                    _btnShowScoreAgain.Visibility = Visibility.Visible;
                     _ctrlCount.Visibility = Visibility.Visible;
                     _txtCribOwner.Text = "";
                     break;
                 case GameState.ScorePlayerHand:
                     _txtInstructions.Text = "use the buttons on the board to set a score for your hand";
+                    _btnShowScoreAgain.Visibility = Visibility.Visible;
                     break;
                 case GameState.ScorePlayerCrib:
                     _txtInstructions.Text = "use the buttons on the board to set a score for your crib";
+                    _btnShowScoreAgain.Visibility = Visibility.Visible;
                     break;
                 default:
                     break;
@@ -338,8 +344,8 @@ namespace Cribbage
                 await _btnContinue.WhenClicked();
                 _btnContinue.Visibility = Visibility.Collapsed;
 
-                _btnShowScoreAgain.Visibility = _btnContinue.Visibility;
-            }            
+
+            }
         }
 
         public int AddScore(List<Score> scores, PlayerType playerTurn)
@@ -355,35 +361,72 @@ namespace Cribbage
 
         public int ShowScoreMessage(List<Score> scores, PlayerType playerTurn)
         {
+            var msg = FormatScoreMessage(scores, playerTurn, false);
+            AddMessage(msg.message);
+            return msg.scoreDelta;
+        }
+
+        private (string message, int scoreDelta) FormatScoreMessage(List<Score> scores, PlayerType playerTurn, bool multiLine)
+        {
             StringBuilder s = new StringBuilder(1024);
+            string sep = ", ";
             s.Append((playerTurn == PlayerType.Player) ? "You " : "The Computer ");
             int scoreDelta = 0;
-            foreach (Score score in scores)
+            foreach (var score in scores)
             {
                 scoreDelta += score.Value;
-                s.Append(score.ToString(playerTurn));
-                s.Append(", ");
             }
-            s.Remove(s.Length - 2, 2);
-            s.Append($" for a total of {scoreDelta}. ");
 
-            AddMessage(s.ToString());
-            return scoreDelta;
+            if (scores.Count == 1)
+            {
+                s.Append(scores[0].ToString(playerTurn));
+                s.Append(".");
+            }
+            else if (scores.Count == 2)
+            {
+                s.Append(scores[0].ToString(playerTurn));
+                s.Append(" and ");
+                s.Append(scores[1].ToString(playerTurn));
+                s.Append(".");
+            }
+            else
+            {
+
+                for (int i = 0; i < scores.Count; i++)
+                {
+                    Score score = scores[i];
+                    s.Append(score.ToString(playerTurn));
+                    if (i < scores.Count - 1)
+                    {
+                        s.Append(sep);
+                    }
+
+                    if (i == scores.Count - 2)
+                    {
+                        s.Append(" and ");
+                    }
+                    
+                }
+
+                s.Append(". ");
+            }
+            if (multiLine) s.Append("\n\n");
+            s.Append($"Total of {scoreDelta}. ");
+            return (s.ToString(), scoreDelta);
         }
 
         public async Task<int> ScoreHand(List<Score> scores, PlayerType playerType, HandType handType)
         {
             int scoreDelta = AddScore(scores, playerType);
             string message = String.Format($"{playerType} scores {scoreDelta} for their {handType}");
-            
-            AddMessage(message);            
+
+            AddMessage(message);
             if (playerType == PlayerType.Computer)
             {
                 _btnContinue.Visibility = Visibility.Visible;
-                _btnShowScoreAgain.Visibility = _btnContinue.Visibility;
                 await _btnContinue.WhenClicked();
                 _btnContinue.Visibility = Visibility.Collapsed;
-                _btnShowScoreAgain.Visibility = _btnContinue.Visibility;
+
             }
             return scoreDelta;
         }
@@ -413,7 +456,7 @@ namespace Cribbage
             switch (cardType)
             {
                 case CardType.Player:
-                    return _cgPlayer.Cards;                    
+                    return _cgPlayer.Cards;
                 case CardType.Computer:
                     return _cgComputer.Cards;
                 case CardType.Deck:
@@ -429,7 +472,7 @@ namespace Cribbage
 
         public void SetPlayableCards(int count)
         {
-            
+
             foreach (var card in _cgPlayer.Cards)
             {
                 if (card.Value + count <= 31)
