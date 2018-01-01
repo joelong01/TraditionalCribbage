@@ -1,11 +1,11 @@
-﻿using Cards;
-using Cribbage;
+﻿using Cribbage;
 using System.Collections.Generic;
-
+using MersenneTwister;
+using System;
 
 namespace Cards
 {
-  
+
 
 
     public class Deck
@@ -21,10 +21,9 @@ namespace Cards
 
         public void Shuffle(int seed)
         {
+
+            Random twist = Randoms.Create(seed, RandomType.FastestInt32);
             
-            MersenneTwister twist = new MersenneTwister(seed);
-
-
             for (int i = 0; i < 52; i++)
             {
                 _randomIndeces[i] = i;

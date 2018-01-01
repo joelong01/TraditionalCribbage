@@ -17,6 +17,20 @@ using Windows.UI;
 
 namespace CardView
 {
+    public class ListChangedEventArgs : EventArgs
+    {
+        public ListChangedAction Action { get; private set; }        
+        public CardCtrl Card { get; private set; }
+         
+        public ListChangedEventArgs(ListChangedAction action, CardCtrl card)
+        {
+            Action = action;            
+            Card = card;
+        }
+
+    }
+
+
     public enum CardLayout { Overlapped, Stacked, Normal };
     public enum AnimateMoveOptions { MoveSequentlyStartingAtZero, MoveSequentlyEndingAtZero, StackAtZero };
     public delegate Task<bool> CardDroppedDelegate(List<CardCtrl> cards, int currentMax);
@@ -31,7 +45,7 @@ namespace CardView
     public class CardList : List<CardCtrl>
     {
         CardGrid _parent = null;
-        public delegate void ListChanged(ListChangedAction action, CardList list, CardCtrl card);
+        public delegate void ListChanged(object sender, ListChangedEventArgs e);
         public event ListChanged OnListChanged;
 
         public CardList(CardGrid parent)
@@ -55,7 +69,7 @@ namespace CardView
             }
 
             base.Add(card);
-            OnListChanged?.Invoke(ListChangedAction.Added, this, card);
+            OnListChanged?.Invoke(this , new ListChangedEventArgs(ListChangedAction.Added, card));
         }
 
         private bool Selectable
@@ -86,7 +100,7 @@ namespace CardView
         {
             if (Selectable) card.PointerPressed += _parent.CardGrid_PointerPressed;
             base.Insert(index, card);
-            OnListChanged?.Invoke(ListChangedAction.Inserted, this, card);
+            OnListChanged?.Invoke(this, new ListChangedEventArgs(ListChangedAction.Inserted,  card));
 
         }
 
@@ -101,7 +115,7 @@ namespace CardView
             }
 
             base.Clear();
-            OnListChanged?.Invoke(ListChangedAction.Cleared, this, null);
+            OnListChanged?.Invoke(this, new ListChangedEventArgs(ListChangedAction.Cleared,  null));
         }
 
         new public bool Remove(CardCtrl card)
@@ -111,7 +125,7 @@ namespace CardView
             bool ret = base.Remove(card);
             if (ret)
             {
-                OnListChanged?.Invoke(ListChangedAction.Removed, this, card);
+                OnListChanged?.Invoke(this, new ListChangedEventArgs(ListChangedAction.Removed, card));
             }
 
             return ret;
@@ -181,8 +195,9 @@ namespace CardView
 
         }
 
-        private void OnListChanged(ListChangedAction action, CardList list, CardCtrl card)
+        private void OnListChanged(object sender, ListChangedEventArgs e)
         {
+            CardList list = sender as CardList;
             _tbDescription.Visibility = (list.Count == 0) ? Visibility.Visible : Visibility.Collapsed;
         }
 

@@ -17,19 +17,19 @@ namespace Cribbage
 {
     public sealed partial class TraditionalBoard : UserControl
     {
-        
+
         public TraditionalBoard()
         {
-            this.InitializeComponent();            
-            this.DataContext = this;                     
-        
-          //  ShowButtons();
+            this.InitializeComponent();
+            this.DataContext = this;
+
+            //  ShowButtons();
         }
 
 
 
-        
-       public async void ResetAsync()
+
+        public async void ResetAsync()
         {
             await _board.Reset();
 
@@ -38,10 +38,10 @@ namespace Cribbage
 
         public async Task Reset()
         {
-           await _board.Reset();
+            await _board.Reset();
         }
 
-       
+
 
         private void ButtonDownScore_Click(object sender, RoutedEventArgs e)
         {
@@ -51,15 +51,14 @@ namespace Cribbage
             if (scoreDelta < 0) scoreDelta = 0;
             if (scoreDelta > 0)
             {
-                _board.HighlightPeg(PlayerType.Player, _board.PlayerFrontScore + scoreDelta, false);              
+                _board.HighlightPeg(PlayerType.Player, _board.PlayerFrontScore + scoreDelta, false);
                 scoreDelta -= 1;
                 _tbScoreToAdd.Text = scoreDelta.ToString();
             }
 
 
         }
-        //
-        //   TODO: PORT
+
 
         //private Brush _scoreBrush = (Brush)App.Current.Resources["SelectColor"];
         private Brush _scoreBrush = (Brush)new SolidColorBrush(Colors.Red);
@@ -69,11 +68,11 @@ namespace Cribbage
             scoreDelta += 1;
             if (scoreDelta > 29) scoreDelta = 29;
             _tbScoreToAdd.Text = scoreDelta.ToString();
-            _board.HighlightPeg(PlayerType.Player, _board.PlayerFrontScore + scoreDelta, true);            
+            _board.HighlightPeg(PlayerType.Player, _board.PlayerFrontScore + scoreDelta, true);
 
         }
 
-       
+
 
         private void DumpScores(PlayerType playerType, int scoreDelta, [CallerMemberName] String caller = "")
         {
@@ -83,34 +82,39 @@ namespace Cribbage
             //    pegScore = _scoreComputer;
             //}
 
-          //  MainPage.LogTrace.TraceMessageAsync(String.Format("[{0}] {1}: Front={2} Back={3} Add={4}", caller, playerType, pegScore.Score2, pegScore.Score1, scoreDelta));
+            //  MainPage.LogTrace.TraceMessageAsync(String.Format("[{0}] {1}: Front={2} Back={3} Add={4}", caller, playerType, pegScore.Score2, pegScore.Score1, scoreDelta));
 
         }
 
-        private void HighlightScore(int score, int count, bool highlight)
+        public void HighlightScore(PlayerType player, int score, int count, bool highlight)
         {
             int start = score + 1;
-            for (int i=start; i<start+count; i++)
+            for (int i = start; i < start + 30; i++)
             {
-                _board.HighlightPeg(PlayerType.Player, i, highlight);    
+                if (i < (start + count))
+                    _board.HighlightPeg(player, i, highlight);
+                else
+                    _board.HighlightPeg(player, i, false); // this way if you went down, we always turn off the highlight
             }
         }
 
-        public async Task<int> ShowAndWaitForContinue(int actualScore, bool autosetScore)
+
+
+        public async Task<int> HighlightScoreAndWaitForContinue(int actualScore, bool autosetScore)
         {
             int maxHighlight = 0;
-           
-          if (autosetScore)
+
+            if (autosetScore)
             {
-                HighlightScore(_board.PlayerFrontScore + actualScore, Convert.ToInt32(_tbScoreToAdd.Text), false);  //if the player guessed too high, need to reset those back to normal
+                HighlightScore(PlayerType.Player, _board.PlayerFrontScore + actualScore, Convert.ToInt32(_tbScoreToAdd.Text), false);  //if the player guessed too high, need to reset those back to normal
                 _tbScoreToAdd.Text = actualScore.ToString();
                 maxHighlight = actualScore;
-                HighlightScore(_board.PlayerFrontScore, actualScore, true);               
+                HighlightScore(PlayerType.Player, _board.PlayerFrontScore, actualScore, true);
             }
             else
             {
                 maxHighlight = Convert.ToInt32(_tbScoreToAdd.Text);
-                HighlightScore(_board.PlayerFrontScore, maxHighlight, true);
+                HighlightScore(PlayerType.Player, _board.PlayerFrontScore, maxHighlight, true);
 
             }
 
@@ -135,13 +139,13 @@ namespace Cribbage
             finally
             {
                 _btnAccept.Click -= OnCompletion;
-                HideAsync();
-                HighlightScore(_board.PlayerFrontScore, maxHighlight, false);
+                HideButtonsAsync();
+                HighlightScore(PlayerType.Player, _board.PlayerFrontScore, maxHighlight, false);
 
             }
         }
 
-        public void  ShowButtons()
+        public void ShowButtons()
         {
             foreach (DoubleAnimation da in _sbAnimateSetScore.Children)
             {
@@ -149,10 +153,10 @@ namespace Cribbage
                 da.To = 1;
             }
 
-             _sbAnimateSetScore.Begin();
+            _sbAnimateSetScore.Begin();
         }
 
-        public async Task Hide()
+        public async Task HideButtons()
         {
             foreach (DoubleAnimation da in _sbAnimateSetScore.Children)
             {
@@ -163,7 +167,7 @@ namespace Cribbage
             await _sbAnimateSetScore.ToTask();
         }
 
-        public void HideAsync()
+        public void HideButtonsAsync()
         {
             foreach (DoubleAnimation da in _sbAnimateSetScore.Children)
             {
@@ -177,24 +181,24 @@ namespace Cribbage
 
         public List<Task> AnimateScore(PlayerType playerType, int score)
         {
-            
+
             return _board.AnimateScore(playerType, score, false);
         }
 
         public void TraceBackPegPosition()
         {
             _board.TraceBackPegPosition();
-    }
-        
+        }
+
 
 
 
         public void AnimateScoreAsync(PlayerType player, int scoreToAdd)
         {
-            _board.AnimateScore(player, scoreToAdd, true);            
+            _board.AnimateScore(player, scoreToAdd, true);
         }
 
-      
+
         public (int computerBackScore, int computerScore, int playerBackScore, int playerScore) GetScores()
         {
             return (_board.ComputerBackScore, _board.ComputerFrontScore, _board.PlayerBackScore, _board.PlayerFrontScore);
@@ -203,5 +207,5 @@ namespace Cribbage
     }
 
 
-   
+
 }

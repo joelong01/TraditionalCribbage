@@ -550,11 +550,11 @@ namespace Cards
                 }
             }
 
-            if (handType == HandType.Crib && run == 5)
-                return run;
+            if (handType == HandType.Crib && max == 5)
+                return max;
 
-            if (handType == HandType.Hand && run > 3)
-                return run;
+            if (handType == HandType.Hand && max > 3)
+                return max;
 
             return 0;
         }

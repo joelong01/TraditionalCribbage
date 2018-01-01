@@ -1,6 +1,6 @@
 ﻿using Cards;
 using CardView;
-using Facet.Combinatorics;
+using Combinatorics.Collections;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;

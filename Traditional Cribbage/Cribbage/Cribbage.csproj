@@ -96,13 +96,6 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Cards\Algorithms\Combinations.cs" />
-    <Compile Include="Cards\Algorithms\GenerateOption.cs" />
-    <Compile Include="Cards\Algorithms\IMetaCollection.cs" />
-    <Compile Include="Cards\Algorithms\MersenneTwister.cs" />
-    <Compile Include="Cards\Algorithms\Permutations.cs" />
-    <Compile Include="Cards\Algorithms\SmallPrimeUtility.cs" />
-    <Compile Include="Cards\Algorithms\Variations.cs" />
     <Compile Include="Cards\CardCtrl.xaml.cs" />
     <Compile Include="Cards\CardGrid.cs" />
     <Compile Include="Cards\CardProperties.cs" />
@@ -228,6 +221,12 @@
     </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Combinatorics">
+      <Version>1.1.0.19</Version>
+    </PackageReference>
+    <PackageReference Include="MersenneTwister">
+      <Version>1.0.5</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.0.5</Version>
     </PackageReference>

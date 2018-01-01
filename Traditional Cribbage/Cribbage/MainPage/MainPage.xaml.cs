@@ -47,10 +47,10 @@ namespace Cribbage
             this.InitializeComponent();
             this.DataContext = this;
             ResetCards();
-            _board.HideAsync();
+            _board.HideButtonsAsync();
             this.SizeChanged += MainPage_SizeChanged;
 
-
+            SetState(GameState.GameOver);
 
         }
 
@@ -244,7 +244,7 @@ namespace Cribbage
             ResetCards();
             await _board.Reset();
             _textCardInfo.Text = "";
-            _board.HideAsync();
+            _board.HideButtonsAsync();
 
         }
 
@@ -257,28 +257,32 @@ namespace Cribbage
 
             try
             {
-
-
-                // ((Button)sender).IsEnabled = false;
-                bool ret = await StaticHelpers.AskUserYesNoQuestion("Cribbage", "Start a new game?", "Yes", "No");
-                if (ret)
+                if (_game != null)
                 {
-                    if (_game != null)
+                    if (_game.State != GameState.None)
                     {
-                        _game = null; // what happens if we are in an await???    
+                        if (await StaticHelpers.AskUserYesNoQuestion("Cribbage", "Start a new game?", "Yes", "No") == false)
+                        {
+                            return;
+                        }
+
                     }
-                    await Reset();
-                    _txtInstructions.Text = "";
-                    InteractivePlayer player = new InteractivePlayer(_cgDiscarded, _cgCrib, _board, 0);
-                    DefaultPlayer computer = new DefaultPlayer(0);
-                    computer.Init("-usedroptable");
-                    _game = new Game(this, computer, player, 0);
-                    ((Button)sender).IsEnabled = true;
-                    await this.StartGame(GameState.Start);
 
-
+                 _game = null; // what happens if we are in an await???    
 
                 }
+                await Reset();
+                _txtInstructions.Text = "";
+                InteractivePlayer player = new InteractivePlayer(_cgDiscarded, _cgCrib, 0);
+                DefaultPlayer computer = new DefaultPlayer(0);
+                computer.Init("-usedroptable");
+                _game = new Game(this, computer, player, 0);
+                ((Button)sender).IsEnabled = true;
+                await this.StartGame(GameState.Start);
+
+
+
+
             }
             catch
             {
@@ -329,8 +333,8 @@ namespace Cribbage
             CardScoring.ScoreHand(hand, sharedCard, handType, out List<Score> scores);
             var message = FormatScoreMessage(scores, _game.PlayerTurn, true);
             MessageDialog dlg = new MessageDialog(message.message, "Cribbage");
-            await dlg.ShowAsync();            
-            
+            await dlg.ShowAsync();
+
         }
 
 
@@ -383,12 +387,12 @@ namespace Cribbage
             s.Append(StaticHelpers.SetValue("State", _game.State));
             s.Append(StaticHelpers.SetValue("AutoEnterScore", _game.AutoEnterScore));
 
-            var scores = _board.GetScores();
+            var (computerBackScore, computerScore, playerBackScore, playerScore) = _board.GetScores();
 
-            s.Append(StaticHelpers.SetValue("PlayerScoreDelta", scores.playerScore - scores.playerBackScore));
-            s.Append(StaticHelpers.SetValue("PlayerBackScore", scores.playerBackScore));
-            s.Append(StaticHelpers.SetValue("ComputerScoreDelta", scores.computerScore - scores.computerBackScore));
-            s.Append(StaticHelpers.SetValue("ComputerBackScore", scores.computerBackScore));
+            s.Append(StaticHelpers.SetValue("PlayerScoreDelta", playerScore - playerBackScore));
+            s.Append(StaticHelpers.SetValue("PlayerBackScore", playerBackScore));
+            s.Append(StaticHelpers.SetValue("ComputerScoreDelta", computerScore - computerBackScore));
+            s.Append(StaticHelpers.SetValue("ComputerBackScore", computerBackScore));
 
 
             s.Append(StaticHelpers.SetValue("Dealer", _game.Dealer));
@@ -412,9 +416,11 @@ namespace Cribbage
             }
 
 
-            FileOpenPicker openPicker = new FileOpenPicker();
-            openPicker.ViewMode = PickerViewMode.Thumbnail;
-            openPicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
+            FileOpenPicker openPicker = new FileOpenPicker
+            {
+                ViewMode = PickerViewMode.Thumbnail,
+                SuggestedStartLocation = PickerLocationId.DocumentsLibrary
+            };
             openPicker.FileTypeFilter.Add(".crib");
 
 
@@ -423,7 +429,7 @@ namespace Cribbage
 
             await Reset();
             _txtInstructions.Text = "";
-            InteractivePlayer player = new InteractivePlayer(_cgDiscarded, _cgCrib, _board, 0);
+            InteractivePlayer player = new InteractivePlayer(_cgDiscarded, _cgCrib, 0);
             DefaultPlayer computer = new DefaultPlayer(0);
             computer.Init("-usedroptable");
             _game = new Game(this, computer, player, 0);
@@ -573,6 +579,47 @@ namespace Cribbage
         private void Viewbox_SizedChanged(object sender, SizeChangedEventArgs e)
         {
             //this.TraceMessage($"ScaleFactor: {_vbLayoutRoot.GetScaleFactor()}");
+        }
+
+        private void ButtonDownScore_Click(object sender, RoutedEventArgs e)
+        {
+            if (_game == null) return;
+            if (_game.Player == null) return;
+
+            int scoreDelta = Convert.ToInt32(_tbScoreToAdd.Text);
+            scoreDelta -= 1;
+            if (scoreDelta < 0) scoreDelta = 0;
+
+
+            _board.HighlightScore(PlayerType.Player, _game.Player.Score, scoreDelta, true);
+            _tbScoreToAdd.Text = scoreDelta.ToString();
+
+        }
+
+        private void ButtonUpScore_Click(object sender, RoutedEventArgs e)
+        {
+            if (_game == null) return;
+            if (_game.Player == null) return;
+
+            int scoreDelta = Convert.ToInt32(_tbScoreToAdd.Text);
+            scoreDelta += 1;
+            if (scoreDelta > 29) scoreDelta = 29;
+            _tbScoreToAdd.Text = scoreDelta.ToString();
+            _board.HighlightScore(PlayerType.Player, _game.Player.Score, scoreDelta, true);
+        }
+
+        private void ShowEnterScore(bool show)
+        {
+            double opacity = 0.0;
+            if (show)
+            {
+                opacity = 1.0;
+            }
+
+
+            _daAnimateShowScoreControls.To = opacity;
+            _daAnimateShowScoreControls.Duration = TimeSpan.FromMilliseconds(100);
+            _sbAnimateShowScoreControls.Begin();
         }
     }
 }
