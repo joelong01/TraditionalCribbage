@@ -306,7 +306,7 @@ namespace Cribbage
                         break;
                     case GameState.ScoreComputerHand:
                         PlayerTurn = PlayerType.Computer;
-                        await ScoreHandAndNotifyView(ComputerCards, SharedCard, PlayerType.Computer, HandType.Hand);
+                        await ScoreComputerHandAndNotifyView(ComputerCards, SharedCard, HandType.Hand);
                         if (Dealer == PlayerType.Computer)
                             state = GameState.ScoreComputerCrib;
                         else
@@ -316,7 +316,7 @@ namespace Cribbage
                         await _gameView.ReturnCribCards(Dealer);
                         //
                         //  above moves cards from Crib to Computer
-                        await ScoreHandAndNotifyView(ComputerCards, SharedCard, PlayerType.Computer, HandType.Crib);
+                        await ScoreComputerHandAndNotifyView(ComputerCards, SharedCard,  HandType.Crib);
                         state = GameState.EndOfHand;
                         break;
                     case GameState.ScorePlayerCrib:
@@ -492,12 +492,11 @@ namespace Cribbage
             player.Score += scoreDelta;
         }
 
-        private async Task ScoreHandAndNotifyView(List<Card> cards, Card sharedCard, PlayerType playerType, HandType handType)
+        private async Task ScoreComputerHandAndNotifyView(List<Card> cards, Card sharedCard, HandType handType)
         {
             int score = CardScoring.ScoreHand(cards, sharedCard, handType, out List<Score> scores);
-            await _gameView.ScoreHand(scores, playerType, handType);
-            Player player = (playerType == PlayerType.Computer) ? Computer : Player;
-            player.Score += score;            
+            await _gameView.ScoreComputerHand(scores, handType);            
+            Computer.Score += score;            
         }
 
       

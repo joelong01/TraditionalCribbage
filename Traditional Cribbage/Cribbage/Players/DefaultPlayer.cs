@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Cards;
-using Facet.Combinatorics;
-
-
+using Combinatorics.Collections;
 
 namespace CribbagePlayers
 {

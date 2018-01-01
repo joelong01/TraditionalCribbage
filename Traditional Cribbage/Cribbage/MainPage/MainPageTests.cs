@@ -78,9 +78,7 @@ namespace Cribbage
 
         private void OnShowScrollingText(object sender, RoutedEventArgs e)
         {
-            _scoreViewCtrl.AddMessage("one");
-            _scoreViewCtrl.AddMessage("This is the first one");            
-            _scoreViewCtrl.AddMessage("This is the second one 55555555555555555555555555555555555555555555555555555555555555555555555555555555555555");
+            
 
         }
 

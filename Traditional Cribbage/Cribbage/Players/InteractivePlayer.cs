@@ -12,15 +12,13 @@ namespace CribbagePlayers
 {
     class InteractivePlayer : Player
     {
-        CardGrid _discardedGrid = null;
-        TraditionalBoard _board = null;
+        CardGrid _discardedGrid = null;        
         CardGrid _cribGrid = null;
         public IGameView GameView { get; set; } = null;
 
-        public InteractivePlayer(CardGrid grid, CardGrid cribGrid, TraditionalBoard board, int score)
+        public InteractivePlayer(CardGrid grid, CardGrid cribGrid,  int score)
         {
-            _discardedGrid = grid;
-            _board = board;
+            _discardedGrid = grid;            
             _cribGrid = cribGrid;
             this.Score = score;
 
@@ -127,7 +125,7 @@ namespace CribbagePlayers
 
         public async Task<int> GetScoreFromUser(int score, bool autoEnter)
         {
-            return await _board.ShowAndWaitForContinue(score, autoEnter);
+            return await GameView.HighlightScoreAndWaitForContinue(PlayerType.Player, score, autoEnter);
         }
 
         public override void Init(string parameters)

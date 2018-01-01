@@ -27,8 +27,17 @@ using Windows.UI.Xaml.Markup;
 
 namespace CardView
 {
+    public class CardSelectEventArgs : EventArgs
+    {
+        public bool Selected { get; set; } = false;
+       public  CardSelectEventArgs (bool selected)
+        {
+            Selected = selected;
+        }
+    }
+
     public enum CardOrientation { FaceDown, FaceUp };
-    public delegate void CardSelectionChangedDelegate(CardCtrl card, bool selected);
+    public delegate void CardSelectionChangedDelegate(object sender, CardSelectEventArgs e);
     public enum Location { Unintialized, Deck, Discarded, Computer, Player, Crib };
 
     public sealed partial class CardCtrl : UserControl, INotifyPropertyChanged
@@ -151,8 +160,7 @@ namespace CardView
                 {
                     if ((CardNames)GetValue(CardNameProperty) != _card.CardName)
                     {
-                        CardName = _card.CardName;
-                                                
+                        CardName = _card.CardName;                                                
                     }
                 }
 
@@ -679,7 +687,7 @@ namespace CardView
                     SelectedGrid.Visibility = Visibility.Collapsed;
                 }
 
-                CardSelectionChanged?.Invoke(this, value);
+                CardSelectionChanged?.Invoke(this, new CardSelectEventArgs(value));
             }
         }
 
