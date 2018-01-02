@@ -114,6 +114,11 @@ namespace CardView
                 }
             }
 
+            foreach (var card in this)
+            {
+                card.DisconnectCardCanvas();
+            }
+
             base.Clear();
             OnListChanged?.Invoke(this, new ListChangedEventArgs(ListChangedAction.Cleared,  null));
         }
@@ -242,6 +247,7 @@ namespace CardView
 
         public void Reset()
         {
+           
             Cards.Clear();
             this.Children.Clear();
             this.Children.Add(_tbDescription);

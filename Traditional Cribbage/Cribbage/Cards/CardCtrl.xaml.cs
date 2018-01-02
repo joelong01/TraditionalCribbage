@@ -30,7 +30,7 @@ namespace CardView
     public class CardSelectEventArgs : EventArgs
     {
         public bool Selected { get; set; } = false;
-       public  CardSelectEventArgs (bool selected)
+        public CardSelectEventArgs(bool selected)
         {
             Selected = selected;
         }
@@ -45,7 +45,7 @@ namespace CardView
 
 
 
-    
+
 
         CardOrientation _myOrientation = CardOrientation.FaceUp;
         SolidColorBrush _red = new SolidColorBrush(Colors.DarkRed);
@@ -62,7 +62,7 @@ namespace CardView
         public CardCtrl()
         {
             this.InitializeComponent();
-            this.DataContext = this;            
+            this.DataContext = this;
             InitializeCards();
             Selected = false;
         }
@@ -126,9 +126,9 @@ namespace CardView
             double cardWidth = FrontGrid.ColumnDefinitions[1].ActualWidth;
             double cardHeight = FrontGrid.RowDefinitions[1].ActualHeight;
 
-            cardWidth =  115 * ZoomRatio;
+            cardWidth = 115 * ZoomRatio;
             cardHeight = 165 * ZoomRatio;
-            
+
             using (var stream = file.OpenStreamForReadAsync().Result)
             {
                 stream.Seek(0, SeekOrigin.Begin);
@@ -141,14 +141,49 @@ namespace CardView
             _frontImage.Source = svgImage;
         }
 
+        static Dictionary<CardNames, Canvas> _cardCache = new Dictionary<CardNames, Canvas>();
+
+        public static void InitCardCache()
+        {
+            foreach (CardNames cardName in Enum.GetValues(typeof(CardNames)))
+            {
+                if (cardName == CardNames.Uninitialized) continue;
+                if (cardName == CardNames.BackOfCard) continue;
+
+                string s = $"ms-appx:///Assets/Cards/xaml/{cardName}.xaml";
+                var uri = new Uri(s);
+                var file = StorageFile.GetFileFromApplicationUriAsync(uri).AsTask().Result;
+                string xaml = FileIO.ReadTextAsync(file).AsTask().Result;
+                _cardCache[cardName] = (Canvas)XamlReader.Load(xaml);                 
+            }
+        }
+
         public void SetImageForCard(CardNames cardName)
         {
-            string s = $"ms-appx:///Assets/Cards/xaml/{cardName}.xaml";
-            var uri = new Uri(s);
-            var file = StorageFile.GetFileFromApplicationUriAsync(uri).AsTask().Result;
-            string xaml = FileIO.ReadTextAsync(file).AsTask().Result;
-            UIElement elCard = (UIElement)XamlReader.Load(xaml);
-            _vbCard.Child = elCard;
+            if (_cardCache.TryGetValue(cardName, out Canvas cardCanvas) == false)
+            {                
+                string s = $"ms-appx:///Assets/Cards/xaml/{cardName}.xaml";
+                var uri = new Uri(s);
+                var file = StorageFile.GetFileFromApplicationUriAsync(uri).AsTask().Result;
+                string xaml = FileIO.ReadTextAsync(file).AsTask().Result;
+                cardCanvas = (Canvas)XamlReader.Load(xaml);
+                _cardCache[cardName] = cardCanvas;
+                
+            }
+            //
+            //  if this thows an "Value does not fall within the expected range." that means you didn't remove the Canvas from the CardCtrl
+            //  
+
+            _vbCard.Child = cardCanvas;
+        }
+        /// <summary>
+        ///  this needs to be called whenever a CardCtrl is removed from a Parent
+        /// </summary>
+     
+        public void DisconnectCardCanvas()
+        {
+         
+            _vbCard.Child = null;
         }
 
         public static readonly DependencyProperty CardNameProperty = DependencyProperty.Register("CardName", typeof(CardNames), typeof(Card), new PropertyMetadata(CardNames.AceOfSpades, CardNameChanged));
@@ -160,7 +195,7 @@ namespace CardView
                 {
                     if ((CardNames)GetValue(CardNameProperty) != _card.CardName)
                     {
-                        CardName = _card.CardName;                                                
+                        CardName = _card.CardName;
                     }
                 }
 
@@ -184,7 +219,7 @@ namespace CardView
             if (_card == null)
             {
                 _card = new Card(value);
-                                
+
             }
             else
             {
@@ -227,9 +262,9 @@ namespace CardView
             }
         }
 
-       
 
-      
+
+
 
 
         public Location Location
@@ -256,14 +291,14 @@ namespace CardView
         /// <returns></returns>
         public static List<CardCtrl> GetCards(int number, Owner owner)
         {
-            
+
             Deck deck = new Deck(Environment.TickCount);
             List<Card> Cards = deck.GetCards(number, owner);
             return CreateCardCtrlFromListOfCards(Cards);
-            
+
         }
 
-        public static List<CardCtrl> CreateCardCtrlFromListOfCards( List<Card> Cards)
+        public static List<CardCtrl> CreateCardCtrlFromListOfCards(List<Card> Cards)
         {
             List<CardCtrl> CardUI = new List<CardCtrl>();
             foreach (var card in Cards)
@@ -322,7 +357,7 @@ namespace CardView
 
         public string Serialize()
         {
-            
+
             return this.SerializeObject<CardCtrl>(_savedProperties);
         }
 
@@ -369,7 +404,7 @@ namespace CardView
         {
 
             _daRotate.To = angle;
-            
+
             await StaticHelpers.RunStoryBoard(_sbRotateCard, false);
 
         }
@@ -625,9 +660,9 @@ namespace CardView
         }
 
         #endregion
-    
 
-       
+
+
 
         private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
         {
@@ -704,7 +739,7 @@ namespace CardView
             }
         }
 
-        
+
         public Owner Owner
         {
             get
@@ -722,7 +757,8 @@ namespace CardView
         }
 
         public bool CurrentRun
-        { get
+        {
+            get
             {
                 return (this.IsEnabled);
             }
