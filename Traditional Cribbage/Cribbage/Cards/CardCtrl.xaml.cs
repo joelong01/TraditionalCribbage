@@ -116,31 +116,6 @@ namespace CardView
         }
 
 
-        public void SetImageForCard2(CardNames cardName)
-        {
-            string s = $"ms-appx:///Assets/Cards/{cardName}.svg";
-            var uri = new Uri(s);
-            var file = StorageFile.GetFileFromApplicationUriAsync(uri).AsTask().Result;
-            SvgImageSource svgImage = new SvgImageSource();
-
-            double cardWidth = FrontGrid.ColumnDefinitions[1].ActualWidth;
-            double cardHeight = FrontGrid.RowDefinitions[1].ActualHeight;
-
-            cardWidth = 115 * ZoomRatio;
-            cardHeight = 165 * ZoomRatio;
-
-            using (var stream = file.OpenStreamForReadAsync().Result)
-            {
-                stream.Seek(0, SeekOrigin.Begin);
-                var rd = stream.AsRandomAccessStream();
-                svgImage.RasterizePixelHeight = cardHeight;
-                svgImage.RasterizePixelWidth = cardWidth;
-                svgImage.SetSourceAsync(rd).AsTask();
-            }
-
-            _frontImage.Source = svgImage;
-        }
-
         static Dictionary<CardNames, Canvas> _cardCache = new Dictionary<CardNames, Canvas>();
 
         public static void InitCardCache()
