@@ -409,12 +409,17 @@ namespace Cribbage
         {
             MyMenu.IsPaneOpen = false;
 
-
-            if (await StaticHelpers.AskUserYesNoQuestion("Cribbage", "Abondon this game and open an old one?", "yes", "no") == false)
+            if (_game != null)
             {
-                return;
-            }
 
+                if (_game.State != GameState.None)
+                {
+                    if (await StaticHelpers.AskUserYesNoQuestion("Cribbage", "End this game and open an old one?", "yes", "no") == false)
+                    {
+                        return;
+                    }
+                }
+            }
 
             FileOpenPicker openPicker = new FileOpenPicker
             {
@@ -423,9 +428,11 @@ namespace Cribbage
             };
             openPicker.FileTypeFilter.Add(".crib");
 
-
-
             StorageFile file = await openPicker.PickSingleFileAsync();
+            if (file == null)
+            {
+                return;
+            }
 
             await Reset();
             _txtInstructions.Text = "";
@@ -483,6 +490,28 @@ namespace Cribbage
                     if (!retTuple.ret)
                     {
                         throw new Exception(retTuple.badToken);
+                    }
+
+                    List<CardCtrl> countedCards = new List<CardCtrl>();
+                    int count = 0;
+                    foreach (var card in _cgDiscarded.Cards)
+                    {
+                        count += card.Value;
+                        if (count <=31)
+                        {
+                            countedCards.Add(card);
+                        }
+                        else
+                        {
+                            foreach(var cc in countedCards)
+                            {
+                                cc.Counted = true;
+                                cc.Opacity = 0.8;
+                            }
+
+                            countedCards.Clear();
+                            count = 0;
+                        }
                     }
 
                     retTuple = LoadCardsIntoGrid(_cgCrib, settings["Cards"]["Crib"]);
@@ -551,10 +580,10 @@ namespace Cribbage
             }
             else
             {
-                msg = "Oh well. /n/nThe computer won.  Better luck next time!";
+                msg = "Oh well. \n\nThe computer won.  Better luck next time!";
             }
 
-            await StaticHelpers.ShowErrorText(msg, "Cribbage");
+            await StaticHelpers.ShowErrorText(msg, "");
             this.SetState(GameState.GameOver);
         }
         private (bool ret, string badToken) LoadCardsIntoGrid(CardGrid grid, string saveString)
