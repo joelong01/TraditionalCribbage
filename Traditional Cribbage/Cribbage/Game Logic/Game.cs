@@ -200,8 +200,7 @@ namespace Cribbage
                             state = GameState.PlayerSelectsCribCards;
                         }
                         break;
-                    case GameState.PlayerSelectsCribCards:
-                        _gameView.SetState(state);
+                    case GameState.PlayerSelectsCribCards:                        
                         List<CardCtrl> playerCrib = await Player.SelectCribUiCards(null, Dealer == PlayerType.Player); // when I return from this, the cards are already in the crib.                      
                         state = GameState.GiveToCrib;
                         break;
@@ -228,13 +227,14 @@ namespace Cribbage
                     case GameState.CountPlayer:
                         {
                             SetPlayableCards();
-                            _gameView.SetState(state); // updates UI based on the state of the game    
+                            
                             PlayerTurn = PlayerType.Player;
                             var (computerCanPlay, playerCanPlay) = CanPlay(ComputerCards, PlayerCards, CurrentCount);
                             state = GameState.CountComputer;
                             if (playerCanPlay)
                             {
                                 CurrentCount = await DoCountForPlayer(Player, PlayerType.Player, CountedCards, PlayerCards, CurrentCount);
+                                
                             }
 
                             (computerCanPlay, playerCanPlay) = CanPlay(ComputerCards, PlayerCards, CurrentCount);
@@ -259,7 +259,7 @@ namespace Cribbage
                         break;
                     case GameState.CountComputer:
                         {
-                            _gameView.SetState(state); // updates UI based on the state of the game
+                            
                             PlayerTurn = PlayerType.Computer;                            
                             CurrentCount = await DoCountForPlayer(Computer, PlayerType.Computer, CountedCards, ComputerCards, CurrentCount);
                             state = GameState.CountPlayer;
@@ -374,12 +374,13 @@ namespace Cribbage
                 CardCtrl uiCard = cardPlayed.Tag as CardCtrl;                
                 int score = CardScoring.ScoreCountingCardsPlayed(countedCards, cardPlayed, currentCount, out List<Score> scoreList);
                 currentCount += uiCard.Value;               
-                await _gameView.CountCard(uiCard, currentCount);
+                await _gameView.CountCard(playerTurn, uiCard, currentCount);
                 AddScore(scoreList, playerTurn);
                 if (currentCount == 31)
                 {
-                    currentCount = 0;
+                    CurrentCount = 31; // force the UI to show 31 before you hit Continue
                     await _gameView.RestartCounting(playerTurn);
+                    currentCount = 0;
                 }
             }
             
@@ -457,6 +458,9 @@ namespace Cribbage
         {
             get
             {
+                if (CountedCards.Count == 0)
+                    return Owner.Uninitialized;
+
                 CardCtrl lastCard = (CardCtrl)(CountedCards.Last()).Tag;
                 return lastCard.Owner;
             }
@@ -503,16 +507,20 @@ namespace Cribbage
         private async Task EndCounting()
         {
             //
-            // score 1 for last card
-            List<Score> scores = new List<Score>();
-            ScoreName scoreName = ScoreName.LastCard;
-            scores.Add(new Score(scoreName, 1));
-            PlayerType player = PlayerType.Computer;
+            // score 1 for last card -- unless we hit 31
 
-            if (LastCardOwner == Owner.Player)
-                player = PlayerType.Player;
+            if (CountedCards.Count != 0)
+            {
+                List<Score> scores = new List<Score>();
+                ScoreName scoreName = ScoreName.LastCard;
+                scores.Add(new Score(scoreName, 1));
+                PlayerType player = PlayerType.Computer;
 
-            AddScore(scores, player);
+                if (LastCardOwner == Owner.Player)
+                    player = PlayerType.Player;
+
+                AddScore(scores, player);
+            }
             await _gameView.SendCardsBackToOwner();
 
         }

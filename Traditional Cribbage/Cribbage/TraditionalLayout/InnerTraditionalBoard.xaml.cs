@@ -264,6 +264,9 @@ namespace Cribbage
 
         public List<Task> AnimateScore(PlayerType type, int scoreDelta, bool async)
         {
+            if (scoreDelta == 0)
+                return null;
+
             PlayerDataObject data = GetPlayerData(type);
             int newScore = data.FrontScore + scoreDelta;
             List<Task> taskList = null;
@@ -318,14 +321,14 @@ namespace Cribbage
 
         private Point GetSecondColumnPositionForScore(PlayerDataObject data, int newScore)
         {
-           
+
             //  you need to worry the issue that when you do these transforms, the Storyboard hasn't run yet,
             //  so the BackPeg can still be in the bottom Ring - so your (x,y) to the right hole will be wrong.
             //  so we use a target ellipse that is in the same location that you exit the ring 
             //  animation
 
             int backScore = data.BackPeg.Score;
-            FrameworkElement from = data.Pegs[newScore + 1];            
+            FrameworkElement from = data.Pegs[newScore + 1];
             FrameworkElement target = _p86Target;
 
             if (data.BackPeg.Owner == Owner.Computer)
@@ -334,19 +337,19 @@ namespace Cribbage
 
             GeneralTransform gt = target.TransformToVisual(from);
 
-            double radiusDiff = (data.BackPeg.ActualHeight - data.Pegs[0].ActualHeight)*0.5;
+            double radiusDiff = (data.BackPeg.ActualHeight - data.Pegs[0].ActualHeight) * 0.5;
 
             Point pt = gt.TransformPoint(new Point(-radiusDiff, -radiusDiff));
             pt.Y = Math.Round(pt.Y, 1);
             pt.X = Math.Round(pt.X, 1);
-           // this.TraceMessage($"Target:{target.Name} from {backScore} to {newScore} pt: {pt}");
+            // this.TraceMessage($"Target:{target.Name} from {backScore} to {newScore} pt: {pt}");
             return pt;
         }
 
         private Point GetAnimationPoint(PlayerDataObject data, int score)
         {
 
-            Ellipse target =  GetEllipseForScore(data, score);
+            Ellipse target = GetEllipseForScore(data, score);
             FrameworkElement movePeg = data.BackPeg;
             double targetRadius = movePeg.ActualHeight / 2.0;
             Point targetPoint = new Point(target.ActualWidth / 2.0, target.ActualHeight / 2.0);
@@ -392,14 +395,14 @@ namespace Cribbage
             Debug.Assert(durationUpSecondCol.IsPositiveOrZero());
             Debug.Assert(durationToWin.IsPositiveOrZero());
 
-          
+
 
             DoubleAnimation animateX = (DoubleAnimation)pegStoryBoard.Children[(int)PegStoryAnimationChildren.XFirstColumn];
             DoubleAnimation animateY = (DoubleAnimation)pegStoryBoard.Children[(int)PegStoryAnimationChildren.YFirstColumn];
             DoubleAnimation rotateTop = (DoubleAnimation)pegStoryBoard.Children[(int)PegStoryAnimationChildren.RotateTopAngle];
             DoubleAnimation animateCenterY = (DoubleAnimation)pegStoryBoard.Children[(int)PegStoryAnimationChildren.YThirdColumn];
             DoubleAnimation rotateBottom = (DoubleAnimation)pegStoryBoard.Children[(int)PegStoryAnimationChildren.RotateBottomAngle];
-            DoubleAnimation animateUpSecondCol = (DoubleAnimation)pegStoryBoard.Children[(int)PegStoryAnimationChildren.YSecondColumn];            
+            DoubleAnimation animateUpSecondCol = (DoubleAnimation)pegStoryBoard.Children[(int)PegStoryAnimationChildren.YSecondColumn];
             DoubleAnimation animateCorrectX = (DoubleAnimation)pegStoryBoard.Children[(int)PegStoryAnimationChildren.XCorrectLayout];
             DoubleAnimation animateCorrectY = (DoubleAnimation)pegStoryBoard.Children[(int)PegStoryAnimationChildren.YCorrectLayout];
             DoubleAnimation animateToWinX = (DoubleAnimation)pegStoryBoard.Children[(int)PegStoryAnimationChildren.XToWinning];
@@ -431,7 +434,7 @@ namespace Cribbage
             animateCorrectX.Duration = TimeSpan.FromSeconds(0);
             animateCorrectX.BeginTime = animateUpSecondCol.BeginTime;
             animateCorrectY.Duration = thirdYDuration;
-            animateCorrectY.BeginTime = animateUpSecondCol.BeginTime; 
+            animateCorrectY.BeginTime = animateUpSecondCol.BeginTime;
 
             Duration winDuration = TimeSpan.FromMilliseconds(durationToWin);
             animateToWinX.Duration = winDuration;
@@ -496,7 +499,7 @@ namespace Cribbage
         {
             double duration = 0;
             if (newScore < 81) return 0; // haven't gotten here yet
-            
+
 
             int animateScore = newScore;
             if (newScore > 85)
@@ -522,7 +525,7 @@ namespace Cribbage
             duration = (Math.Min(animateScore, 85) - Math.Max(data.BackPeg.Score, 80)) * durationPerPoint * 4;
 
             if (duration < 0) duration = 0; // HACK
-           // this.TraceMessage($"AnimateAroundBottom: newScore:{newScore} Duration:{duration} CenterX:{pegRotate.CenterX} CenterY:{pegRotate.CenterY} Angle: {rotateAnimation.To}"); 
+                                            // this.TraceMessage($"AnimateAroundBottom: newScore:{newScore} Duration:{duration} CenterX:{pegRotate.CenterX} CenterY:{pegRotate.CenterY} Angle: {rotateAnimation.To}"); 
 
             return duration;
         }
@@ -564,21 +567,21 @@ namespace Cribbage
             if (newScore > 120)              // going past the end - we set up the animation to the end of this animation
                 animateScore = 120;
 
-            
+
             DoubleAnimation animateCorrectX = (DoubleAnimation)storyboard.Children[(int)PegStoryAnimationChildren.XCorrectLayout];
-            
+
             //
             //  STRANGE:  I tried hard to use YSecondColumn to animate the peg up the second column.  But it would start from the 
             //            0 position each time the animation run, as if it was being reset.  but I couldn't find the place where 
             //            the reset was happening, and this works.  so I leave it.  sigh.  not happy.
 
 
-            
+
             DoubleAnimation animateYSecondColumn = (DoubleAnimation)storyboard.Children[(int)PegStoryAnimationChildren.YCorrectLayout];
             //DoubleAnimation animateYSecondColumn = (DoubleAnimation)storyboard.Children[(int)PegStoryAnimationChildren.YSecondColumn];
             Point pt = GetSecondColumnPositionForScore(data, animateScore);
 
-            
+
             animateCorrectX.To = -pt.X;
             animateYSecondColumn.To = -pt.Y;
             int scoreDelta = animateScore - Math.Max(data.BackPeg.Score, 85);
@@ -649,7 +652,7 @@ namespace Cribbage
             }
         }
 
-        
+
 
         private void Animate(PlayerDataObject data, int newScore, List<Task> taskList, double duration, bool async)
         {
@@ -692,7 +695,7 @@ namespace Cribbage
             double durationTop = AnimateAroundTop(data, storyboard, newScore, durationPerPoint / 2);
             double durationThirdColumnY = durationThirdColumnY = AnimateDownThirdColumn(data, storyboard, newScore, durationPerPoint);
             double durationBottomRotation = AnimateAroundBottom(data, storyboard, newScore, durationPerPoint / 2);
-            
+
             double durationUpSecondCol = AnimateUpSecondColumn(data, storyboard, newScore, durationPerPoint);
             double durationToWin = AnimateToWinningPosition(data, storyboard, newScore, durationPerPoint);
 
@@ -714,7 +717,7 @@ namespace Cribbage
 
     }
 
-   
+
 
     public enum PegStoryAnimationChildren { XFirstColumn = 0, YFirstColumn = 1, RotateTopAngle = 2, YThirdColumn = 3, RotateBottomAngle = 4, YSecondColumn = 5, XToWinning = 6, YToWinning = 7, XCorrectLayout = 8, YCorrectLayout = 9 };
 

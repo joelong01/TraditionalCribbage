@@ -39,7 +39,7 @@ namespace Cribbage
 
         //
         //  Count Computer Card - animate the right card and update the current count
-        Task CountCard(CardCtrl card, int newCount);
+        Task CountCard(PlayerType playerTurn, CardCtrl card, int newCount);
 
         //
         // Animate the cards back to the player and the computer so that scoring can take place
@@ -85,7 +85,13 @@ namespace Cribbage
 
         public void SetCount(int count)
         {
+
+            if (count == 31)
+            {
+                this.TraceMessage("break here");
+            }
             _ctrlCount.Count = count;
+            _ctrlCount.UpdateLayout();
         }
 
         //
@@ -93,10 +99,10 @@ namespace Cribbage
         //
         //  if this is the player, update which cards can be played.
         //
-        public async Task CountCard(CardCtrl card, int newCount)
+        public async Task CountCard(PlayerType playerTurn, CardCtrl card, int newCount)
         {
 
-            if (_game.PlayerTurn == PlayerType.Computer)
+            if (playerTurn == PlayerType.Computer)
             {
                 List<Task> tList = new List<Task>();
                 Task task = CardGrid.AnimateMoveOneCard(_cgComputer, _cgDiscarded, card, _cgDiscarded.Cards.Count, false, MOVE_CARDS_ANIMATION_DURATION, 0);
@@ -126,7 +132,7 @@ namespace Cribbage
             await Task.Delay(10);
             _cgDeck.SetCardPositionsNoAnimation();
             await MoveCrib(dealer);
-            await AnimateDeal(playerCards, computerCards, computerGribCards, dealer);            
+            await AnimateDeal(playerCards, computerCards, computerGribCards, dealer);
         }
 
         private Task MoveCrib(PlayerType player)
@@ -292,18 +298,21 @@ namespace Cribbage
             _tbScoreToAdd.Visibility = Visibility.Collapsed;
             _cgDiscarded.Description = "Counted Cards";
             _txtScoreLabel.Text = "";
+            _btnSave.IsEnabled = false;
             switch (state)
             {
                 case GameState.PlayerSelectsCribCards:
+                    _btnSave.IsEnabled = true;
                     _cgPlayer.MaxSelectedCards = 2;
                     _cgPlayer.DropTarget = _cgCrib;
                     _txtInstructions.Text = "Drop two cards on the crib";
                     _cgDiscarded.Description = "Drop Crib Cards here";
                     break;
                 case GameState.CountPlayer:
+                    _btnSave.IsEnabled = true;
                     _cgPlayer.MaxSelectedCards = 1;
                     _cgPlayer.DropTarget = _cgDiscarded;
-                    _ctrlCount.Visibility = Visibility.Visible;                    
+                    _ctrlCount.Visibility = Visibility.Visible;
                     _txtInstructions.Text = "Drop the card to be counted";
                     break;
                 case GameState.ScoreComputerCrib:
@@ -314,30 +323,32 @@ namespace Cribbage
                     _btnDownScore.Visibility = Visibility.Collapsed;
                     _btnUpScore.Visibility = Visibility.Collapsed;
                     _tbScoreToAdd.Visibility = Visibility.Visible;
+                    _txtInstructions.Text = "Press Continue";
                     break;
                 case GameState.CountComputer:
-                case GameState.Count:                
-                    _btnShowScoreAgain.Visibility = Visibility.Visible;
-                    _ctrlCount.Visibility = Visibility.Visible;                    
+                case GameState.Count:                    
+                    _ctrlCount.Visibility = Visibility.Visible;
                     break;
                 case GameState.ScorePlayerHand:
+                    _btnSave.IsEnabled = true;
                     _txtScoreLabel.Text = "Player Score:";
-                    _txtInstructions.Text = "use the buttons on the board to set a score for your hand";
+                    _txtInstructions.Text = "use the buttons set a score and then press Continue";
                     _btnShowScoreAgain.Visibility = Visibility.Visible;
                     _btnContinue.Visibility = Visibility.Visible;
                     _btnDownScore.Visibility = Visibility.Visible;
                     _btnUpScore.Visibility = Visibility.Visible;
                     _tbScoreToAdd.Visibility = Visibility.Visible;
                     ShowEnterScore(true);
-                    
+
                     break;
                 case GameState.ScorePlayerCrib:
+                    _btnSave.IsEnabled = true;
                     _btnDownScore.Visibility = Visibility.Visible;
                     _btnUpScore.Visibility = Visibility.Visible;
                     _tbScoreToAdd.Visibility = Visibility.Visible;
                     _btnContinue.Visibility = Visibility.Visible;
                     _txtScoreLabel.Text = "Player Score:";
-                    _txtInstructions.Text = "use the buttons on the board to set a score for your crib";
+                    _txtInstructions.Text = "use the buttons set a score and then press Continue";
                     _btnShowScoreAgain.Visibility = Visibility.Visible;
                     ShowEnterScore(true);
                     break;
@@ -351,30 +362,30 @@ namespace Cribbage
 
         public async Task RestartCounting(PlayerType playerType)
         {
-            _ctrlCount.Count = 0;
+            _cgPlayer.MaxSelectedCards = 0;
+
+            await WaitForContinue(playerType, "Press Continue");
+
+
             foreach (CardCtrl card in _cgDiscarded.Cards)
             {
                 card.Opacity = 0.8;
                 card.Counted = true;
             }
 
-            _cgPlayer.MaxSelectedCards = 0;
-
-            await WaitForContinue(playerType);
 
             _cgPlayer.MaxSelectedCards = 1;
+
+            SetCount(0);
         }
 
-        private async Task WaitForContinue(PlayerType playerType)
+        private async Task WaitForContinue(PlayerType playerType, string message)
         {
-            if (playerType == PlayerType.Computer)
-            {
-                _btnContinue.Visibility = Visibility.Visible;
-                await _btnContinue.WhenClicked();
-                _btnContinue.Visibility = Visibility.Collapsed;
+            _txtInstructions.Text = message;
+            _btnContinue.Visibility = Visibility.Visible;
+            await _btnContinue.WhenClicked();
+            _btnContinue.Visibility = Visibility.Collapsed;
 
-
-            }
         }
 
         public int AddScore(List<Score> scores, PlayerType playerTurn)
@@ -514,10 +525,10 @@ namespace Cribbage
 
             if (autosetScore)
             {
-                _board.HighlightScore(PlayerType.Player, _game.Player.Score,  actualScore,  true);  
+                _board.HighlightScore(PlayerType.Player, _game.Player.Score, actualScore, true);
                 _tbScoreToAdd.Text = actualScore.ToString();
                 maxHighlight = actualScore;
-                
+
             }
             else
             {
@@ -530,7 +541,7 @@ namespace Cribbage
 
             void OnCompletion(object _, RoutedEventArgs args)
             {
-                int scoreDelta = Convert.ToInt32(_tbScoreToAdd.Text);                
+                int scoreDelta = Convert.ToInt32(_tbScoreToAdd.Text);
                 tcs.SetResult(null);
             }
 
@@ -538,7 +549,7 @@ namespace Cribbage
             {
                 _btnContinue.Click += OnCompletion;
 
-                
+
                 await tcs.Task;
                 return Convert.ToInt32(_tbScoreToAdd.Text);
 
@@ -546,7 +557,7 @@ namespace Cribbage
             finally
             {
                 _btnContinue.Click -= OnCompletion;
-                
+
                 _board.HighlightScore(PlayerType.Player, _game.Player.Score, maxHighlight, false);
 
             }
