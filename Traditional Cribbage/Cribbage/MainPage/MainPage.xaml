@@ -57,13 +57,13 @@
 
             <StackPanel Background="{StaticResource CardColor}">
                 <Button x:Name="HamburgerButton" FontFamily="Segoe MDL2 Assets" Content="&#xE700;"
-                        Click="HamburgerButton_Click" VerticalAlignment="Top"
+                        Click="HamburgerButton_Click" VerticalAlignment="Top" Foreground="White"
                         Style="{StaticResource HamburgerButton}" />
                 <StackPanel Orientation="Horizontal" Margin="0,10, 0, 0">
                     <Button x:Name="_btnNewGame" FontFamily="Segoe MDL2 Assets" Content=""
                             ToolTipService.ToolTip="New Game" Foreground="White"
                             Style="{StaticResource HamburgerButton}" Click="OnNewGame" />
-                    <TextBlock Text="New Game" Style="{StaticResource HamburgerText}" />
+                    <TextBlock Text="New Game" Style="{StaticResource HamburgerText}" Foreground="White" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0,10, 0, 0">
                     <Button x:Name="_btnSave" Content="&#xE105;" ToolTipService.ToolTip="Save Game"
@@ -72,13 +72,13 @@
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0,10, 0, 0">
                     <Button Name="_btnOnOpen" Click="OnOpenGame" ToolTipService.ToolTip="Open Game" Content="&#xE1A5;"
-                            FontFamily="Segoe UI Symbol" Style="{StaticResource HamburgerButton}" />
+                            FontFamily="Segoe UI Symbol" Foreground="White" Style="{StaticResource HamburgerButton}" />
                     <TextBlock Text="Open Game" Style="{StaticResource HamburgerText}" />
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Margin="0,10, 0, 0">
                     <Button Name="_btnSuggestion" Click="OnGetSuggestion" ToolTipService.ToolTip="Suggestion"
-                            Content="&#xE11B;" FontFamily="Segoe UI Symbol"
+                            Content="&#xE11B;" FontFamily="Segoe UI Symbol" Foreground="White"
                             Style="{StaticResource HamburgerButton}" />
                     <TextBlock Text="Suggestion" Style="{StaticResource HamburgerText}" />
                 </StackPanel>
@@ -134,7 +134,7 @@
                 </Viewbox>
 
 
-                <Viewbox Name="_vbLayoutRoot" Stretch="Uniform" Grid.ColumnSpan="1" Grid.Column="1"
+                <Viewbox Name="_vbLayoutRoot" Stretch="Uniform" Grid.RowSpan="2" Grid.ColumnSpan="1" Grid.Column="1"
                          Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top"
                          SizeChanged="Viewbox_SizedChanged">
                     <Grid x:Name="LayoutRoot" Background="Transparent" Grid.RowSpan="1" Grid.ColumnSpan="1"
@@ -305,7 +305,7 @@
                                     <RowDefinition Height="5" />
                                     <RowDefinition Height="50" />
                                 </Grid.RowDefinitions>
-                                <Viewbox Grid.Row="0" Grid.RowSpan="1" VerticalAlignment="Top"
+                                <Viewbox Grid.Column="3" Grid.Row="0" Grid.RowSpan="1" VerticalAlignment="Top"
                                          HorizontalAlignment="Center" Canvas.ZIndex="20" Grid.ColumnSpan="1" Margin="0">
                                     <RepeatButton x:Name="_btnUpScore" Click="ButtonUpScore_Click"
                                                   Height="19"
@@ -318,7 +318,7 @@
                                         </RepeatButton.RenderTransform>
                                     </RepeatButton>
                                 </Viewbox>
-                                <Viewbox  Grid.Row="4" Grid.RowSpan="1" VerticalAlignment="Bottom"
+                                <Viewbox Grid.Column="3" Grid.Row="4" Grid.RowSpan="1" VerticalAlignment="Bottom"
                                          HorizontalAlignment="Center" Canvas.ZIndex="20" Grid.ColumnSpan="1" Margin="0">
                                     <RepeatButton x:Name="_btnDownScore" Click="ButtonDownScore_Click"
                                                   Style="{StaticResource ChangeScoreButton}"
@@ -327,7 +327,7 @@
                                                   Content="ê" FontFamily="Wingdings" Height="19" />
                                 </Viewbox>
 
-                                <Viewbox Grid.Row="2" VerticalAlignment="Center"
+                                <Viewbox Grid.Column="3" Grid.Row="2" VerticalAlignment="Center"
                                          HorizontalAlignment="Center" Canvas.ZIndex="1" Margin="0" Grid.ColumnSpan="1">
                                     <TextBlock x:Name="_tbScoreToAdd" Text="8"
                                                Style="{StaticResource CribbageTextBlock}" CharacterSpacing="0"
