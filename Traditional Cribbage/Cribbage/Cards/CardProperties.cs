@@ -1,27 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using Cribbage;
 
 namespace Cards
 {
     public partial class Card : INotifyPropertyChanged
     {
-        int _Index = 0;
-        int _Rank = 0;
-        Suit _Suit = Suit.Uninitialized;
-        CardOrdinal _CardOrdinal = CardOrdinal.Uninitialized;
+        private CardOrdinal _CardOrdinal = CardOrdinal.Uninitialized;
+        private int _Index;
+        private int _Rank;
+        private Suit _Suit = Suit.Uninitialized;
         public Owner Owner { get; set; } = Owner.Uninitialized;
+
         public CardOrdinal CardOrdinal
         {
-            get
-            {
-                return _CardOrdinal;
-            }
+            get => _CardOrdinal;
             set
             {
                 if (_CardOrdinal != value)
@@ -31,12 +25,10 @@ namespace Cards
                 }
             }
         }
+
         public Suit Suit
         {
-            get
-            {
-                return _Suit;
-            }
+            get => _Suit;
             set
             {
                 if (_Suit != value)
@@ -49,24 +41,20 @@ namespace Cards
 
         public CardNames CardName
         {
-            get
-            {
-                return (CardNames)(((int)(Suit - 1) * 13 + Rank - 1));
-
-            }
+            get => (CardNames) ((int) (Suit - 1) * 13 + Rank - 1);
             set
             {
                 //
                 //  given a number of 0-51, set the suit and the rank
 
-                if ((int)value < 0 || (int)value > 51)
-                    throw new Exception($"The value {(int)value} is an invalid CardNumber");
+                if ((int) value < 0 || (int) value > 51)
+                    throw new Exception($"The value {(int) value} is an invalid CardNumber");
 
-                int val = (int)value;
+                var val = (int) value;
                 Index = val;
-                Suit = (Suit)((int)(val / 13) + 1);
+                Suit = (Suit) (val / 13 + 1);
                 Rank = val % 13 + 1;
-                CardOrdinal = (CardOrdinal)Rank;
+                CardOrdinal = (CardOrdinal) Rank;
             }
         }
 
@@ -79,14 +67,11 @@ namespace Cards
 
                 return 10;
             }
-           
         }
+
         public int Index
         {
-            get
-            {
-                return _Index;
-            }
+            get => _Index;
             set
             {
                 if (_Index != value)
@@ -96,13 +81,10 @@ namespace Cards
                 }
             }
         }
-        
+
         public int Rank
         {
-            get
-            {
-                return _Rank;
-            }
+            get => _Rank;
             set
             {
                 if (_Rank != value)
@@ -114,7 +96,8 @@ namespace Cards
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-        private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+
+        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

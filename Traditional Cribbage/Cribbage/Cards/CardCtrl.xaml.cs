@@ -1,27 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI;
+using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
+using Windows.UI.Xaml.Markup;
+using Cards;
 using Cribbage;
 using LongShotHelpers;
-using Cards;
-using Windows.Storage;
-using Windows.UI.Xaml.Media.Imaging;
-using Windows.UI.Xaml.Markup;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -29,165 +19,91 @@ namespace CardView
 {
     public class CardSelectEventArgs : EventArgs
     {
-        public bool Selected { get; set; } = false;
         public CardSelectEventArgs(bool selected)
         {
             Selected = selected;
         }
+
+        public bool Selected { get; set; }
     }
 
-    public enum CardOrientation { FaceDown, FaceUp };
-    public delegate void CardSelectionChangedDelegate(object sender, CardSelectEventArgs e);
-    public enum Location { Unintialized, Deck, Discarded, Computer, Player, Crib };
-    
-
-    public sealed partial class CardCtrl : UserControl, INotifyPropertyChanged
+    public enum CardOrientation
     {
+        FaceDown,
+        FaceUp
+    }
+
+    public delegate void CardSelectionChangedDelegate(object sender, CardSelectEventArgs e);
+
+    public enum Location
+    {
+        Unintialized,
+        Deck,
+        Discarded,
+        Computer,
+        Player,
+        Crib
+    }
 
 
+    public sealed partial class CardCtrl : INotifyPropertyChanged
+    {
+        private static readonly Dictionary<CardNames, Canvas> CardCache = new Dictionary<CardNames, Canvas>();
 
+        public static readonly DependencyProperty CardNameProperty = DependencyProperty.Register("CardName",
+            typeof(CardNames), typeof(Card), new PropertyMetadata(CardNames.AceOfSpades, CardNameChanged));
 
-
-        CardOrientation _myOrientation = CardOrientation.FaceUp;
-        SolidColorBrush _red = new SolidColorBrush(Colors.DarkRed);
-        SolidColorBrush _black = new SolidColorBrush(Colors.Black);
-        private bool _highlightCards = false;
-        Location _location = Location.Unintialized;        
-        Card _card = null;
-        static Dictionary<CardNames, Canvas> _cardCache = new Dictionary<CardNames, Canvas>();
-        public static readonly DependencyProperty CardNameProperty = DependencyProperty.Register("CardName", typeof(CardNames), typeof(Card), new PropertyMetadata(CardNames.AceOfSpades, CardNameChanged));
 
         //
         //  these are the properties that we save/load
-        private List<string> _savedProperties = new List<string> { "FaceDown", "Suit", "Rank" };
+        private readonly List<string> _savedProperties = new List<string> {"FaceDown", "Suit", "Rank"};
 
-        //
-        //  events
-        public event PropertyChangedEventHandler PropertyChanged;
-        public event CardSelectionChangedDelegate CardSelectionChanged;
+        private Location _location = Location.Unintialized;
+        private CardOrientation _myOrientation = CardOrientation.FaceUp;
 
         public CardCtrl()
         {
-            this.InitializeComponent();
-            this.DataContext = this;
+            InitializeComponent();
+            DataContext = this;
             Selected = false;
-            
         }
 
         public CardCtrl(Card card)
         {
-            this.InitializeComponent();
-            this.DataContext = this;
-            _card = card;
-            CardName = _card.CardName;
-            
+            InitializeComponent();
+            DataContext = this;
+            Card = card;
+            CardName = Card.CardName;
+
             Selected = false;
         }
-        
-
-        public Card Card
-        {
-            get
-            {
-                return _card;
-            }
-        }
 
 
-        public static void InitCardCache()
-        {
-            foreach (CardNames cardName in Enum.GetValues(typeof(CardNames)))
-            {
-                if (cardName == CardNames.Uninitialized) continue;
-                if (cardName == CardNames.BackOfCard) continue;
+        public Card Card { get; }
 
-                string s = $"ms-appx:///Assets/Cards/xaml/{cardName}.xaml";
-                var uri = new Uri(s);
-                var file = StorageFile.GetFileFromApplicationUriAsync(uri).AsTask().Result;
-                string xaml = FileIO.ReadTextAsync(file).AsTask().Result;
-                _cardCache[cardName] = (Canvas)XamlReader.Load(xaml);                 
-            }
-        }
 
-        public void SetImageForCard(CardNames cardName)
-        {
-            if (_cardCache.TryGetValue(cardName, out Canvas cardCanvas) == false)
-            {                
-                string s = $"ms-appx:///Assets/Cards/xaml/{cardName}.xaml";
-                var uri = new Uri(s);
-                var file = StorageFile.GetFileFromApplicationUriAsync(uri).AsTask().Result;
-                string xaml = FileIO.ReadTextAsync(file).AsTask().Result;
-                cardCanvas = (Canvas)XamlReader.Load(xaml);
-                _cardCache[cardName] = cardCanvas;
-                
-            }
-            //
-            //  if this thows an "Value does not fall within the expected range." that means you didn't remove the Canvas from the CardCtrl
-            //  
-
-            _vbCard.Child = cardCanvas;
-        }
-        /// <summary>
-        ///  this needs to be called whenever a CardCtrl is removed from a Parent
-        /// </summary>
-     
-        public void DisconnectCardCanvas()
-        {
-         
-            _vbCard.Child = null;
-        }
-
-        
         public CardNames CardName
         {
             get
             {
-                if (_card != null)
-                {
-                    if ((CardNames)GetValue(CardNameProperty) != _card.CardName)
-                    {
-                        CardName = _card.CardName;
-                    }
-                }
+                if (Card != null)
+                    if ((CardNames) GetValue(CardNameProperty) != Card.CardName)
+                        CardName = Card.CardName;
 
-                return (CardNames)GetValue(CardNameProperty);
-
-
+                return (CardNames) GetValue(CardNameProperty);
             }
-            set { SetValue(CardNameProperty, value); }
+            set => SetValue(CardNameProperty, value);
         }
-        private static void CardNameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            CardCtrl cardCtrl = d as CardCtrl;
-            CardNames cardName = (CardNames)e.NewValue;
-
-            cardCtrl.SetImageForCard(cardName);
-
-
-        }
-        private void SetCardName(CardNames value)
-        {
-            if (_card == null)
-            {
-                _card = new Card(value);
-
-            }
-            else
-            {
-                _card.CardName = value;
-            }
-        }
-
 
 
         public int Rank
         {
             get
             {
-                if (_card == null)
+                if (Card == null)
                     return 0;
 
-                return _card.Rank;
+                return Card.Rank;
             }
         }
 
@@ -195,10 +111,10 @@ namespace CardView
         {
             get
             {
-                if (_card == null)
+                if (Card == null)
                     return 0;
 
-                return _card.Index;
+                return Card.Index;
             }
         }
 
@@ -206,24 +122,17 @@ namespace CardView
         {
             get
             {
-                if (_card == null)
+                if (Card == null)
                     return 0;
 
-                return _card.Value;
+                return Card.Value;
             }
         }
 
 
-
-
-
-
         public Location Location
         {
-            get
-            {
-                return _location;
-            }
+            get => _location;
             set
             {
                 if (value != _location)
@@ -235,6 +144,132 @@ namespace CardView
             }
         }
 
+        public string Info
+        {
+            get { return ToString(); }
+            set { }
+        }
+
+        public new bool IsEnabled
+        {
+            get => base.IsEnabled;
+            set
+            {
+                Opacity = value ? 1.0 : .5;
+                base.IsEnabled = value;
+            }
+        }
+
+        public Point AnimationPosition
+        {
+            get
+            {
+                var x = (double) MoveCardDoubleAnimationX.To;
+                var y = (double) MoveCardDoubleAnimationY.To;
+                return new Point(x, y);
+            }
+            set
+            {
+                MoveCardDoubleAnimationX.To = value.X;
+                MoveCardDoubleAnimationY.To = value.Y;
+            }
+        }
+
+        public double AnimateRotation
+        {
+            get => (double) MoveCardDoubleAnimationAngle.To;
+            set => MoveCardDoubleAnimationAngle.To = value;
+        }
+
+        public bool Selected
+        {
+            get => SelectedGrid.Visibility == Visibility.Visible;
+            set
+            {
+                Highlight = value;
+
+                SelectedGrid.Visibility = value ? Visibility.Visible : Visibility.Collapsed;
+
+                CardSelectionChanged?.Invoke(this, new CardSelectEventArgs(value));
+            }
+        }
+
+        public bool HighlightCards { get; set; } = false;
+
+
+        public Owner Owner
+        {
+            get => Card.Owner;
+            set
+            {
+                if (value != Card.Owner)
+                {
+                    Card.Owner = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        public bool CurrentRun => IsEnabled;
+
+        public bool Counted { get; set; }
+
+        //
+        //  events
+        public event PropertyChangedEventHandler PropertyChanged;
+        public event CardSelectionChangedDelegate CardSelectionChanged;
+
+
+        public static void InitCardCache()
+        {
+            foreach (CardNames cardName in Enum.GetValues(typeof(CardNames)))
+            {
+                if (cardName == CardNames.Uninitialized) continue;
+                if (cardName == CardNames.BackOfCard) continue;
+
+                var s = $"ms-appx:///Assets/Cards/xaml/{cardName}.xaml";
+                var uri = new Uri(s);
+                var file = StorageFile.GetFileFromApplicationUriAsync(uri).AsTask().Result;
+                var xaml = FileIO.ReadTextAsync(file).AsTask().Result;
+                CardCache[cardName] = (Canvas) XamlReader.Load(xaml);
+            }
+        }
+
+        public void SetImageForCard(CardNames cardName)
+        {
+            if (CardCache.TryGetValue(cardName, out var cardCanvas) == false)
+            {
+                var s = $"ms-appx:///Assets/Cards/xaml/{cardName}.xaml";
+                var uri = new Uri(s);
+                var file = StorageFile.GetFileFromApplicationUriAsync(uri).AsTask().Result;
+                var xaml = FileIO.ReadTextAsync(file).AsTask().Result;
+                cardCanvas = (Canvas) XamlReader.Load(xaml);
+                CardCache[cardName] = cardCanvas;
+            }
+            //
+            //  if this thows an "Value does not fall within the expected range." that means you didn't remove the Canvas from the CardCtrl
+            //  
+
+            _vbCard.Child = cardCanvas;
+        }
+
+        /// <summary>
+        ///     this needs to be called whenever a CardCtrl is removed from a Parent
+        /// </summary>
+        public void DisconnectCardCanvas()
+        {
+            _vbCard.Child = null;
+        }
+
+        private static void CardNameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var cardCtrl = d as CardCtrl;
+            var cardName = (CardNames) e.NewValue;
+
+            cardCtrl?.SetImageForCard(cardName);
+        }
+
+
         /// <summary>
         ///     This is where the cards are created...
         /// </summary>
@@ -242,19 +277,17 @@ namespace CardView
         /// <returns></returns>
         public static List<CardCtrl> GetCards(int number, Owner owner)
         {
-
-            Deck deck = new Deck(Environment.TickCount);
-            List<Card> Cards = deck.GetCards(number, owner);
-            return CreateCardCtrlFromListOfCards(Cards);
-
+            var deck = new Deck(Environment.TickCount);
+            var cards = deck.GetCards(number, owner);
+            return CreateCardCtrlFromListOfCards(cards);
         }
 
-        public static List<CardCtrl> CreateCardCtrlFromListOfCards(List<Card> Cards)
+        public static List<CardCtrl> CreateCardCtrlFromListOfCards(List<Card> cards)
         {
-            List<CardCtrl> CardUI = new List<CardCtrl>();
-            foreach (var card in Cards)
+            var cardUi = new List<CardCtrl>();
+            foreach (var card in cards)
             {
-                CardCtrl c = new CardCtrl(card)
+                var c = new CardCtrl(card)
                 {
                     Width = 125,
                     Height = 175,
@@ -265,57 +298,38 @@ namespace CardView
                     ShowDebugInfo = false,
                     IsEnabled = card.IsEnabled,
                     Selected = false
-
                 };
 
-                card.Tag = (object)c;
+                card.Tag = c;
 
                 Grid.SetColumnSpan(c, 99); // should be enough...
                 Grid.SetRowSpan(c, 99); // should be enough...
-                CardUI.Add(c);
+                cardUi.Add(c);
             }
 
-            return CardUI;
+            return cardUi;
         }
-
-      
 
 
         public override string ToString()
         {
-            if (_card == null) return "";
-            return String.Format($"{_card.ToString()} Owner: {Owner}\n zIndex: {Canvas.GetZIndex(this)}\n Location: {Location}");
-        }
-
-        public string Info
-        {
-            get
-            {
-                return this.ToString();
-            }
-            set
-            {
-
-            }
+            if (Card == null) return "";
+            return string.Format($"{Card} Owner: {Owner}\n ZIndex: {Canvas.GetZIndex(this)}\n Location: {Location}");
         }
 
         public string Serialize()
         {
-
-            return this.SerializeObject<CardCtrl>(_savedProperties);
+            return this.SerializeObject(_savedProperties);
         }
 
         public bool Deserialize(string s)
         {
-            this.DeserializeObject<CardCtrl>(s);
+            this.DeserializeObject(s);
             return true;
         }
 
         public void PushCard(bool shrink)
         {
-
-
-
             if (shrink)
             {
                 _daScaleCardX.To = .98;
@@ -328,29 +342,13 @@ namespace CardView
             }
 
             _sbScaleCard.Begin();
-
-        }
-
-        public new bool IsEnabled
-        {
-            get
-            {
-                return base.IsEnabled;
-            }
-            set
-            {
-                this.Opacity = value ? 1.0 : .5;
-                base.IsEnabled = value;
-            }
         }
 
         public async Task Rotate(double angle, bool callStop)
         {
-
             _daRotate.To = angle;
 
             await StaticHelpers.RunStoryBoard(_sbRotateCard, false);
-
         }
 
         public Task RotateTask(double angle, double duration)
@@ -358,21 +356,6 @@ namespace CardView
             _daRotate.To = angle;
             _daRotate.Duration = TimeSpan.FromMilliseconds(duration);
             return _sbRotateCard.ToTask();
-        }
-
-        public Point AnimationPosition
-        {
-            get
-            {
-                double x = (double)MoveCardDoubleAnimationX.To;
-                double y = (double)MoveCardDoubleAnimationY.To;
-                return new Point(x, y);
-            }
-            set
-            {
-                MoveCardDoubleAnimationX.To = value.X;
-                MoveCardDoubleAnimationY.To = value.Y;
-            }
         }
 
 
@@ -391,9 +374,10 @@ namespace CardView
             if (rotate)
                 MoveCardDoubleAnimationAngle.To += 360;
         }
+
         /// <summary>
-        /// This puts the card in the desired position directly.
-        /// it also sets up the animation positions so that any delta animations will work correctly.
+        ///     This puts the card in the desired position directly.
+        ///     it also sets up the animation positions so that any delta animations will work correctly.
         /// </summary>
         /// <param name="to"></param>
         public void SetCardPositionAndDoAnimationFixups(Point to)
@@ -417,24 +401,18 @@ namespace CardView
 
         public async Task AnimateTo(Point to, bool rotate, bool callStop, double msDuration, double msBeginTime)
         {
-
             SetupMoveCardAnimation(to, rotate, msDuration, msBeginTime);
             await StaticHelpers.RunStoryBoard(MoveCardStoryboard, callStop, msDuration);
-
         }
 
         public void MoveCardToReletivePosition(Point delta)
         {
-
-            Point to = new Point
+            var to = new Point
             {
-                X = (double)MoveCardDoubleAnimationX.To + delta.X,
-                Y = (double)MoveCardDoubleAnimationY.To + delta.Y
+                X = (double) MoveCardDoubleAnimationX.To + delta.X,
+                Y = (double) MoveCardDoubleAnimationY.To + delta.Y
             };
             SetCardPositionAndDoAnimationFixups(to);
-
-
-
         }
 
         public void AnimateToReletiveAsync(Point to, double milliseconds = 0)
@@ -445,178 +423,32 @@ namespace CardView
             MoveCardDoubleAnimationY.Duration = TimeSpan.FromMilliseconds(milliseconds);
             MoveCardStoryboard.Begin();
         }
-        public double AnimateRotation
-        {
-            get
-            {
-                return (double)MoveCardDoubleAnimationAngle.To;
-            }
-            set
-            {
-                MoveCardDoubleAnimationAngle.To = value;
-            }
-        }
-
 
 
         internal void ResetZIndex()
         {
-            int zIndex = Canvas.GetZIndex(this);
+            var zIndex = Canvas.GetZIndex(this);
 
 
             while (zIndex > 1000)
             {
                 zIndex -= 1000;
-                //Debug.WriteLine("Resetting ZIndex.  Card: {0} ZIndex:{1}", this.CardName, zIndex - 500);
+                //Debug.WriteLine("Resetting ZIndex.  Card: {0} ZIndex:{1}", this.CardName, ZIndex - 500);
                 Canvas.SetZIndex(this, zIndex);
-
             }
 
-            //Debug.WriteLine($"Card:{this.CardName} New zIndex:{Canvas.GetZIndex(this)}");
-
-        }
-
-        #region PROPERTIES
-
-        public bool Highlight
-        {
-            get
-            {
-                return (_highlightBorder.Visibility == Visibility.Visible);
-            }
-            set
-            {
-                if (value && _highlightCards)
-                    _highlightBorder.Visibility = Visibility.Visible;
-                else
-                    _highlightBorder.Visibility = Visibility.Collapsed;
-            }
-        }
-
-        public bool ShowDebugInfo
-        {
-            get
-            {
-                return (DebugGrid.Visibility == Visibility.Visible) ? true : false;
-            }
-            set
-            {
-                Visibility vis = Visibility.Visible;
-                if (!value)
-                    vis = Visibility.Collapsed;
-
-                DebugGrid.Visibility = vis;
-            }
-
+            //Debug.WriteLine($"Card:{this.CardName} New ZIndex:{Canvas.GetZIndex(this)}");
         }
 
 
-
-        public bool FaceDown
-        {
-            get
-            {
-                return this.Orientation == CardOrientation.FaceDown;
-            }
-            set
-            {
-                if (value)
-                {
-                    this.Orientation = CardOrientation.FaceDown;
-                }
-                else
-                {
-                    this.Orientation = CardOrientation.FaceUp;
-                }
-                NotifyPropertyChanged();
-            }
-        }
-        /// <summary>
-        /// sets the orientation -- NOT animated!
-        /// </summary>
-        public CardOrientation Orientation
-        {
-
-            get
-            {
-                return _myOrientation;
-            }
-            set
-            {
-                _myOrientation = value;
-                if (_myOrientation == CardOrientation.FaceUp)
-                {
-                    _ppFrontGrid.RotationY = 0;
-                    _ppBackGrid.RotationY = -90;
-                }
-                else
-                {
-                    _ppFrontGrid.RotationY = 90;
-                    _ppBackGrid.RotationY = 0;
-                }
-                NotifyPropertyChanged();
-            }
-        }
-
-        internal void BoostZindex()
-        {
-            int zIndex = Canvas.GetZIndex(this);
-            zIndex += 1000;
-
-            if (zIndex > 2000) zIndex -= 1000;
-
-            //   Debug.WriteLine($"Card:{this.CardName} New zIndex:{zIndex}" );
-            Canvas.SetZIndex(this, zIndex);
-        }
-
-
-
-#pragma warning disable IDE1006 // Naming Styles
-        public int zIndex
-#pragma warning restore IDE1006 // Naming Styles
-        {
-            get
-            {
-                return Canvas.GetZIndex(this);
-            }
-            set
-            {
-                Canvas.SetZIndex(this, value);
-                NotifyPropertyChanged();
-            }
-        }
-
-
-
-
-        internal void Reset()
-        {
-            _daScaleCardX.To = 1.0; ;
-            _daScaleCardY.To = 1.0;
-            _sbScaleCard.Duration = new Duration(TimeSpan.FromMilliseconds(0));
-            _sbScaleCard.Begin();
-            AnimateToAsync(new Point(0, 0), false, 0);
-
-            this.Selected = false;
-
-
-
-        }
-
-        #endregion
-
-
-
-
-        private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         private void SetupFlipAnimation(CardOrientation toOrientation, double msDuration, double msBeginTime)
         {
-
-            bool flipToFaceUp = (_myOrientation == CardOrientation.FaceDown) ? true : false;
+            var flipToFaceUp = _myOrientation == CardOrientation.FaceDown;
 
             _myOrientation = toOrientation;
 
@@ -638,77 +470,8 @@ namespace CardView
                 daFlipBack.Duration = TimeSpan.FromMilliseconds(msDuration);
                 daFlipFront.BeginTime = TimeSpan.FromSeconds(msBeginTime);
                 daFlipFront.Duration = TimeSpan.FromMilliseconds(msDuration);
-
-            }
-
-        }
-
-        public bool Selected
-        {
-
-            get
-            {
-
-                return (SelectedGrid.Visibility == Visibility.Visible) ? true : false;
-            }
-            set
-            {
-                bool currentlySelected = (SelectedGrid.Visibility == Visibility.Visible) ? true : false;
-
-                Highlight = value;
-
-                if (value)
-                {
-                    SelectedGrid.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    SelectedGrid.Visibility = Visibility.Collapsed;
-                }
-
-                CardSelectionChanged?.Invoke(this, new CardSelectEventArgs(value));
             }
         }
-
-        public bool HighlightCards
-        {
-            get
-            {
-                return _highlightCards;
-            }
-
-            set
-            {
-                _highlightCards = value;
-            }
-        }
-
-
-        public Owner Owner
-        {
-            get
-            {
-                return _card.Owner;
-            }
-            set
-            {
-                if (value != _card.Owner)
-                {
-                    _card.Owner = value;
-                    NotifyPropertyChanged();
-                }
-            }
-        }
-
-        public bool CurrentRun
-        {
-            get
-            {
-                return (this.IsEnabled);
-            }
-        }
-
-        public bool Counted { get; set; }
 
         public void SetOrientationAsync(CardOrientation orientation, double msDuration, double msBeginTime)
         {
@@ -738,43 +501,117 @@ namespace CardView
         public static int CompareCardsByRank(CardCtrl x, CardCtrl y)
         {
             if (x == null)
-            {
                 if (y == null)
-                {
-                    // If x is null and y is null, they're 
-                    // equal.  
                     return 0;
-                }
                 else
-                {
-                    // If x is null and y is not null, y 
-                    // is greater.  
                     return -1;
-                }
-            }
-            else
-            {
-                // If x is not null... 
-                // 
-                if (y == null)
+
+            // If x is not null... 
+            // 
+            if (y == null)
                 // ...and y is null, x is greater.
-                {
-                    return 1;
-                }
+                return 1;
+            return x.Rank - y.Rank;
+        }
+
+        #region PROPERTIES
+
+        public bool Highlight
+        {
+            get => _highlightBorder.Visibility == Visibility.Visible;
+            set
+            {
+                if (value && HighlightCards)
+                    _highlightBorder.Visibility = Visibility.Visible;
                 else
-                {
-                    // ...and y is not null, compare the  
-                    // lengths of the two strings. 
-                    // 
-                    return x.Rank - y.Rank;
-
-
-                }
+                    _highlightBorder.Visibility = Visibility.Collapsed;
             }
+        }
 
+        public bool ShowDebugInfo
+        {
+            get => DebugGrid.Visibility == Visibility.Visible;
+            set
+            {
+                var vis = Visibility.Visible;
+                if (!value)
+                    vis = Visibility.Collapsed;
 
+                DebugGrid.Visibility = vis;
+            }
         }
 
 
+        public bool FaceDown
+        {
+            get => Orientation == CardOrientation.FaceDown;
+            set
+            {
+                Orientation = value ? CardOrientation.FaceDown : CardOrientation.FaceUp;
+                NotifyPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        ///     sets the orientation -- NOT animated!
+        /// </summary>
+        public CardOrientation Orientation
+        {
+            get => _myOrientation;
+            set
+            {
+                _myOrientation = value;
+                if (_myOrientation == CardOrientation.FaceUp)
+                {
+                    _ppFrontGrid.RotationY = 0;
+                    _ppBackGrid.RotationY = -90;
+                }
+                else
+                {
+                    _ppFrontGrid.RotationY = 90;
+                    _ppBackGrid.RotationY = 0;
+                }
+
+                NotifyPropertyChanged();
+            }
+        }
+
+        internal void BoostZindex()
+        {
+            var zIndex = Canvas.GetZIndex(this);
+            zIndex += 1000;
+
+            if (zIndex > 2000) zIndex -= 1000;
+
+            //   Debug.WriteLine($"Card:{this.CardName} New ZIndex:{ZIndex}" );
+            Canvas.SetZIndex(this, zIndex);
+        }
+
+
+#pragma warning disable IDE1006 // Naming Styles
+        public int ZIndex
+#pragma warning restore IDE1006 // Naming Styles
+        {
+            get { return Canvas.GetZIndex(this); }
+            set
+            {
+                Canvas.SetZIndex(this, value);
+                NotifyPropertyChanged();
+            }
+        }
+
+
+        internal void Reset()
+        {
+            _daScaleCardX.To = 1.0;
+            _daScaleCardY.To = 1.0;
+            _sbScaleCard.Duration = new Duration(TimeSpan.FromMilliseconds(0));
+            _sbScaleCard.Begin();
+            AnimateToAsync(new Point(0, 0), false, 0);
+
+            Selected = false;
+        }
+
+        #endregion
     }
 }

@@ -1,16 +1,15 @@
-﻿
-using Cribbage;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Storage;
@@ -24,26 +23,40 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
+using Cribbage;
 
 namespace LongShotHelpers
 {
-    public enum AnimationSpeedSetting { Fast, Regular, Slow };
+    public enum AnimationSpeedSetting
+    {
+        Fast,
+        Regular,
+        Slow
+    }
 
     public static class ViewBoxExtensions
     {
         public static double GetScaleFactor(this Viewbox viewbox)
         {
             if (viewbox.Child == null ||
-                (viewbox.Child is FrameworkElement) == false)
-            {
+                viewbox.Child is FrameworkElement == false)
                 return double.NaN;
-            }
-            FrameworkElement child = viewbox.Child as FrameworkElement;
+            var child = viewbox.Child as FrameworkElement;
             return viewbox.ActualWidth / child.ActualWidth;
         }
     }
+
     public class AnimationSpeedsClass
     {
+        private AnimationSpeedSetting _speed;
+
+        public AnimationSpeedsClass(AnimationSpeedSetting speed)
+        {
+            _speed = speed;
+            SetSpeedValues();
+            NoAnimation = 1;
+        }
+
         public double VerySlow { get; set; }
         public double Slow { get; set; }
         public double Medium { get; set; }
@@ -54,28 +67,14 @@ namespace LongShotHelpers
 
         public double DefaultFlipSpeed { get; set; }
 
-        private AnimationSpeedSetting _speed;
-
-        public AnimationSpeedsClass(AnimationSpeedSetting speed)
-        {
-
-            _speed = speed;
-            SetSpeedValues();
-            NoAnimation = 1;
-        }
-
         public AnimationSpeedSetting AnimationSpeed
         {
-            get
-            {
-                return _speed;
-            }
+            get => _speed;
             set
             {
                 _speed = value;
                 SetSpeedValues();
             }
-
         }
 
         private void SetSpeedValues()
@@ -99,102 +98,107 @@ namespace LongShotHelpers
 
     public static class StaticHelpers
     {
+        public const string lineSeperator = "\r\n";
+        public const string propertySeperator = ",";
+        public const string objectSeperator = "|";
+        public const string listSeperator = ";";
+        public const char listSeperatorChar = ';';
+        public const string kvpSeperator = "=";
 
-        public static Dictionary<string, Color> StringToColorDictionary { get; } = new Dictionary<string, Color>()
-        {
-            {"Blue", Colors.Blue },
-            {"Red", Colors.Red },
-            {"White", Colors.White },
-            {"Yellow", Colors.Yellow },
-            {"Green", Colors.Green },
-            {"Brown", Colors.Brown },
-            {"DarkGray", Colors.DarkGray },
-            {"Black", Colors.Black }
-        };
-        public static Dictionary<Color, string> ColorToStringDictionary { get; } = new Dictionary<Color, string>()
-        {
-            { Colors.Blue     ,  "Blue"     },
-            { Colors.Red      ,  "Red"      },
-            { Colors.White    ,  "White"    },
-            { Colors.Yellow   ,  "Yellow"   },
-            { Colors.Green    ,  "Green"    },
-            { Colors.Brown    ,  "Brown"    },
-            { Colors.DarkGray ,  "DarkGray" },
-            { Colors.Black    ,  "Black"    }
-        };
+        public const string
+            kvpSeperatorOneLine =
+                "="; // can't use : because that is used to serialize time objects...but now we arne't serializing Time
 
-        public static Dictionary<string, string> BackgroundToForegroundDictionary { get; } = new Dictionary<string, string>()
-        {
-            { "Blue"     , "White" },
-            { "Red"      , "White" },
-            { "White"    , "Black" },
-            { "Yellow"   , "Black" },
-            { "Green"    , "Black" },
-            { "Brown"    , "White" },
-            { "DarkGray" , "White" },
-            { "Black"    , "White" }
+        public const char kvpSeperatorChar = '=';
 
+        public static Dictionary<string, Color> StringToColorDictionary { get; } = new Dictionary<string, Color>
+        {
+            {"Blue", Colors.Blue},
+            {"Red", Colors.Red},
+            {"White", Colors.White},
+            {"Yellow", Colors.Yellow},
+            {"Green", Colors.Green},
+            {"Brown", Colors.Brown},
+            {"DarkGray", Colors.DarkGray},
+            {"Black", Colors.Black}
         };
 
-        public static ObservableCollection<string> AvailableColors { get; } = new ObservableCollection<string>()
+        public static Dictionary<Color, string> ColorToStringDictionary { get; } = new Dictionary<Color, string>
         {
-            { "Blue"     },
-            { "Red"      },
-            { "White"    },
-            { "Yellow"   },
-            { "Green"    },
-            { "Brown"    },
-            { "DarkGray" },
-            { "Black"    }
-
+            {Colors.Blue, "Blue"},
+            {Colors.Red, "Red"},
+            {Colors.White, "White"},
+            {Colors.Yellow, "Yellow"},
+            {Colors.Green, "Green"},
+            {Colors.Brown, "Brown"},
+            {Colors.DarkGray, "DarkGray"},
+            {Colors.Black, "Black"}
         };
 
-        public static Dictionary<Color, Color> BackgroundToForegroundColorDictionary { get; } = new Dictionary<Color, Color>()
-        {
-            { Colors.Blue     , Colors.White },
-            { Colors.Red      , Colors.White },
-            {Colors.Transparent, Colors.Transparent },
-            { Colors.White    , Colors.Black },
-            { Colors.Yellow   , Colors.Black },
-            { Colors.Green    , Colors.Black },
-            { Colors.Brown, Colors.White},
-            { Colors.DarkGray , Colors.White},
-            { Colors.Black   , Colors.White }
-
-
-        };
-
-
-
-        public static bool IsInVisualStudioDesignMode
-        {
-            get
+        public static Dictionary<string, string> BackgroundToForegroundDictionary { get; } =
+            new Dictionary<string, string>
             {
-                return !(Application.Current is App);
-            }
-        }
+                {"Blue", "White"},
+                {"Red", "White"},
+                {"White", "Black"},
+                {"Yellow", "Black"},
+                {"Green", "Black"},
+                {"Brown", "White"},
+                {"DarkGray", "White"},
+                {"Black", "White"}
+            };
+
+        public static ObservableCollection<string> AvailableColors { get; } = new ObservableCollection<string>
+        {
+            "Blue",
+            "Red",
+            "White",
+            "Yellow",
+            "Green",
+            "Brown",
+            "DarkGray",
+            "Black"
+        };
+
+        public static Dictionary<Color, Color> BackgroundToForegroundColorDictionary { get; } =
+            new Dictionary<Color, Color>
+            {
+                {Colors.Blue, Colors.White},
+                {Colors.Red, Colors.White},
+                {Colors.Transparent, Colors.Transparent},
+                {Colors.White, Colors.Black},
+                {Colors.Yellow, Colors.Black},
+                {Colors.Green, Colors.Black},
+                {Colors.Brown, Colors.White},
+                {Colors.DarkGray, Colors.White},
+                {Colors.Black, Colors.White}
+            };
+
+
+        public static bool IsInVisualStudioDesignMode => !(Application.Current is App);
 
         public static async Task<StorageFolder> GetSaveFolder()
         {
-            string token = "default";
+            var token = "default";
             StorageFolder folder = null;
             try
             {
                 if (StorageApplicationPermissions.FutureAccessList.ContainsItem(token))
                 {
-
                     folder = await StorageApplicationPermissions.FutureAccessList.GetFolderAsync(token);
                     return folder;
                 }
             }
-            catch { }
+            catch
+            {
+            }
 
-            string content = "After clicking on \"Close\" pick the default location for all your Catan saved state";
-            MessageDialog dlg = new MessageDialog(content, "Catan");
+            var content = "After clicking on \"Close\" pick the default location for all your Catan saved state";
+            var dlg = new MessageDialog(content, "Catan");
 
             await dlg.ShowAsync();
 
-            FolderPicker picker = new FolderPicker
+            var picker = new FolderPicker
             {
                 SuggestedStartLocation = PickerLocationId.DocumentsLibrary
             };
@@ -202,13 +206,9 @@ namespace LongShotHelpers
 
             folder = await picker.PickSingleFolderAsync();
             if (folder != null)
-            {
                 StorageApplicationPermissions.FutureAccessList.AddOrReplace(token, folder);
-            }
             else
-            {
                 folder = ApplicationData.Current.LocalFolder;
-            }
 
 
             return folder;
@@ -216,7 +216,8 @@ namespace LongShotHelpers
 
         public static bool ExcludeCommonKeys(KeyRoutedEventArgs e)
         {
-            if (e.Key == VirtualKey.Shift || e.Key == VirtualKey.Control || e.Key == VirtualKey.Menu || e.Key == VirtualKey.Tab)
+            if (e.Key == VirtualKey.Shift || e.Key == VirtualKey.Control || e.Key == VirtualKey.Menu ||
+                e.Key == VirtualKey.Tab)
             {
                 e.Handled = true;
                 return true;
@@ -224,47 +225,37 @@ namespace LongShotHelpers
 
             return false;
         }
+
         public static bool FilterKeys(string strToCheck, Regex regex)
         {
-            return (regex.IsMatch(strToCheck) == true);
+            return regex.IsMatch(strToCheck);
         }
-        public class KeyValuePair
+
+        public static bool IsPositiveOrZero(this double d)
         {
-            public string Key { get; set; }
-            public string Value { get; set; }
-
-            public KeyValuePair(string key, string value)
-            {
-                Key = key;
-                Value = value;
-            }
-
+            return d >= 0;
         }
 
-        public static bool IsPositiveOrZero(this double d)        
-        {
-            return (d >= 0);
-        }
-
-        public static void TraceMessage(this object o, string toWrite, [CallerMemberName] string cmb = "", [CallerLineNumber] int cln = 0, [CallerFilePath] string cfp = "")
+        public static void TraceMessage(this object o, string toWrite, [CallerMemberName] string cmb = "",
+            [CallerLineNumber] int cln = 0, [CallerFilePath] string cfp = "")
         {
 #if DEBUG
-            System.Diagnostics.Debug.WriteLine($"{cfp}({cln}):{toWrite}\t\t[Caller={cmb}]");
+            Debug.WriteLine($"{cfp}({cln}):{toWrite}\t\t[Caller={cmb}]");
 #endif
-
         }
-        public static void Assert(this object o, bool assert, string toWrite, [CallerMemberName] string cmb = "", [CallerLineNumber] int cln = 0, [CallerFilePath] string cfp = "")
+
+        public static void Assert(this object o, bool assert, string toWrite, [CallerMemberName] string cmb = "",
+            [CallerLineNumber] int cln = 0, [CallerFilePath] string cfp = "")
         {
 #if DEBUG
-            System.Diagnostics.Debug.Assert(assert, $"{cfp}({cln}):{toWrite}\t\t[Caller={cmb}]");
+            Debug.Assert(assert, $"{cfp}({cln}):{toWrite}\t\t[Caller={cmb}]");
 #endif
-
         }
 
 
-        public static double SetupFlipAnimation(bool flipToFaceUp, DoubleAnimation back, DoubleAnimation front, double animationTimeInMs, double startAfter = 0)
+        public static double SetupFlipAnimation(bool flipToFaceUp, DoubleAnimation back, DoubleAnimation front,
+            double animationTimeInMs, double startAfter = 0)
         {
-
             if (flipToFaceUp)
             {
                 back.To = -90;
@@ -282,31 +273,30 @@ namespace LongShotHelpers
                 front.Duration = TimeSpan.FromMilliseconds(animationTimeInMs);
                 front.BeginTime = TimeSpan.FromMilliseconds(startAfter);
                 back.BeginTime = TimeSpan.FromMilliseconds(startAfter + animationTimeInMs);
-
             }
+
             return animationTimeInMs;
-
         }
-        public static void Assert(bool val, string message, [CallerFilePath] string file = "", [CallerMemberName] string memberName = "", [CallerLineNumber] int lineNumber = 0)
+
+        public static void Assert(bool val, string message, [CallerFilePath] string file = "",
+            [CallerMemberName] string memberName = "", [CallerLineNumber] int lineNumber = 0)
         {
-            string msg = String.Format($"File: {file}, Method: {memberName}, Line Number: {lineNumber}\n\n{message}");
+            var msg = string.Format($"File: {file}, Method: {memberName}, Line Number: {lineNumber}\n\n{message}");
             Debug.Assert(val, msg);
-
-
         }
 
-        public static string GetErrorMessage(string sErr, Exception e, [CallerFilePath] string file = "", [CallerMemberName] string memberName = "", [CallerLineNumber] int lineNumber = 0)
+        public static string GetErrorMessage(string sErr, Exception e, [CallerFilePath] string file = "",
+            [CallerMemberName] string memberName = "", [CallerLineNumber] int lineNumber = 0)
         {
-            return String.Format($"{sErr}\nFile: {file}\n{memberName}: {lineNumber}\n\n{e.ToString()}");
+            return string.Format($"{sErr}\nFile: {file}\n{memberName}: {lineNumber}\n\n{e}");
         }
 
         public static bool IsNumber(VirtualKey key)
         {
-
-            if ((int)key >= (int)VirtualKey.Number0 && (int)key <= (int)VirtualKey.Number9)
+            if ((int) key >= (int) VirtualKey.Number0 && (int) key <= (int) VirtualKey.Number9)
                 return true;
 
-            if ((int)key >= (int)VirtualKey.NumberPad0 && (int)key <= (int)VirtualKey.NumberPad9)
+            if ((int) key >= (int) VirtualKey.NumberPad0 && (int) key <= (int) VirtualKey.NumberPad9)
                 return true;
 
             return false;
@@ -314,7 +304,6 @@ namespace LongShotHelpers
 
         public static bool IsOnKeyPad(VirtualKey key)
         {
-
             if (IsNumber(key))
                 return true;
 
@@ -326,65 +315,43 @@ namespace LongShotHelpers
                 case VirtualKey.Decimal:
                 case VirtualKey.Enter:
                 case VirtualKey.Add:
-                case (VirtualKey)187: // '+' 
-                case (VirtualKey)189: // '-'
-                case (VirtualKey)190: // '.'
-                case (VirtualKey)191: // '/'
+                case (VirtualKey) 187: // '+' 
+                case (VirtualKey) 189: // '-'
+                case (VirtualKey) 190: // '.'
+                case (VirtualKey) 191: // '/'
                     return true;
                 default:
                     break;
-
             }
 
             return false;
         }
 
         /// <summary>
-        ///  used by KeyDown handlers to filter out invalid rolls and keys that aren't on the NumPad
+        ///     used by KeyDown handlers to filter out invalid rolls and keys that aren't on the NumPad
         /// </summary>
         /// <param name="key"></param>
         /// <param name="chars"></param>
         /// <returns> returns the value to pass in e.Handled </returns>
         public static bool FilterNumpadKeys(VirtualKey key, char[] chars)
         {
-
-
             //
             //  filter out everythign not on Keypad (but other keyboard works too)
-            if (!StaticHelpers.IsOnKeyPad(key))
-            {
-                return false;
-
-            }
+            if (!IsOnKeyPad(key)) return false;
 
             if (chars.Length == 0) // first char
-            {
                 if (key == VirtualKey.Number0 || key == VirtualKey.NumberPad0)
-                {
-
                     return true;
-                }
-
-            }
             if (chars.Length == 1)
             {
-                if (chars[0] != '1')
-                {
-
-                    return true;
-                }
+                if (chars[0] != '1') return true;
 
                 if (key == VirtualKey.Number0 || key == VirtualKey.Number1 || key == VirtualKey.Number2 ||
                     key == VirtualKey.NumberPad0 || key == VirtualKey.NumberPad1 || key == VirtualKey.NumberPad2)
-                {
-                    // allow 10, 11, 12
                     return false;
-
-                }
 
 
                 return true;
-
             }
 
             return false;
@@ -392,50 +359,30 @@ namespace LongShotHelpers
 
         public static void AddDeltaToIntProperty<T>(this T t, string propName, int delta)
         {
-            PropertyInfo propInfo = t.GetType().GetTypeInfo().GetDeclaredProperty(propName);
-            int n = (int)propInfo.GetValue(t, null);
+            var propInfo = t.GetType().GetTypeInfo().GetDeclaredProperty(propName);
+            var n = (int) propInfo.GetValue(t, null);
             n += delta;
             propInfo.SetValue(t, n);
         }
 
 
-
-
         public static void AddRange<T>(this ObservableCollection<T> oc, IEnumerable<T> collection)
         {
-            if (collection == null)
-            {
-                throw new ArgumentNullException("collection");
-            }
-            foreach (var item in collection)
-            {
-                oc.Add(item);
-            }
-
-
+            if (collection == null) throw new ArgumentNullException("collection");
+            foreach (var item in collection) oc.Add(item);
         }
-
-
-
-        public const string lineSeperator = "\r\n";
-        public const string propertySeperator = ",";
-        public const string objectSeperator = "|";
-        public const string listSeperator = ";";
-        public const char listSeperatorChar = ';';
-        public const string kvpSeperator = "=";
-        public const string kvpSeperatorOneLine = "="; // can't use : because that is used to serialize time objects...but now we arne't serializing Time
-        public const char kvpSeperatorChar = '=';
 
         //
         //  this only supports List<> collections.  beware... :P
         //
-        public static string SerializeObject<T>(this T t, IEnumerable<string> propNames, string kvpSep = kvpSeperatorOneLine, string propSep = propertySeperator)
+        public static string SerializeObject<T>(this T t, IEnumerable<string> propNames,
+            string kvpSep = kvpSeperatorOneLine, string propSep = propertySeperator)
         {
-            string s = "";
+            var s = "";
 
             foreach (var prop in propNames)
             {
-                PropertyInfo propInfo = t.GetType().GetTypeInfo().GetDeclaredProperty(prop);
+                var propInfo = t.GetType().GetTypeInfo().GetDeclaredProperty(prop);
 
 
                 if (propInfo == null)
@@ -443,31 +390,25 @@ namespace LongShotHelpers
                     t.TraceMessage($"No property named {prop} in SerializeObject");
                     continue;
                 }
-                TypeInfo typeInfo = propInfo.PropertyType.GetTypeInfo();
-                object propValue = propInfo.GetValue(t, null);
+
+                var typeInfo = propInfo.PropertyType.GetTypeInfo();
+                var propValue = propInfo.GetValue(t, null);
                 if (typeInfo.IsGenericType && typeInfo.GetGenericTypeDefinition() == typeof(List<>))
                 {
-
-                    IList listInstance = (IList)propValue;
+                    var listInstance = (IList) propValue;
                     s += prop + kvpSep;
-                    foreach (object o in listInstance)
-                    {
-                        s += o.ToString() + listSeperator;
-
-                    }
+                    foreach (var o in listInstance) s += o + listSeperator;
                     s += propSep;
                 }
                 else
                 {
-                    s += String.Format($"{prop}{kvpSep}{propValue}{propSep}");
-
+                    s += string.Format($"{prop}{kvpSep}{propValue}{propSep}");
                 }
-
-
             }
 
             return s;
         }
+
         public static Type GetEnumeratedType(this Type type)
         {
             // provided by Array
@@ -485,70 +426,59 @@ namespace LongShotHelpers
         public static Dictionary<string, object> DictionaryFromType(object atype)
         {
             if (atype == null) return new Dictionary<string, object>();
-            Type t = atype.GetType();
-            PropertyInfo[] props = t.GetProperties();
-            Dictionary<string, object> dict = new Dictionary<string, object>();
-            foreach (PropertyInfo prp in props)
+            var t = atype.GetType();
+            var props = t.GetProperties();
+            var dict = new Dictionary<string, object>();
+            foreach (var prp in props)
             {
-                object value = prp.GetValue(atype, new object[] { });
+                var value = prp.GetValue(atype, new object[] { });
                 dict.Add(prp.Name, value);
             }
+
             return dict;
         }
 
-        //
-        //  an interface called by the drag and drop code so we can simlulate the DragOver behavior
-        public interface IDragAndDropProgress
+        public static Task<Point> DragAsync(UIElement control, PointerRoutedEventArgs origE,
+            IDragAndDropProgress progress = null)
         {
-
-            void Report(Point value);
-            void PointerUp(Point value);
-        }
-
-        public static Task<Point> DragAsync(UIElement control, PointerRoutedEventArgs origE, IDragAndDropProgress progress = null)
-        {
-            TaskCompletionSource<Point> taskCompletionSource = new TaskCompletionSource<Point>();
-            UIElement mousePositionWindow = Window.Current.Content;
-            Point pointMouseDown = origE.GetCurrentPoint(mousePositionWindow).Position;
+            var taskCompletionSource = new TaskCompletionSource<Point>();
+            var mousePositionWindow = Window.Current.Content;
+            var pointMouseDown = origE.GetCurrentPoint(mousePositionWindow).Position;
 
             PointerEventHandler pointerMovedHandler = null;
             PointerEventHandler pointerReleasedHandler = null;
 
-            pointerMovedHandler = (Object s, PointerRoutedEventArgs e) =>
+            pointerMovedHandler = (s, e) =>
             {
+                var pt = e.GetCurrentPoint(mousePositionWindow).Position;
 
-                Point pt = e.GetCurrentPoint(mousePositionWindow).Position;
-
-                Point delta = new Point
+                var delta = new Point
                 {
                     X = pt.X - pointMouseDown.X,
                     Y = pt.Y - pointMouseDown.Y
                 };
 
-                CompositeTransform compositeTransform = control.RenderTransform as CompositeTransform;
+                var compositeTransform = control.RenderTransform as CompositeTransform;
                 if (compositeTransform == null)
                 {
                     compositeTransform = new CompositeTransform();
                     control.RenderTransform = compositeTransform;
                 }
+
                 compositeTransform.TranslateX += delta.X;
                 compositeTransform.TranslateY += delta.Y;
                 control.RenderTransform = compositeTransform;
                 pointMouseDown = pt;
-                if (progress != null)
-                {
-                    progress.Report(pt);
-                }
-
+                if (progress != null) progress.Report(pt);
             };
 
-            pointerReleasedHandler = (Object s, PointerRoutedEventArgs e) =>
+            pointerReleasedHandler = (s, e) =>
             {
-                UIElement localControl = (UIElement)s;
+                var localControl = (UIElement) s;
                 localControl.PointerMoved -= pointerMovedHandler;
                 localControl.PointerReleased -= pointerReleasedHandler;
                 localControl.ReleasePointerCapture(origE.Pointer);
-                Point exitPoint = e.GetCurrentPoint(mousePositionWindow).Position;
+                var exitPoint = e.GetCurrentPoint(mousePositionWindow).Position;
 
 
                 taskCompletionSource.SetResult(exitPoint);
@@ -560,30 +490,24 @@ namespace LongShotHelpers
             return taskCompletionSource.Task;
         }
 
-        public static void DeserializeObject<T>(this T t, string s, string kvpSep = kvpSeperatorOneLine, string propSep = propertySeperator)
+        public static void DeserializeObject<T>(this T t, string s, string kvpSep = kvpSeperatorOneLine,
+            string propSep = propertySeperator)
         {
-
-
-
-
-            string[] properties = s.Split(propSep.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            var properties = s.Split(propSep.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
             KeyValuePair kvp = null;
-            foreach (string line in properties)
+            foreach (var line in properties)
             {
-                kvp = StaticHelpers.GetKeyValue(line, kvpSep[0]);
-                PropertyInfo propInfo = t.GetType().GetTypeInfo().GetDeclaredProperty(kvp.Key);
+                kvp = GetKeyValue(line, kvpSep[0]);
+                var propInfo = t.GetType().GetTypeInfo().GetDeclaredProperty(kvp.Key);
                 if (propInfo == null)
                 {
                     t.TraceMessage($"No property named {kvp.Key} in DeserializeObject");
                     continue;
                 }
-                TypeInfo typeInfo = propInfo.PropertyType.GetTypeInfo();
-                if (typeInfo.Name == "Guid")
-                {
-                    // typeInfo.TraceMessage("Need to support Guid in deserializer!");
-                    continue;
-                }
+
+                var typeInfo = propInfo.PropertyType.GetTypeInfo();
+                if (typeInfo.Name == "Guid") continue;
                 if (typeInfo.IsEnum)
                 {
                     propInfo.SetValue(t, Enum.Parse(propInfo.PropertyType, kvp.Value));
@@ -592,7 +516,7 @@ namespace LongShotHelpers
                 {
                     propInfo.SetValue(t, Convert.ChangeType(kvp.Value, propInfo.PropertyType));
                 }
-                else if (propInfo.PropertyType == typeof(System.TimeSpan))
+                else if (propInfo.PropertyType == typeof(TimeSpan))
                 {
                     propInfo.SetValue(t, TimeSpan.Parse(kvp.Value));
                 }
@@ -602,24 +526,24 @@ namespace LongShotHelpers
                 }
                 else if (typeInfo.IsGenericType && typeInfo.GetGenericTypeDefinition() == typeof(List<>))
                 {
-                    Type elementType = typeInfo.GenericTypeArguments[0];
-                    string[] arrayValues = kvp.Value.Split(listSeperator.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                    var elementType = typeInfo.GenericTypeArguments[0];
+                    var arrayValues =
+                        kvp.Value.Split(listSeperator.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
-                    Type listType = typeof(List<>).MakeGenericType(typeInfo.GenericTypeArguments);
-                    IList listInstance = (IList)Activator.CreateInstance(listType);
+                    var listType = typeof(List<>).MakeGenericType(typeInfo.GenericTypeArguments);
+                    var listInstance = (IList) Activator.CreateInstance(listType);
 
-                    bool isPrimitive = elementType.GetTypeInfo().IsPrimitive;
-                    bool isEnum = elementType.GetTypeInfo().IsEnum;
-                    foreach (string val in arrayValues)
-                    {
+                    var isPrimitive = elementType.GetTypeInfo().IsPrimitive;
+                    var isEnum = elementType.GetTypeInfo().IsEnum;
+                    foreach (var val in arrayValues)
                         if (isPrimitive)
                         {
-                            object o = Convert.ChangeType(val, elementType);
+                            var o = Convert.ChangeType(val, elementType);
                             listInstance.Add(o);
                         }
                         else if (isEnum)
                         {
-                            object e = Enum.Parse(elementType, val);
+                            var e = Enum.Parse(elementType, val);
                             listInstance.Add(e);
                         }
                         else
@@ -628,85 +552,66 @@ namespace LongShotHelpers
                             break;
                         }
 
-                    }
                     propInfo.SetValue(t, listInstance);
                 }
                 else
                 {
-                    string error = String.Format($"need to support {propInfo.PropertyType.ToString()} in the deserilizer to load {kvp.Key} whose value is {kvp.Value}");
+                    var error = string.Format(
+                        $"need to support {propInfo.PropertyType} in the deserilizer to load {kvp.Key} whose value is {kvp.Value}");
                     t.TraceMessage(error);
                     throw new Exception(error);
-
                 }
             }
-
         }
 
-        public static List<int> GetIntegerList(string s, char sep = StaticHelpers.listSeperatorChar)
+        public static List<int> GetIntegerList(string s, char sep = listSeperatorChar)
         {
-
-            string[] strings = s.Split(new char[] { sep }, StringSplitOptions.RemoveEmptyEntries);
-            List<int> ret = new List<int>();
-            foreach (string v in strings)
-            {
+            var strings = s.Split(new[] {sep}, StringSplitOptions.RemoveEmptyEntries);
+            var ret = new List<int>();
+            foreach (var v in strings)
                 if (v != "")
-                {
                     ret.Add(Convert.ToInt32(v));
-                }
-            }
 
             return ret;
         }
 
-        public static Stack<int> GetStack(string s, string sep = StaticHelpers.listSeperator)
+        public static Stack<int> GetStack(string s, string sep = listSeperator)
         {
-
-            string[] strings = s.Split(sep.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-            Stack<int> ret = new Stack<int>();
-            for (int i = strings.Count() - 1; i >= 0; i--)
-            {
-
-                ret.Push(Convert.ToInt32(strings[i]));
-
-            }
+            var strings = s.Split(sep.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            var ret = new Stack<int>();
+            for (var i = strings.Count() - 1; i >= 0; i--) ret.Push(Convert.ToInt32(strings[i]));
 
             return ret;
         }
 
         public static string GetValue(string s, char sep = kvpSeperatorChar)
         {
-            string[] values = s.Split(sep);
+            var values = s.Split(sep);
             return values[1];
         }
 
         public static bool GetBoolValue(string s, char sep = kvpSeperatorChar)
         {
-            string[] values = s.Split(sep);
+            var values = s.Split(sep);
             return Convert.ToBoolean(values[1]);
-
         }
 
         public static int GetIntValue(string s, char sep = kvpSeperatorChar)
         {
-            string[] values = s.Split(sep);
+            var values = s.Split(sep);
             return Convert.ToInt32(values[1]);
         }
 
         public static string SetValue(string name, object value)
         {
-            return String.Format($"{name}={value}{lineSeperator}");
-
+            return string.Format($"{name}={value}{lineSeperator}");
         }
 
         public static KeyValuePair GetKeyValue(string s, char sep = kvpSeperatorChar)
         {
-
-            string[] tokens = s.Split(sep);
-            KeyValuePair kvp = new KeyValuePair("", "");
-            if (tokens.Length == 2)
-            {
-                kvp = new KeyValuePair(tokens[0], tokens[1]);
-            }
+            var tokens = s.Split(sep);
+            var kvp = new KeyValuePair("", "");
+            if (tokens.Length == 2) kvp = new KeyValuePair(tokens[0], tokens[1]);
 
             return kvp;
         }
@@ -728,16 +633,15 @@ namespace LongShotHelpers
 
         public static Dictionary<string, string> GetSections(string file)
         {
-            char[] sep1 = new char[] { '[' };
-            char[] sep2 = new char[] { ']' };
+            char[] sep1 = {'['};
+            char[] sep2 = {']'};
 
-            string[] tokens = file.Split(sep1, StringSplitOptions.RemoveEmptyEntries);
-            Dictionary<string, string> sections = new Dictionary<string, string>();
-            foreach (string s in tokens)
+            var tokens = file.Split(sep1, StringSplitOptions.RemoveEmptyEntries);
+            var sections = new Dictionary<string, string>();
+            foreach (var s in tokens)
             {
-                string[] tok1 = s.Split(sep2, StringSplitOptions.RemoveEmptyEntries);
+                var tok1 = s.Split(sep2, StringSplitOptions.RemoveEmptyEntries);
                 sections.Add(tok1[0], tok1[1]);
-
             }
 
             return sections;
@@ -745,24 +649,24 @@ namespace LongShotHelpers
 
         public static async Task<Dictionary<string, string>> LoadSectionsFromFile(StorageFolder folder, string filename)
         {
-
             var file = await folder.GetFileAsync(filename);
-            string contents = await FileIO.ReadTextAsync(file);
+            var contents = await FileIO.ReadTextAsync(file);
             contents = contents.Replace('\r', '\n');
             Dictionary<string, string> sectionsDict = null;
             try
             {
-                sectionsDict = StaticHelpers.GetSections(contents);
+                sectionsDict = GetSections(contents);
             }
             catch (Exception e)
             {
-                string content = String.Format($"Error parsing file {filename}.\nIn File: {folder.Path}\n\nSuggest deleting it.\n\nError parsing sections.\nException info: {e.ToString()}");
-                MessageDialog dlg = new MessageDialog(content);
+                var content =
+                    string.Format(
+                        $"Error parsing file {filename}.\nIn File: {folder.Path}\n\nSuggest deleting it.\n\nError parsing sections.\nException info: {e}");
+                var dlg = new MessageDialog(content);
                 await dlg.ShowAsync();
             }
 
             return sectionsDict;
-
         }
 
 
@@ -781,38 +685,42 @@ namespace LongShotHelpers
             Users: dict["section"]["key2"] is "value"
         */
 
-        public static async Task<Dictionary<string, Dictionary<string, string>>> LoadSettingsFile(StorageFolder folder, string filename)
+        public static async Task<Dictionary<string, Dictionary<string, string>>> LoadSettingsFile(StorageFolder folder,
+            string filename)
         {
-           
-
             var file = await folder.GetFileAsync(filename);
-            string contents = await FileIO.ReadTextAsync(file);
+            var contents = await FileIO.ReadTextAsync(file);
             contents = contents.Replace('\r', '\n');
             return await LoadSettingsFile(contents, filename);
         }
 
-        public static async Task<Dictionary<string, Dictionary<string, string>>> LoadSettingsFile(string contents, string filename)
+        public static async Task<Dictionary<string, Dictionary<string, string>>> LoadSettingsFile(string contents,
+            string filename)
         {
-            KeyValuePair<string, string> currentKvp = new KeyValuePair<string, string>();
-            Dictionary<string, Dictionary<string, string>> returnDictionary = new Dictionary<string, Dictionary<string, string>>();
+            var currentKvp = new KeyValuePair<string, string>();
+            var returnDictionary = new Dictionary<string, Dictionary<string, string>>();
 
             Dictionary<string, string> sectionsDict = null;
             try
             {
-                sectionsDict = StaticHelpers.GetSections(contents);
+                sectionsDict = GetSections(contents);
             }
             catch (Exception e)
             {
-                string content = String.Format($"Error parsing file {filename}.\n\nSuggest deleting it.\n\nError parsing sections.\nException info: {e.ToString()}");
-                MessageDialog dlg = new MessageDialog(content);
+                var content =
+                    string.Format(
+                        $"Error parsing file {filename}.\n\nSuggest deleting it.\n\nError parsing sections.\nException info: {e}");
+                var dlg = new MessageDialog(content);
                 await dlg.ShowAsync();
                 return returnDictionary;
             }
 
             if (sectionsDict.Count == 0)
             {
-                string content = String.Format($"There appears to be no sections in {filename}.\n\nSuggest deleting it.\n\nError parsing sections.");
-                MessageDialog dlg = new MessageDialog(content);
+                var content =
+                    string.Format(
+                        $"There appears to be no sections in {filename}.\n\nSuggest deleting it.\n\nError parsing sections.");
+                var dlg = new MessageDialog(content);
                 await dlg.ShowAsync();
                 return returnDictionary;
             }
@@ -825,39 +733,34 @@ namespace LongShotHelpers
                     var dict = DeserializeDictionary(kvp.Value);
                     returnDictionary[kvp.Key] = dict;
                 }
-
             }
             catch
             {
-                string content = String.Format($"Error parsing values {filename}.\nSuggest deleting it.\n\nError in section '{currentKvp.Key}' and value '{currentKvp.Value}'");
-                MessageDialog dlg = new MessageDialog(content);
+                var content =
+                    string.Format(
+                        $"Error parsing values {filename}.\nSuggest deleting it.\n\nError in section '{currentKvp.Key}' and value '{currentKvp.Value}'");
+                var dlg = new MessageDialog(content);
                 await dlg.ShowAsync();
-
             }
 
 
             return returnDictionary;
-
         }
 
-            public static async Task ShowErrorText(string s, string title = "")
+        public static async Task ShowErrorText(string s, string title = "")
         {
-            MessageDialog dlg = new MessageDialog(s, title);
+            var dlg = new MessageDialog(s, title);
             await dlg.ShowAsync();
         }
 
-        public static string SerializeDictionary(Dictionary<string, string> dictionary, string seperator = StaticHelpers.lineSeperator)
+        public static string SerializeDictionary(Dictionary<string, string> dictionary,
+            string seperator = lineSeperator)
         {
-            string ret = "";
+            var ret = "";
 
-            foreach (KeyValuePair<string, string> kvp in dictionary)
-            {
-                ret += String.Format("{0}={1}{2}", kvp.Key, kvp.Value, seperator);
-
-            }
+            foreach (var kvp in dictionary) ret += string.Format("{0}={1}{2}", kvp.Key, kvp.Value, seperator);
 
             return ret;
-
         }
 
         /*  creates something thant looks like
@@ -869,19 +772,18 @@ namespace LongShotHelpers
 
         public static string SerilizeListToSection<T>(this IList<T> list, string prefix)
         {
-            string s = "";
-            int n = 0;
+            var s = "";
+            var n = 0;
             if (list != null)
             {
-                MethodInfo methodInfo = typeof(T).GetTypeInfo().GetDeclaredMethod("Serialize");
-                foreach (T item in list)
+                var methodInfo = typeof(T).GetTypeInfo().GetDeclaredMethod("Serialize");
+                foreach (var item in list)
                 {
                     n++;
-                    string propValue = methodInfo.Invoke(item, null).ToString();
-                    s += String.Format($"{prefix}-{n}{StaticHelpers.kvpSeperator}{propValue}{StaticHelpers.lineSeperator}");
+                    var propValue = methodInfo.Invoke(item, null).ToString();
+                    s += string.Format($"{prefix}-{n}{kvpSeperator}{propValue}{lineSeperator}");
                 }
             }
-
 
 
             return s;
@@ -893,16 +795,16 @@ namespace LongShotHelpers
          *  Creates something that looks like AceOfSpaces.Computer, AceOfClubs.Computer, ... 
          * 
          */
-        public static string SerilizeListToOneLine<T>(this IList<T> list, string sep = ",", string methodName="Serialize")
+        public static string SerilizeListToOneLine<T>(this IList<T> list, string sep = ",",
+            string methodName = "Serialize")
         {
-           
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             if (list != null)
             {
-                MethodInfo methodInfo = typeof(T).GetTypeInfo().GetDeclaredMethod(methodName);
-                foreach (T item in list)
-                {                    
-                    string propValue = methodInfo.Invoke(item, null).ToString();
+                var methodInfo = typeof(T).GetTypeInfo().GetDeclaredMethod(methodName);
+                foreach (var item in list)
+                {
+                    var propValue = methodInfo.Invoke(item, null).ToString();
                     sb.Append(propValue);
                     sb.Append(sep);
                 }
@@ -913,126 +815,112 @@ namespace LongShotHelpers
             return sb.ToString();
         }
 
-        public static string SerializeList<T>(this IList<T> list, string sep = StaticHelpers.listSeperator)
+        public static string SerializeList<T>(this IList<T> list, string sep = listSeperator)
         {
-
-            string s = "";
+            var s = "";
             if (list != null)
-            {
-                foreach (T item in list)
-                {
-                    s += item.ToString() + sep;
-                }
-            }
+                foreach (var item in list)
+                    s += item + sep;
 
             return s;
         }
+
         /// <summary>
         ///     This will serialize a IList<> into a string that can be deserialized. You can pass in an arbitrary list of thingies
-        ///     and it will serialize the property passed in 
+        ///     and it will serialize the property passed in
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="list"></param>
         /// <param name="propName"></param>
         /// <param name="sep"></param>
         /// <returns></returns>
-
-        public static string SerializeListWithProperty<T>(this IList<T> list, string propName, string sep = StaticHelpers.listSeperator)
+        public static string SerializeListWithProperty<T>(this IList<T> list, string propName,
+            string sep = listSeperator)
         {
-
-            string s = "";
+            var s = "";
             if (list != null)
             {
-                PropertyInfo propInfo = typeof(T).GetTypeInfo().GetDeclaredProperty(propName);
-                foreach (T item in list)
+                var propInfo = typeof(T).GetTypeInfo().GetDeclaredProperty(propName);
+                foreach (var item in list)
                 {
-                    string propValue = propInfo.GetValue(item, null).ToString();
+                    var propValue = propInfo.GetValue(item, null).ToString();
                     s += propValue + sep;
                 }
             }
 
             return s;
         }
+
         public static bool TryParse<T>(this Enum theEnum, string valueToParse, out T returnValue)
         {
             returnValue = default(T);
-            if (Int32.TryParse(valueToParse, out int intEnumValue))
-            {
+            if (int.TryParse(valueToParse, out var intEnumValue))
                 if (Enum.IsDefined(typeof(T), intEnumValue))
                 {
-                    returnValue = (T)(object)intEnumValue;
+                    returnValue = (T) (object) intEnumValue;
                     return true;
                 }
-            }
+
             return false;
         }
 
         public static T ParseEnum<T>(string value)
         {
-            return (T)Enum.Parse(typeof(T), value);
+            return (T) Enum.Parse(typeof(T), value);
         }
 
-        public static List<T> DeserializeList<T>(this string s, string sep = StaticHelpers.listSeperator)
+        public static List<T> DeserializeList<T>(this string s, string sep = listSeperator)
         {
-            List<T> list = new List<T>();
-            char[] charSep = sep.ToCharArray();
-            string[] tokens = s.Split(charSep, StringSplitOptions.RemoveEmptyEntries);
+            var list = new List<T>();
+            var charSep = sep.ToCharArray();
+            var tokens = s.Split(charSep, StringSplitOptions.RemoveEmptyEntries);
             foreach (var t in tokens)
             {
-                T value = (T)Convert.ChangeType(t, typeof(T));
+                var value = (T) Convert.ChangeType(t, typeof(T));
                 list.Add(value);
             }
+
             return list;
         }
 
 
-        public static List<T> DeserializeEnumList<T>(this string s, string sep = StaticHelpers.listSeperator)
+        public static List<T> DeserializeEnumList<T>(this string s, string sep = listSeperator)
         {
-            List<T> list = new List<T>();
-            char[] charSep = sep.ToCharArray();
-            string[] tokens = s.Split(charSep, StringSplitOptions.RemoveEmptyEntries);
+            var list = new List<T>();
+            var charSep = sep.ToCharArray();
+            var tokens = s.Split(charSep, StringSplitOptions.RemoveEmptyEntries);
             foreach (var t in tokens)
             {
-                T value = default(T);
+                var value = default(T);
                 if (Enum.IsDefined(typeof(T), t))
                 {
-                    value = (T)Enum.Parse(typeof(T), t);
+                    value = (T) Enum.Parse(typeof(T), t);
                     list.Add(value);
                 }
-
-
             }
+
             return list;
         }
 
 
-
-        public static Dictionary<string, string> DeserializeDictionary(string section, string lineSeperator = StaticHelpers.lineSeperator)
+        public static Dictionary<string, string> DeserializeDictionary(string section,
+            string lineSep = lineSeperator)
         {
+            var dictionary = new Dictionary<string, string>();
+            var sep1 = lineSep.ToCharArray();
+            char[] sep2 = {'='};
 
-            Dictionary<string, string> dictionary = new Dictionary<string, string>();
-            char[] sep1 = lineSeperator.ToCharArray();
-            char[] sep2 = new char[] { '=' };
-
-            string[] tokens = section.Split(sep1, StringSplitOptions.RemoveEmptyEntries);
-            foreach (string s in tokens)
+            var tokens = section.Split(sep1, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var s in tokens)
             {
-                string[] pairs = s.Split(sep2, StringSplitOptions.RemoveEmptyEntries);
+                var pairs = s.Split(sep2, StringSplitOptions.RemoveEmptyEntries);
                 if (pairs.Count() == 2)
-                {
                     dictionary.Add(pairs[0], pairs[1]);
-                }
                 else if (pairs.Count() == 1)
-                {
-
                     dictionary.Add(pairs[0], "");
-                }
                 else
-                {
-                    Debug.Assert(false, String.Format($"Bad token count in DeserializeDictionary. Pairs.Count: {pairs.Count()} "));
-                }
-
-
+                    Debug.Assert(false,
+                        string.Format($"Bad token count in DeserializeDictionary. Pairs.Count: {pairs.Count()} "));
             }
 
 
@@ -1041,39 +929,36 @@ namespace LongShotHelpers
 
         public static Dictionary<string, string> GetSection(string file, string section)
         {
-            Dictionary<string, string> sections = StaticHelpers.GetSections(file);
+            var sections = GetSections(file);
             if (sections == null)
                 return null;
 
-            return StaticHelpers.DeserializeDictionary(sections[section]);
-
+            return DeserializeDictionary(sections[section]);
         }
 
-        static public void RunStoryBoardAsync(Storyboard sb, double ms = 500, bool setTimeout = true)
+        public static void RunStoryBoardAsync(Storyboard sb, double ms = 500, bool setTimeout = true)
         {
             if (setTimeout)
-            {
                 foreach (var animations in sb.Children)
-                {
                     animations.Duration = new Duration(TimeSpan.FromMilliseconds(ms));
-                }
-            }
 
             sb.Begin();
         }
 
-        static public async Task RunStoryBoard(Storyboard sb, bool callStop = true, double ms = 500, bool setTimeout = true)
+        public static async Task RunStoryBoard(Storyboard sb, bool callStop = true, double ms = 500,
+            bool setTimeout = true)
         {
             if (setTimeout)
-            {
                 foreach (var animations in sb.Children)
-                {
                     animations.Duration = new Duration(TimeSpan.FromMilliseconds(ms));
-                }
-            }
 
             var tcs = new TaskCompletionSource<object>();
-            void completed(object s, object e) => tcs.TrySetResult(null);
+
+            void completed(object s, object e)
+            {
+                tcs.TrySetResult(null);
+            }
+
             try
             {
                 sb.Completed += completed;
@@ -1085,28 +970,28 @@ namespace LongShotHelpers
                 sb.Completed -= completed;
                 if (callStop) sb.Stop();
             }
-
         }
 
         public static List<T> DestructiveIterator<T>(this List<T> list)
         {
-            List<T> copy = new List<T>(list);
+            var copy = new List<T>(list);
             return copy;
-
         }
+
         public static T Pop<T>(this List<T> list)
         {
-            T t = list.Last();
+            var t = list.Last();
             list.RemoveAt(list.Count - 1);
             return t;
         }
 
         public static T Pop<T>(this ObservableCollection<T> list)
         {
-            T t = list.Last();
+            var t = list.Last();
             list.RemoveAt(list.Count - 1);
             return t;
         }
+
         public static void Push<T>(this ObservableCollection<T> list, T t)
         {
             list.Add(t);
@@ -1128,9 +1013,11 @@ namespace LongShotHelpers
 
         public static Task BeginAsync(this Storyboard storyboard)
         {
-            System.Threading.Tasks.TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
+            var tcs = new TaskCompletionSource<bool>();
             if (storyboard == null)
+            {
                 tcs.SetException(new ArgumentNullException());
+            }
             else
             {
                 void onComplete(object s, object e)
@@ -1142,6 +1029,7 @@ namespace LongShotHelpers
                 storyboard.Completed += onComplete;
                 storyboard.Begin();
             }
+
             return tcs.Task;
         }
 
@@ -1183,34 +1071,25 @@ namespace LongShotHelpers
         //}
 
 
-       
-        static public void SetFlipAnimationSpeed(Storyboard sb, double milliseconds)
+        public static void SetFlipAnimationSpeed(Storyboard sb, double milliseconds)
         {
-
             foreach (var animation in sb.Children)
             {
                 if (animation.Duration != TimeSpan.FromMilliseconds(0))
-                {
                     animation.Duration = TimeSpan.FromMilliseconds(milliseconds);
-                }
 
                 if (animation.BeginTime != TimeSpan.FromMilliseconds(0))
-                {
                     animation.BeginTime = TimeSpan.FromMilliseconds(milliseconds);
-                }
-
             }
         }
 
-        static public async Task<bool> AskUserYesNoQuestion(string title, string question, string button1, string button2)
+        public static async Task<bool> AskUserYesNoQuestion(string title, string question, string button1,
+            string button2)
         {
-
-            bool saidYes = false;
-
+            var saidYes = false;
 
 
-
-            ContentDialog dlg = new ContentDialog()
+            var dlg = new ContentDialog
             {
                 Title = title,
                 Content = "\n" + question,
@@ -1218,261 +1097,67 @@ namespace LongShotHelpers
                 SecondaryButtonText = button2
             };
 
-            dlg.PrimaryButtonClick += (o, i) =>
-            {
-                saidYes = true;
-            };
+            dlg.PrimaryButtonClick += (o, i) => { saidYes = true; };
 
 
             await dlg.ShowAsync();
 
 
             return saidYes;
-
         }
 
+        public class KeyValuePair
+        {
+            public KeyValuePair(string key, string value)
+            {
+                Key = key;
+                Value = value;
+            }
 
+            public string Key { get; set; }
+            public string Value { get; set; }
+        }
+
+        //
+        //  an interface called by the drag and drop code so we can simlulate the DragOver behavior
+        public interface IDragAndDropProgress
+        {
+            void Report(Point value);
+            void PointerUp(Point value);
+        }
     }
 
     public static class StorageHelper
     {
-        #region Settings
-
-        /// <summary>Returns if a setting is found in the specified storage strategy</summary>
-        /// <param name="key">Path of the setting in storage</param>
-        /// <param name="location">Location storage strategy</param>
-        /// <returns>Boolean: true if found, false if not found</returns>
-        public static bool SettingExists(string key, StorageStrategies location = StorageStrategies.Local)
+        public enum StorageStrategies
         {
-            switch (location)
-            {
-                case StorageStrategies.Local:
-                    return Windows.Storage.ApplicationData.Current.LocalSettings.Values.ContainsKey(key);
-                case StorageStrategies.Roaming:
-                    return Windows.Storage.ApplicationData.Current.RoamingSettings.Values.ContainsKey(key);
-                default:
-                    throw new NotSupportedException(location.ToString());
-            }
+            /// <summary>Local, isolated folder</summary>
+            Local,
+
+            /// <summary>Cloud, isolated folder. 100k cumulative limit.</summary>
+            Roaming,
+
+            /// <summary>Local, temporary folder (not for settings)</summary>
+            Temporary
         }
-
-        /// <summary>Reads and converts a setting into specified type T</summary>
-        /// <typeparam name="T">Specified type into which to value is converted</typeparam>
-        /// <param name="key">Path to the file in storage</param>
-        /// <param name="otherwise">Return value if key is not found or convert fails</param>
-        /// <param name="location">Location storage strategy</param>
-        /// <returns>Specified type T</returns>
-        public static T GetSetting<T>(string key, T otherwise = default(T), StorageStrategies location = StorageStrategies.Local)
-        {
-            try
-            {
-                if (!(SettingExists(key, location)))
-                    return otherwise;
-                switch (location)
-                {
-                    case StorageStrategies.Local:
-                        return (T)Windows.Storage.ApplicationData.Current.LocalSettings.Values[key.ToString()];
-                    case StorageStrategies.Roaming:
-                        return (T)Windows.Storage.ApplicationData.Current.RoamingSettings.Values[key.ToString()];
-                    default:
-                        throw new NotSupportedException(location.ToString());
-                }
-            }
-            catch { /* error casting */ return otherwise; }
-        }
-
-        /// <summary>Serializes an object and write to file in specified storage strategy</summary>
-        /// <typeparam name="T">Specified type of object to serialize</typeparam>
-        /// <param name="key">Path to the file in storage</param>
-        /// <param name="value">Instance of object to be serialized and written</param>
-        /// <param name="location">Location storage strategy</param>
-        public static void SetSetting<T>(string key, T value, StorageStrategies location = StorageStrategies.Local)
-        {
-            switch (location)
-            {
-                case StorageStrategies.Local:
-                    Windows.Storage.ApplicationData.Current.LocalSettings.Values[key.ToString()] = value;
-                    break;
-                case StorageStrategies.Roaming:
-                    Windows.Storage.ApplicationData.Current.RoamingSettings.Values[key.ToString()] = value;
-                    break;
-                default:
-                    throw new NotSupportedException(location.ToString());
-            }
-        }
-
-        public static void DeleteSetting(string key, StorageStrategies location = StorageStrategies.Local)
-        {
-            switch (location)
-            {
-                case StorageStrategies.Local:
-                    Windows.Storage.ApplicationData.Current.LocalSettings.Values.Remove(key);
-                    break;
-                case StorageStrategies.Roaming:
-                    Windows.Storage.ApplicationData.Current.RoamingSettings.Values.Remove(key);
-                    break;
-                default:
-                    throw new NotSupportedException(location.ToString());
-            }
-        }
-
-        #endregion
-
-        #region File
-
-        /// <summary>Returns if a file is found in the specified storage strategy</summary>
-        /// <param name="key">Path of the file in storage</param>
-        /// <param name="location">Location storage strategy</param>
-        /// <returns>Boolean: true if found, false if not found</returns>
-        public static async Task<bool> FileExistsAsync(string key, StorageStrategies location = StorageStrategies.Local)
-        {
-            return (await GetIfFileExistsAsync(key, location)) != null;
-        }
-
-        public static async Task<bool> FileExistsAsync(string key, Windows.Storage.StorageFolder folder)
-        {
-            return (await GetIfFileExistsAsync(key, folder)) != null;
-        }
-
-        /// <summary>Deletes a file in the specified storage strategy</summary>
-        /// <param name="key">Path of the file in storage</param>
-        /// <param name="location">Location storage strategy</param>
-        public static async Task<bool> DeleteFileAsync(string key, StorageStrategies location = StorageStrategies.Local)
-        {
-            var _File = await GetIfFileExistsAsync(key, location);
-            if (_File != null)
-                await _File.DeleteAsync();
-            return !(await FileExistsAsync(key, location));
-        }
-
-        /// <summary>Reads and deserializes a file into specified type T</summary>
-        /// <typeparam name="T">Specified type into which to deserialize file content</typeparam>
-        /// <param name="key">Path to the file in storage</param>
-        /// <param name="location">Location storage strategy</param>
-        /// <returns>Specified type T</returns>
-        public static async Task<T> ReadFileAsync<T>(string key, StorageStrategies location = StorageStrategies.Local)
-        {
-            try
-            {
-                // fetch file
-                var _File = await GetIfFileExistsAsync(key, location);
-                if (_File == null)
-                    return default(T);
-                // read content
-                var _String = await Windows.Storage.FileIO.ReadTextAsync(_File);
-                // convert to obj
-                var _Result = Deserialize<T>(_String);
-                return _Result;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-
-        /// <summary>Serializes an object and write to file in specified storage strategy</summary>
-        /// <typeparam name="T">Specified type of object to serialize</typeparam>
-        /// <param name="key">Path to the file in storage</param>
-        /// <param name="value">Instance of object to be serialized and written</param>
-        /// <param name="location">Location storage strategy</param>
-        public static async Task<bool> WriteFileAsync<T>(string key, T value, StorageStrategies location = StorageStrategies.Local)
-        {
-            // create file
-            var _File = await CreateFileAsync(key, location, Windows.Storage.CreationCollisionOption.ReplaceExisting);
-            // convert to string
-            var _String = Serialize(value);
-            // save string to file
-            await Windows.Storage.FileIO.WriteTextAsync(_File, _String);
-            // result
-            return await FileExistsAsync(key, location);
-        }
-
-        private static async Task<Windows.Storage.StorageFile> CreateFileAsync(string key, StorageStrategies location = StorageStrategies.Local,
-            Windows.Storage.CreationCollisionOption option = Windows.Storage.CreationCollisionOption.OpenIfExists)
-        {
-            switch (location)
-            {
-                case StorageStrategies.Local:
-                    return await Windows.Storage.ApplicationData.Current.LocalFolder.CreateFileAsync(key, option);
-                case StorageStrategies.Roaming:
-                    return await Windows.Storage.ApplicationData.Current.RoamingFolder.CreateFileAsync(key, option);
-                case StorageStrategies.Temporary:
-                    return await Windows.Storage.ApplicationData.Current.TemporaryFolder.CreateFileAsync(key, option);
-                default:
-                    throw new NotSupportedException(location.ToString());
-            }
-        }
-
-        private static async Task<Windows.Storage.StorageFile> GetIfFileExistsAsync(string key, Windows.Storage.StorageFolder folder,
-            Windows.Storage.CreationCollisionOption option = Windows.Storage.CreationCollisionOption.FailIfExists)
-        {
-            Windows.Storage.StorageFile retval;
-            try
-            {
-                retval = await folder.GetFileAsync(key);
-            }
-            catch (System.IO.FileNotFoundException)
-            {
-                // System.Diagnostics.Debug.WriteLine("GetIfFileExistsAsync:FileNotFoundException");
-                return null;
-            }
-            return retval;
-        }
-
-        /// <summary>Returns a file if it is found in the specified storage strategy</summary>
-        /// <param name="key">Path of the file in storage</param>
-        /// <param name="location">Location storage strategy</param>
-        /// <returns>StorageFile</returns>
-        private static async Task<Windows.Storage.StorageFile> GetIfFileExistsAsync(string key,
-            StorageStrategies location = StorageStrategies.Local,
-            Windows.Storage.CreationCollisionOption option = Windows.Storage.CreationCollisionOption.FailIfExists)
-        {
-            Windows.Storage.StorageFile retval;
-            try
-            {
-                switch (location)
-                {
-                    case StorageStrategies.Local:
-                        retval = await Windows.Storage.ApplicationData.Current.LocalFolder.GetFileAsync(key);
-                        break;
-                    case StorageStrategies.Roaming:
-                        retval = await Windows.Storage.ApplicationData.Current.RoamingFolder.GetFileAsync(key);
-                        break;
-                    case StorageStrategies.Temporary:
-                        retval = await Windows.Storage.ApplicationData.Current.TemporaryFolder.GetFileAsync(key);
-                        break;
-                    default:
-                        throw new NotSupportedException(location.ToString());
-                }
-            }
-            catch (System.IO.FileNotFoundException)
-            {
-
-                return null;
-            }
-
-            return retval;
-        }
-
-        #endregion
 
         /// <summary>Serializes the specified object as a JSON string</summary>
         /// <param name="objectToSerialize">Specified object to serialize</param>
         /// <returns>JSON string of serialzied object</returns>
         public static string Serialize(object objectToSerialize)
         {
-            using (System.IO.MemoryStream _Stream = new System.IO.MemoryStream())
+            using (var _Stream = new MemoryStream())
             {
                 try
                 {
-                    var _Serializer = new System.Runtime.Serialization.Json.DataContractJsonSerializer(objectToSerialize.GetType());
+                    var _Serializer = new DataContractJsonSerializer(objectToSerialize.GetType());
                     _Serializer.WriteObject(_Stream, objectToSerialize);
                     _Stream.Position = 0;
-                    System.IO.StreamReader _Reader = new System.IO.StreamReader(_Stream);
+                    var _Reader = new StreamReader(_Stream);
                     return _Reader.ReadToEnd();
                 }
                 catch (Exception)
                 {
-
                     return string.Empty;
                 }
             }
@@ -1484,25 +1169,18 @@ namespace LongShotHelpers
         /// <returns>Object of specied type</returns>
         public static T Deserialize<T>(string jsonString)
         {
-            using (System.IO.MemoryStream _Stream = new System.IO.MemoryStream(Encoding.Unicode.GetBytes(jsonString)))
+            using (var _Stream = new MemoryStream(Encoding.Unicode.GetBytes(jsonString)))
             {
                 try
                 {
-                    var _Serializer = new System.Runtime.Serialization.Json.DataContractJsonSerializer(typeof(T));
-                    return (T)_Serializer.ReadObject(_Stream);
+                    var _Serializer = new DataContractJsonSerializer(typeof(T));
+                    return (T) _Serializer.ReadObject(_Stream);
                 }
-                catch (Exception) { throw; }
+                catch (Exception)
+                {
+                    throw;
+                }
             }
-        }
-
-        public enum StorageStrategies
-        {
-            /// <summary>Local, isolated folder</summary>
-            Local,
-            /// <summary>Cloud, isolated folder. 100k cumulative limit.</summary>
-            Roaming,
-            /// <summary>Local, temporary folder (not for settings)</summary>
-            Temporary
         }
 
         public static async Task DeleteFileFireAndForget(string key, StorageStrategies location)
@@ -1520,7 +1198,11 @@ namespace LongShotHelpers
         public static async Task WhenClicked(this Button button)
         {
             var tcs = new TaskCompletionSource<object>();
-            void lambda(object s, RoutedEventArgs e) => tcs.TrySetResult(null);
+
+            void lambda(object s, RoutedEventArgs e)
+            {
+                tcs.TrySetResult(null);
+            }
 
             try
             {
@@ -1533,5 +1215,230 @@ namespace LongShotHelpers
             }
         }
 
+        #region Settings
+
+        /// <summary>Returns if a setting is found in the specified storage strategy</summary>
+        /// <param name="key">Path of the setting in storage</param>
+        /// <param name="location">Location storage strategy</param>
+        /// <returns>Boolean: true if found, false if not found</returns>
+        public static bool SettingExists(string key, StorageStrategies location = StorageStrategies.Local)
+        {
+            switch (location)
+            {
+                case StorageStrategies.Local:
+                    return ApplicationData.Current.LocalSettings.Values.ContainsKey(key);
+                case StorageStrategies.Roaming:
+                    return ApplicationData.Current.RoamingSettings.Values.ContainsKey(key);
+                default:
+                    throw new NotSupportedException(location.ToString());
+            }
+        }
+
+        /// <summary>Reads and converts a setting into specified type T</summary>
+        /// <typeparam name="T">Specified type into which to value is converted</typeparam>
+        /// <param name="key">Path to the file in storage</param>
+        /// <param name="otherwise">Return value if key is not found or convert fails</param>
+        /// <param name="location">Location storage strategy</param>
+        /// <returns>Specified type T</returns>
+        public static T GetSetting<T>(string key, T otherwise = default(T),
+            StorageStrategies location = StorageStrategies.Local)
+        {
+            try
+            {
+                if (!SettingExists(key, location))
+                    return otherwise;
+                switch (location)
+                {
+                    case StorageStrategies.Local:
+                        return (T) ApplicationData.Current.LocalSettings.Values[key];
+                    case StorageStrategies.Roaming:
+                        return (T) ApplicationData.Current.RoamingSettings.Values[key];
+                    default:
+                        throw new NotSupportedException(location.ToString());
+                }
+            }
+            catch
+            {
+                /* error casting */
+                return otherwise;
+            }
+        }
+
+        /// <summary>Serializes an object and write to file in specified storage strategy</summary>
+        /// <typeparam name="T">Specified type of object to serialize</typeparam>
+        /// <param name="key">Path to the file in storage</param>
+        /// <param name="value">Instance of object to be serialized and written</param>
+        /// <param name="location">Location storage strategy</param>
+        public static void SetSetting<T>(string key, T value, StorageStrategies location = StorageStrategies.Local)
+        {
+            switch (location)
+            {
+                case StorageStrategies.Local:
+                    ApplicationData.Current.LocalSettings.Values[key] = value;
+                    break;
+                case StorageStrategies.Roaming:
+                    ApplicationData.Current.RoamingSettings.Values[key] = value;
+                    break;
+                default:
+                    throw new NotSupportedException(location.ToString());
+            }
+        }
+
+        public static void DeleteSetting(string key, StorageStrategies location = StorageStrategies.Local)
+        {
+            switch (location)
+            {
+                case StorageStrategies.Local:
+                    ApplicationData.Current.LocalSettings.Values.Remove(key);
+                    break;
+                case StorageStrategies.Roaming:
+                    ApplicationData.Current.RoamingSettings.Values.Remove(key);
+                    break;
+                default:
+                    throw new NotSupportedException(location.ToString());
+            }
+        }
+
+        #endregion
+
+        #region File
+
+        /// <summary>Returns if a file is found in the specified storage strategy</summary>
+        /// <param name="key">Path of the file in storage</param>
+        /// <param name="location">Location storage strategy</param>
+        /// <returns>Boolean: true if found, false if not found</returns>
+        public static async Task<bool> FileExistsAsync(string key, StorageStrategies location = StorageStrategies.Local)
+        {
+            return await GetIfFileExistsAsync(key, location) != null;
+        }
+
+        public static async Task<bool> FileExistsAsync(string key, StorageFolder folder)
+        {
+            return await GetIfFileExistsAsync(key, folder) != null;
+        }
+
+        /// <summary>Deletes a file in the specified storage strategy</summary>
+        /// <param name="key">Path of the file in storage</param>
+        /// <param name="location">Location storage strategy</param>
+        public static async Task<bool> DeleteFileAsync(string key, StorageStrategies location = StorageStrategies.Local)
+        {
+            var _File = await GetIfFileExistsAsync(key, location);
+            if (_File != null)
+                await _File.DeleteAsync();
+            return !await FileExistsAsync(key, location);
+        }
+
+        /// <summary>Reads and deserializes a file into specified type T</summary>
+        /// <typeparam name="T">Specified type into which to deserialize file content</typeparam>
+        /// <param name="key">Path to the file in storage</param>
+        /// <param name="location">Location storage strategy</param>
+        /// <returns>Specified type T</returns>
+        public static async Task<T> ReadFileAsync<T>(string key, StorageStrategies location = StorageStrategies.Local)
+        {
+            try
+            {
+                // fetch file
+                var _File = await GetIfFileExistsAsync(key, location);
+                if (_File == null)
+                    return default(T);
+                // read content
+                var _String = await FileIO.ReadTextAsync(_File);
+                // convert to obj
+                var _Result = Deserialize<T>(_String);
+                return _Result;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>Serializes an object and write to file in specified storage strategy</summary>
+        /// <typeparam name="T">Specified type of object to serialize</typeparam>
+        /// <param name="key">Path to the file in storage</param>
+        /// <param name="value">Instance of object to be serialized and written</param>
+        /// <param name="location">Location storage strategy</param>
+        public static async Task<bool> WriteFileAsync<T>(string key, T value,
+            StorageStrategies location = StorageStrategies.Local)
+        {
+            // create file
+            var _File = await CreateFileAsync(key, location, CreationCollisionOption.ReplaceExisting);
+            // convert to string
+            var _String = Serialize(value);
+            // save string to file
+            await FileIO.WriteTextAsync(_File, _String);
+            // result
+            return await FileExistsAsync(key, location);
+        }
+
+        private static async Task<StorageFile> CreateFileAsync(string key,
+            StorageStrategies location = StorageStrategies.Local,
+            CreationCollisionOption option = CreationCollisionOption.OpenIfExists)
+        {
+            switch (location)
+            {
+                case StorageStrategies.Local:
+                    return await ApplicationData.Current.LocalFolder.CreateFileAsync(key, option);
+                case StorageStrategies.Roaming:
+                    return await ApplicationData.Current.RoamingFolder.CreateFileAsync(key, option);
+                case StorageStrategies.Temporary:
+                    return await ApplicationData.Current.TemporaryFolder.CreateFileAsync(key, option);
+                default:
+                    throw new NotSupportedException(location.ToString());
+            }
+        }
+
+        private static async Task<StorageFile> GetIfFileExistsAsync(string key, StorageFolder folder,
+            CreationCollisionOption option = CreationCollisionOption.FailIfExists)
+        {
+            StorageFile retval;
+            try
+            {
+                retval = await folder.GetFileAsync(key);
+            }
+            catch (FileNotFoundException)
+            {
+                // System.Diagnostics.Debug.WriteLine("GetIfFileExistsAsync:FileNotFoundException");
+                return null;
+            }
+
+            return retval;
+        }
+
+        /// <summary>Returns a file if it is found in the specified storage strategy</summary>
+        /// <param name="key">Path of the file in storage</param>
+        /// <param name="location">Location storage strategy</param>
+        /// <returns>StorageFile</returns>
+        private static async Task<StorageFile> GetIfFileExistsAsync(string key,
+            StorageStrategies location = StorageStrategies.Local,
+            CreationCollisionOption option = CreationCollisionOption.FailIfExists)
+        {
+            StorageFile retval;
+            try
+            {
+                switch (location)
+                {
+                    case StorageStrategies.Local:
+                        retval = await ApplicationData.Current.LocalFolder.GetFileAsync(key);
+                        break;
+                    case StorageStrategies.Roaming:
+                        retval = await ApplicationData.Current.RoamingFolder.GetFileAsync(key);
+                        break;
+                    case StorageStrategies.Temporary:
+                        retval = await ApplicationData.Current.TemporaryFolder.GetFileAsync(key);
+                        break;
+                    default:
+                        throw new NotSupportedException(location.ToString());
+                }
+            }
+            catch (FileNotFoundException)
+            {
+                return null;
+            }
+
+            return retval;
+        }
+
+        #endregion
     }
 }

@@ -11,24 +11,26 @@
 
     <Grid Background="{StaticResource LineBrush}" Opacity=".8">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="10*"/>
-            <ColumnDefinition Width="150*"/>
-            <ColumnDefinition Width="10*"/>
+            <ColumnDefinition Width="10*" />
+            <ColumnDefinition Width="150*" />
+            <ColumnDefinition Width="10*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="10*"/>
-            <RowDefinition Height="100*"/>
-            <RowDefinition Height="40*"/>
-            <RowDefinition Height="10*"/>
+            <RowDefinition Height="10*" />
+            <RowDefinition Height="100*" />
+            <RowDefinition Height="40*" />
+            <RowDefinition Height="10*" />
         </Grid.RowDefinitions>
 
-        <Viewbox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="1" Grid.RowSpan="1" >
+        <Viewbox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="1" Grid.RowSpan="1">
             <StackPanel>
-                <Button Content="Done" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  Background="{StaticResource LineBrush}" Click="OnFinish" />
-                <CheckBox Name="_chkAutoSetScore" Content="Autoset Score" Grid.ColumnSpan="2" Background="{StaticResource LineBrush}" Checked="OnChecked" Unchecked="OnUnchecked"/>
+                <Button Content="Done" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                        Background="{StaticResource LineBrush}" Click="OnFinish" />
+                <CheckBox Name="_chkAutoSetScore" Content="Autoset Score" Grid.ColumnSpan="2"
+                          Background="{StaticResource LineBrush}" Checked="OnChecked" Unchecked="OnUnchecked" />
             </StackPanel>
         </Viewbox>
-        <Viewbox Grid.Row="1" Grid.RowSpan="1" Grid.Column="1" Grid.ColumnSpan="1"  >
+        <Viewbox Grid.Row="1" Grid.RowSpan="1" Grid.Column="1" Grid.ColumnSpan="1">
             <TextBlock Name="_txtScore" TextWrapping="Wrap" Text="You have zero score for this hand." />
 
         </Viewbox>

@@ -10,12 +10,13 @@
     d:DesignWidth="40">
 
     <Grid>
-        <Rectangle Fill="Transparent" >
-           
-        </Rectangle>
-        <TextBlock Name="_txtShadow" Foreground="Black" Style="{StaticResource CribbageTextBlock}" FontSize="22" FontWeight="Bold" Text="120" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" />
-        <TextBlock Name="_txtCount" Style="{StaticResource CribbageTextBlock}" FontSize="22" FontWeight="Bold" Text="120" Opacity="0.75"
-                   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Padding="0" TextAlignment="Center" Foreground="Black"/>
+        <Rectangle Fill="Transparent" />
+        <TextBlock Name="_txtShadow" Foreground="Black" Style="{StaticResource CribbageTextBlock}" FontSize="22"
+                   FontWeight="Bold" Text="120" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" />
+        <TextBlock Name="_txtCount" Style="{StaticResource CribbageTextBlock}" FontSize="22" FontWeight="Bold"
+                   Text="120" Opacity="0.75"
+                   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Padding="0"
+                   TextAlignment="Center" Foreground="Black" />
 
     </Grid>
 </UserControl>

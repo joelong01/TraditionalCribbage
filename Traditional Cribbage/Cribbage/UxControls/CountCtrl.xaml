@@ -1,69 +1,90 @@
 ﻿<UserControl x:Name="userControl"
-    x:Class="Cribbage.CountCtrl"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Cribbage"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    d:DesignHeight="60"
-    d:DesignWidth="100" RenderTransformOrigin="0.5,0.5" IsHitTestVisible="False">
+             x:Class="Cribbage.CountCtrl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:Cribbage"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignHeight="60"
+             d:DesignWidth="100" RenderTransformOrigin="0.5,0.5" IsHitTestVisible="False">
 
     <UserControl.Resources>
-        
+
         <Storyboard x:Name="_sbScale">
-            <DoubleAnimation  x:Name="_daScaleX"       Duration="0:0:0.250" To="0.5" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleX)" Storyboard.TargetName="CountGrid" />
-            <DoubleAnimation  x:Name="_daScaleY"       Duration="0:0:0.250" To="0.5" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleY)" Storyboard.TargetName="CountGrid" />
+            <DoubleAnimation x:Name="_daScaleX" Duration="0:0:0.250" To="0.5"
+                             Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleX)"
+                             Storyboard.TargetName="CountGrid" />
+            <DoubleAnimation x:Name="_daScaleY" Duration="0:0:0.250" To="0.5"
+                             Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleY)"
+                             Storyboard.TargetName="CountGrid" />
         </Storyboard>
-        
-    	<Storyboard x:Name="_sbMove">
-            <DoubleAnimation  x:Name="_daMoveX"       Duration="0:0:0.250" To="10" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)" Storyboard.TargetName="CountGrid" />
-            <DoubleAnimation  x:Name="_daMoveY"       Duration="0:0:0.250" To="10" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateY)" Storyboard.TargetName="CountGrid" />            
-    	</Storyboard>
-    	<Storyboard x:Name="_sbFlip">
-    		<DoubleAnimation x:Name="_daFlip" Duration="0" To="90" Storyboard.TargetProperty="(UIElement.Projection).(PlaneProjection.RotationY)" Storyboard.TargetName="userControl" />
-    	</Storyboard>
-    	<Storyboard x:Name="_sbOpacity">
-    		<DoubleAnimation x:Name="_daOpacity" Duration="0" To="0" Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="userControl" />
-    	</Storyboard>
-        
-</UserControl.Resources>
+
+        <Storyboard x:Name="_sbMove">
+            <DoubleAnimation x:Name="_daMoveX" Duration="0:0:0.250" To="10"
+                             Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)"
+                             Storyboard.TargetName="CountGrid" />
+            <DoubleAnimation x:Name="_daMoveY" Duration="0:0:0.250" To="10"
+                             Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateY)"
+                             Storyboard.TargetName="CountGrid" />
+        </Storyboard>
+        <Storyboard x:Name="_sbFlip">
+            <DoubleAnimation x:Name="_daFlip" Duration="0" To="90"
+                             Storyboard.TargetProperty="(UIElement.Projection).(PlaneProjection.RotationY)"
+                             Storyboard.TargetName="userControl" />
+        </Storyboard>
+        <Storyboard x:Name="_sbOpacity">
+            <DoubleAnimation x:Name="_daOpacity" Duration="0" To="0" Storyboard.TargetProperty="(UIElement.Opacity)"
+                             Storyboard.TargetName="userControl" />
+        </Storyboard>
+
+    </UserControl.Resources>
     <UserControl.Projection>
-        <PlaneProjection/>
+        <PlaneProjection />
     </UserControl.Projection>
-    <Grid Margin="0" x:Name="CountGrid" Canvas.ZIndex="10" RenderTransformOrigin="0.5,0.5" Height="60" Width="100" IsHitTestVisible="False" >
+    <Grid Margin="0" x:Name="CountGrid" Canvas.ZIndex="10" RenderTransformOrigin="0.5,0.5" Height="60" Width="100"
+          IsHitTestVisible="False">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="10*" />
             <ColumnDefinition Width="100*" />
             <ColumnDefinition Width="10*" />
         </Grid.ColumnDefinitions>
         <Grid.RenderTransform>
-            <CompositeTransform x:Name="_compositeTransform"/>
+            <CompositeTransform x:Name="_compositeTransform" />
         </Grid.RenderTransform>
         <Grid.RowDefinitions>
-            <RowDefinition Height="1*"/>
-            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
 
-        
-        
-        <Rectangle Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="3" RadiusX="20" RadiusY="20" Stroke="{StaticResource LineBrush}" Fill="{StaticResource bmMotherOfPearl}"/>
+
+        <Rectangle Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="3" RadiusX="20" RadiusY="20"
+                   Stroke="{StaticResource LineBrush}" Fill="{StaticResource bmMotherOfPearl}" />
         <Viewbox Margin="3">
-            <TextBlock Grid.Row="0" x:Name="_lblCountShadow" Text="Count " Grid.ColumnSpan="3"  Style="{StaticResource CribbageTextBlock}" FontSize="24"  HorizontalAlignment="Stretch" Margin="2,0,0,0" Visibility="Collapsed"
-				TextAlignment="Center" VerticalAlignment="Bottom" TextWrapping="NoWrap" Grid.RowSpan="1" FontWeight="Bold" Foreground="Black"/>
+            <TextBlock Grid.Row="0" x:Name="_lblCountShadow" Text="Count " Grid.ColumnSpan="3"
+                       Style="{StaticResource CribbageTextBlock}" FontSize="24" HorizontalAlignment="Stretch"
+                       Margin="2,0,0,0" Visibility="Collapsed"
+                       TextAlignment="Center" VerticalAlignment="Bottom" TextWrapping="NoWrap" Grid.RowSpan="1"
+                       FontWeight="Bold" Foreground="Black" />
         </Viewbox>
-        <Viewbox Margin="3" Grid.ColumnSpan="3" >
-            <TextBlock Grid.Row="0" x:Name="_lblCount" Text="Count " Style="{StaticResource CribbageTextBlock}" FontSize="24"  HorizontalAlignment="Stretch" 
-				TextAlignment="Center" VerticalAlignment="Bottom" TextWrapping="NoWrap" Margin="0" Grid.RowSpan="1" FontWeight="Bold" Foreground="Black"/>
+        <Viewbox Margin="3" Grid.ColumnSpan="3">
+            <TextBlock Grid.Row="0" x:Name="_lblCount" Text="Count " Style="{StaticResource CribbageTextBlock}"
+                       FontSize="24" HorizontalAlignment="Stretch"
+                       TextAlignment="Center" VerticalAlignment="Bottom" TextWrapping="NoWrap" Margin="0"
+                       Grid.RowSpan="1" FontWeight="Bold" Foreground="Black" />
         </Viewbox>
-        <Viewbox Grid.Row="1" Margin="2" Grid.ColumnSpan="3" >
-            <TextBlock Grid.Row="1"  x:Name="_txtCountShowdow" Text="0 " Style="{StaticResource CribbageTextBlock}" FontSize="24"  HorizontalAlignment="Stretch" Margin="2,0,0,0" Visibility="Collapsed"
-				TextAlignment="Center" VerticalAlignment="Top" TextWrapping="Wrap" FontWeight="Bold" Foreground="Black"/>
+        <Viewbox Grid.Row="1" Margin="2" Grid.ColumnSpan="3">
+            <TextBlock Grid.Row="1" x:Name="_txtCountShowdow" Text="0 " Style="{StaticResource CribbageTextBlock}"
+                       FontSize="24" HorizontalAlignment="Stretch" Margin="2,0,0,0" Visibility="Collapsed"
+                       TextAlignment="Center" VerticalAlignment="Top" TextWrapping="Wrap" FontWeight="Bold"
+                       Foreground="Black" />
         </Viewbox>
-        <Viewbox Grid.Row="1" Margin="2" Grid.ColumnSpan="3" >
-            <TextBlock Grid.Row="1"  x:Name="_txtCount" Text="0 " Style="{StaticResource CribbageTextBlock}" FontSize="24"  HorizontalAlignment="Stretch" 
-				TextAlignment="Center" VerticalAlignment="Top" TextWrapping="Wrap" Margin="0" Visibility="Visible" FontWeight="Bold" Foreground="Black"/>
+        <Viewbox Grid.Row="1" Margin="2" Grid.ColumnSpan="3">
+            <TextBlock Grid.Row="1" x:Name="_txtCount" Text="0 " Style="{StaticResource CribbageTextBlock}"
+                       FontSize="24" HorizontalAlignment="Stretch"
+                       TextAlignment="Center" VerticalAlignment="Top" TextWrapping="Wrap" Margin="0"
+                       Visibility="Visible" FontWeight="Bold" Foreground="Black" />
         </Viewbox>
-        
+
     </Grid>
 </UserControl>

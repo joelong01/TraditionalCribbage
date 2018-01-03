@@ -1,93 +1,90 @@
-﻿using Cards;
-using CardView;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using Windows.ApplicationModel;
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
-
 using Windows.UI.Xaml.Media.Animation;
+using Cards;
+using CardView;
 
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
 namespace Cribbage
 {
-
-
     public sealed partial class TraditionalHintWindow : UserControl
     {
-       private bool _mouseCaptured = false;
+        private const int SCROLLBAR_WIDTH = 35;
+        private const double HEIGHT_WIDTH_RATIO = 140.0 / 240.0;
+        private const double HEIGHT_WIDTH_RATIO_HAND_SUMMARY = 400.0 / 310.0;
+        private bool _closeWithTimer = true;
+        private bool _mouseCaptured;
         private Point _pointMouseDown;
-        DispatcherTimer _timer = new DispatcherTimer();
-        bool _closeWithTimer = true;
-        ObservableCollection<UserControl> _scoreHistoryList = new ObservableCollection<UserControl>();
-
-      
-
-
-        public bool IsOpen { get; set; }
+        private readonly DispatcherTimer _timer = new DispatcherTimer();
 
         public TraditionalHintWindow()
         {
-            this.InitializeComponent();
+            InitializeComponent();
             HintWindowAnimatePosition.AutoReverse = false;
             _timer.Tick += OnTimer_Tick;
             _timer.Interval = TimeSpan.FromSeconds(5);
             IsOpen = false;
-            if (!Windows.ApplicationModel.DesignMode.DesignModeEnabled)
-            {
-                _listHistory.Items.Clear();
-            }
+            if (!DesignMode.DesignModeEnabled) _listHistory.Items.Clear();
 
-            _listHistory.ItemsSource = _scoreHistoryList;
-
+            _listHistory.ItemsSource = HistoryList;
         }
+
+
+        public bool IsOpen { get; set; }
+
+        public string Message
+        {
+            get => _tbMessage.Text;
+            set => _tbMessage.Text = value;
+        }
+
+        public double GrabBarWidth =>
+            LayoutRoot.ColumnDefinitions[4].ActualWidth + LayoutRoot.ColumnDefinitions[5].ActualWidth;
+
+
+        private double HistoryViewWidth => _listHistory.Width;
+
+
+        private ObservableCollection<UserControl> HistoryList { get; } = new ObservableCollection<UserControl>();
+
+
+        private UIElement AnimationPointTo => _listHistory;
+
+
+        private bool IsRightSide => false;
 
         public void SetMessage(string message)
         {
             _tbMessage.Text = message;
         }
 
-        public string Message
-        {
-            get
-            {
-                return _tbMessage.Text;
-            }
-            set
-            {
-                _tbMessage.Text = value;
-
-            }
-        }
-
         public void ShowAsync(bool show, bool closeWithTimer = true)
         {
-           
             _closeWithTimer = closeWithTimer;
             if (show)
             {
-
-                _xAnimation.Value = -(this.ActualWidth - GrabBarWidth - 1);
+                _xAnimation.Value = -(ActualWidth - GrabBarWidth - 1);
                 IsOpen = true;
                 //await StaticHelpers.RunStoryBoard(HintWindowAnimatePosition, false, 500, false);
                 //  HintWindowAnimatePosition.Begin();
                 //if (_closeWithTimer)
                 //    _timer.Start();
-
             }
             else
             {
-
                 _xAnimation.Value = 0;
                 IsOpen = false;
                 //await StaticHelpers.RunStoryBoard(HintWindowAnimatePosition, false, 500, false);
                 //  HintWindowAnimatePosition.Begin();
-
             }
         }
 
@@ -96,43 +93,31 @@ namespace Cribbage
             await Task.Delay(0);
             if (show)
             {
-
-                _xAnimation.Value = -(this.ActualWidth - GrabBarWidth - 1);
+                _xAnimation.Value = -(ActualWidth - GrabBarWidth - 1);
                 IsOpen = true;
                 //   await StaticHelpers.RunStoryBoard(HintWindowAnimatePosition, false, 500, false);                
             }
             else
             {
-
                 _xAnimation.Value = 0;
                 IsOpen = false;
                 //    await StaticHelpers.RunStoryBoard(HintWindowAnimatePosition, false, 500, false);                
             }
-
         }
 
-        public double GrabBarWidth
+        private void OnTimer_Tick(object sender, object e)
         {
-            get
-            {
-                return (LayoutRoot.ColumnDefinitions[4].ActualWidth + LayoutRoot.ColumnDefinitions[5].ActualWidth);
-            }
-        }
-        void OnTimer_Tick(object sender, object e)
-        {
-          //  Debug.WriteLine("TimerWindow tick. Open is {0}",  IsOpen);
-           ShowAsync(false);
-                _timer.Stop();
-           
+            //  Debug.WriteLine("TimerWindow tick. Open is {0}",  IsOpen);
+            ShowAsync(false);
+            _timer.Stop();
         }
 
 
         private void LayoutRoot_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             _pointMouseDown = e.GetCurrentPoint(this).Position;
-            _mouseCaptured = ((Grid)sender).CapturePointer(e.Pointer);
+            _mouseCaptured = ((Grid) sender).CapturePointer(e.Pointer);
             e.Handled = true;
-
         }
 
         private void LayoutRoot_PointerMoved(object sender, PointerRoutedEventArgs e)
@@ -147,43 +132,38 @@ namespace Cribbage
             if (_mouseCaptured)
             {
                 _mouseCaptured = false;
-                this.ReleasePointerCapture(e.Pointer);
+                ReleasePointerCapture(e.Pointer);
                 _closeWithTimer = IsOpen;
                 ShowAsync(!IsOpen);
-
-
             }
         }
 
-      
-        private const int SCROLLBAR_WIDTH = 35;
-        private const double HEIGHT_WIDTH_RATIO = 140.0 / 240.0;
-        private const double HEIGHT_WIDTH_RATIO_HAND_SUMMARY = 400.0 / 310.0; 
-        public async Task AddToHistory(List<CardCtrl> cards, ScoreCollection scores, PlayerType player, Deck deck, string gameScore)
+        public async Task AddToHistory(List<CardCtrl> cards, ScoreCollection scores, PlayerType player, Deck deck,
+            string gameScore)
         {
             ShowAsync(true, false);
-            foreach (ScoreInstance score in scores.Scores)
+            
+            foreach (var score in scores.Scores)
             {
-                ScoreHistoryView view = new ScoreHistoryView();
-                view.Width = _listHistory.ActualWidth - SCROLLBAR_WIDTH;
-                view.Height = (view.Width * HEIGHT_WIDTH_RATIO);
+                var view = new ScoreHistoryView
+                {
+                    Width = _listHistory.ActualWidth - SCROLLBAR_WIDTH,
+                    Height = Width * HEIGHT_WIDTH_RATIO
+                };
                 view.UpdateLayout();
-                await view.PopulateGrid(cards, score, player, scores.ScoreType, _scoreHistoryList.Count,  scores.Total, scores.ActualScore,  gameScore);
-                _scoreHistoryList.Insert(0, view);                
-
+                await view.PopulateGrid(cards, score, player, scores.ScoreType, HistoryList.Count, scores.Total,
+                    scores.ActualScore, gameScore);
+                HistoryList.Insert(0, view);
             }
-
-          
         }
 
         public void ResetScoreHistory()
         {
-            _scoreHistoryList.Clear();
+            HistoryList.Clear();
         }
 
         private void UserControl_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-
         }
 
         // TODO: PORT
@@ -240,33 +220,25 @@ namespace Cribbage
 
         public void ShowAsync(bool show, bool closeWithTimer, string message)
         {
-            this.Message = message;
+            Message = message;
             ShowAsync(show, closeWithTimer);
         }
 
         public async Task Show(bool show, bool closeWithTimer, string message)
         {
-            this.Message = message;
+            Message = message;
             _closeWithTimer = closeWithTimer;
             await Show(show);
         }
 
 
-       
-
-      
-      
-
-       
-       
-
-        void InsertScoreSummary(ScoreType scoreType, int playerScore, int computerScore)
+        private void InsertScoreSummary(ScoreType scoreType, int playerScore, int computerScore)
         {
-            ScoreSummaryView view = new ScoreSummaryView();
+            var view = new ScoreSummaryView();
             view.Initialize(scoreType, playerScore, computerScore);
             view.Width = _listHistory.ActualWidth - SCROLLBAR_WIDTH;
-            view.Height = (view.Width * HEIGHT_WIDTH_RATIO) * .50;
-            _scoreHistoryList.Insert(0, view);
+            view.Height = view.Width * HEIGHT_WIDTH_RATIO * .50;
+            HistoryList.Insert(0, view);
         }
 
         // TODO: PORT
@@ -290,54 +262,21 @@ namespace Cribbage
         //}
 
 
-        void AddToHistory(ScoreHistoryView shv)
+        private void AddToHistory(ScoreHistoryView shv)
         {
-            _scoreHistoryList.Insert(0, shv); 
+            HistoryList.Insert(0, shv);
         }
 
 
-        double HistoryViewWidth
+        private void Bounce()
         {
-            get { return _listHistory.Width; }
-        }
-
-
-        ObservableCollection<UserControl> HistoryList
-        {
-            get { return _scoreHistoryList; }
-        }
-
-
-        UIElement AnimationPointTo
-        {
-            get
-            {
-                return _listHistory;
-            }
-        }
-
-
-        void Bounce()
-        {
-
-
-
             _daGrow.To = 1.05;
             _daGrow.Duration = TimeSpan.FromMilliseconds(250);
             _sbGrowAndShrink.Begin();
         }
 
 
-        bool IsRightSide
-        {
-            get
-            {
-                return false; 
-            }            
-        }
-
-
-        Storyboard BounceAnimation()
+        private Storyboard BounceAnimation()
         {
             _daGrow.To = 1.05;
             return _sbGrowAndShrink;

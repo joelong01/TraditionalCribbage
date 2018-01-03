@@ -1,29 +1,35 @@
-﻿using Cards;
-using CardView;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using Windows.ApplicationModel;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
+using Cards;
+using CardView;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
 namespace Cribbage
 {
-    public enum UserChoice { Continue, Muggins };
+    public enum UserChoice
+    {
+        Continue,
+        Muggins
+    }
+
     public interface IShowInstructionsAndHistoryController
     {
-        void  SetMessage(string message);
-       
+        void SetMessage(string message);
+
         Task<UserChoice> ShowAndWait(string message, Visibility showMuggins);
         void ShowAsync(bool show, bool closeWithTimerm, string message);
         void InsertScoreSummary(ScoreType scoreType, int playerScore, int computerScore);
 
         Task Show(bool show, bool closeWithTimer, string message);
 
-        Task InsertEndOfHandSummary(PlayerType dealer, int cribScore, List<CardCtrl> list, int nComputerCountingPoint, int nPlayerCountingPoint, int ComputerPointsThisTurn, int PlayerPointsThisTurn, HandsFromServer Hfs);
+        Task InsertEndOfHandSummary(PlayerType dealer, int cribScore, List<CardCtrl> list, int nComputerCountingPoint,
+            int nPlayerCountingPoint, int ComputerPointsThisTurn, int PlayerPointsThisTurn, HandsFromServer Hfs);
 
         void ResetScoreHistory();
 
@@ -34,51 +40,47 @@ namespace Cribbage
         Task<bool> Load(string s);
     }
 
-   
 
     public sealed partial class HintWindow : UserControl
     {
-      
-        ObservableCollection<UserControl> _scoreHistoryList = new ObservableCollection<UserControl>();
-
-        
         private const int SCROLLBAR_WIDTH = 35;
         private const double HEIGHT_WIDTH_RATIO = 140.0 / 240.0;
-        private const double HEIGHT_WIDTH_RATIO_HAND_SUMMARY = 400.0 / 310.0; 
-
-        
-
-        public bool IsOpen { get; set; }
+        private const double HEIGHT_WIDTH_RATIO_HAND_SUMMARY = 400.0 / 310.0;
 
         public HintWindow()
         {
-            this.InitializeComponent();
-            
-          
+            InitializeComponent();
+
+
             IsOpen = true;
-            if (!Windows.ApplicationModel.DesignMode.DesignModeEnabled)
-            {
-                _listHistory.Items.Clear();
-            }
+            if (!DesignMode.DesignModeEnabled) _listHistory.Items.Clear();
 
-            _listHistory.ItemsSource = _scoreHistoryList;
-
+            _listHistory.ItemsSource = HistoryList;
         }
 
-        
+
+        public bool IsOpen { get; set; }
+
+
         public string Message
         {
-            get
-            {
-                return _tbMessage.Text;
-            }
-            set
-            {
-                _tbMessage.Text = value;
-
-            }
+            get => _tbMessage.Text;
+            set => _tbMessage.Text = value;
         }
 
+
+        private double HistoryViewWidth => _listHistory.ActualWidth - SCROLLBAR_WIDTH;
+
+
+        private ObservableCollection<UserControl> HistoryList { get; } = new ObservableCollection<UserControl>();
+
+        //
+        //  returns the top left point that we want to animate the score views to -- in this case the (0,0) point of the listView
+        //  in the coordinates of the parent...
+        private UIElement AnimationPointTo => _listHistory;
+
+
+        private bool IsRightSide => true;
 
 
         // TODO: PORT
@@ -115,10 +117,6 @@ namespace Cribbage
         //}
 
 
-
-
-
-
         public void RemoveScoreDetails()
         {
             // TODO: PORT
@@ -133,33 +131,31 @@ namespace Cribbage
             //}
         }
 
-        
-        void SetMessage(string message)
+
+        private void SetMessage(string message)
         {
             _tbMessage.Text = message;
         }
 
-       
-     
 
-        void ShowAsync(bool show, bool closeWithTimerm, string message)
+        private void ShowAsync(bool show, bool closeWithTimerm, string message)
         {
             Message = message;
         }
 
-        void InsertScoreSummary(ScoreType scoreType, int playerScore, int computerScore)
+        private void InsertScoreSummary(ScoreType scoreType, int playerScore, int computerScore)
         {
-            ScoreSummaryView view = new ScoreSummaryView();
+            var view = new ScoreSummaryView();
             view.Initialize(scoreType, playerScore, computerScore);
             view.Width = _listHistory.ActualWidth - SCROLLBAR_WIDTH;
-            view.Height = (view.Width * HEIGHT_WIDTH_RATIO) * .50;
-            _scoreHistoryList.Insert(0, view);
+            view.Height = view.Width * HEIGHT_WIDTH_RATIO * .50;
+            HistoryList.Insert(0, view);
         }
 
-       async Task Show(bool show, bool closeWithTimer, string message)
+        private async Task Show(bool show, bool closeWithTimer, string message)
         {
-           this.Message = message;  
-           await  Task.Delay(0);
+            Message = message;
+            await Task.Delay(0);
         }
 
         // TODO: PORT
@@ -182,57 +178,25 @@ namespace Cribbage
         //    _scoreHistoryList.Insert(0, view);
         //}
 
-        void ResetScoreHistory()
+        private void ResetScoreHistory()
         {
-            _scoreHistoryList.Clear();
+            HistoryList.Clear();
         }
 
-        void AddToHistory(ScoreHistoryView shv)
+        private void AddToHistory(ScoreHistoryView shv)
         {
-            _scoreHistoryList.Insert(0, shv); 
-        }
-
-
-        double HistoryViewWidth
-        {
-            get 
-            {
-                return _listHistory.ActualWidth - SCROLLBAR_WIDTH;
-            }
+            HistoryList.Insert(0, shv);
         }
 
 
-        ObservableCollection<UserControl> HistoryList
+        private void Bounce()
         {
-            get { return _scoreHistoryList; }
-        }
-
-        //
-        //  returns the top left point that we want to animate the score views to -- in this case the (0,0) point of the listView
-        //  in the coordinates of the parent...
-        UIElement AnimationPointTo
-        {
-            get 
-            {
-                return _listHistory;                
-            }
+            //
+            //    do nothing 
         }
 
 
-        void Bounce()
-        {
-          //
-          //    do nothing 
-        }
-
-
-        bool IsRightSide
-        {
-            get { return true; }
-        }
-
-
-        Storyboard BounceAnimation()
+        private Storyboard BounceAnimation()
         {
             return null;
         }

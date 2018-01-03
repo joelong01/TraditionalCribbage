@@ -1,31 +1,46 @@
-﻿using Cards;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using LongShotHelpers;
+using Cards;
 
-namespace CribbagePlayers
+namespace Cribbage.Players
 {
-    public enum PlayerAlgorithm { Easy, Hard, Random, ImprovedCounting, None };
-    public enum PlayerName { PlayerOne, PlayerTwo, Uninitialized, None };
+    public enum PlayerAlgorithm
+    {
+        Easy,
+        Hard,
+        Random,
+        ImprovedCounting,
+        None
+    }
+
+    public enum PlayerName
+    {
+        PlayerOne,
+        PlayerTwo,
+        Uninitialized,
+        None
+    }
 
 
-    public class Player 
+    public class Player
     {
         //
         //  state about the game
-        List<Card> _crib = new List<Card>();
+        private List<Card> _crib = new List<Card>();
         public List<Card> Hand { get; set; } = new List<Card>();
         public List<Card> UncountedCards { get; set; } = new List<Card>();
 
-        public object Tag { get; set; } // a way of storing arbitrary data in a player that the various games might need - tempted to make this a Player<T> where T is the type stored here.
+        public object
+            Tag
+        {
+            get;
+            set;
+        } // a way of storing arbitrary data in a player that the various games might need - tempted to make this a Player<T> where T is the type stored here.
 
         public List<Card> Crib
         {
-            get
-            {
-                return _crib;
-            }
+            get => _crib;
             set
             {
                 _crib = new List<Card>();
@@ -37,19 +52,13 @@ namespace CribbagePlayers
         ///     These stats are here to calculate the average score for each of the phases of the game so we can compare algorithms
         /// </summary>
         public int Score { get; set; } = 0;
+
         public int CountPoints { get; set; } = 0; // number of points gained by counting
         public int HandPoints { get; set; } = 0; // number of points from the hand
         public int CribPoints { get; set; } = 0; // number of points from the crib
-        public int CribCount { get; set; } = 0; 
-        public int HandCount { get; set; } = 0; 
+        public int CribCount { get; set; } = 0;
+        public int HandCount { get; set; } = 0;
         public int CountingSessions { get; set; } = 0;
-
-        
-        public override string ToString()
-        {
-            return String.Format($"[{Description}].Score:{Score}");
-
-        }
 
         //
         //  state about the Player
@@ -58,7 +67,12 @@ namespace CribbagePlayers
         public bool Winner { get; set; }
         public PlayerAlgorithm PlayerAlgorithm { get; set; }
 
-        
+
+        public override string ToString()
+        {
+            return string.Format($"[{Description}].Score:{Score}");
+        }
+
 
         /// <summary>
         ///     Given a list of cards that have been played and the list of cards that are left in the hand
@@ -82,8 +96,8 @@ namespace CribbagePlayers
         {
             throw new NotImplementedException();
         }
+
         /// <summary>
-        ///     
         /// </summary>
         /// <param name="hand">6 cards that represent a player's hand</param>
         /// <param name="yourCrib">true if the API is returned cards to be added to its own Crib</param>
