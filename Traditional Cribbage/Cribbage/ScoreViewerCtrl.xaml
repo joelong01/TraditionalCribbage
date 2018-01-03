@@ -10,7 +10,7 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <Grid Name="LayoutRoot" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SizeChanged="OnSizeChanged" >
+    <Grid Name="LayoutRoot" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SizeChanged="OnSizeChanged">
         <Grid.Clip>
             <RectangleGeometry x:Name="_scoreGridClip" />
         </Grid.Clip>

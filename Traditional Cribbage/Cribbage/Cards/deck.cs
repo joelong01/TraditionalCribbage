@@ -1,18 +1,14 @@
-﻿using Cribbage;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Cribbage;
 using MersenneTwister;
-using System;
 
 namespace Cards
 {
-
-
-
     public class Deck
     {
-        
-        int[] _randomIndeces = new int[52];
-        int _index = 0; // the index of the cards handed out
+        private int _index; // the index of the cards handed out
+
+        private readonly int[] _randomIndeces = new int[52];
 
         public Deck(int seed)
         {
@@ -21,20 +17,14 @@ namespace Cards
 
         public void Shuffle(int seed)
         {
+            var twist = Randoms.Create(seed, RandomType.FastestInt32);
 
-            Random twist = Randoms.Create(seed, RandomType.FastestInt32);
-            
-            for (int i = 0; i < 52; i++)
+            for (var i = 0; i < 52; i++) _randomIndeces[i] = i;
+
+            for (var n = 0; n < 52; n++)
             {
-                _randomIndeces[i] = i;
-
-            }
-
-            int temp = 0;
-            for (int n = 0; n < 52; n++)
-            {
-                int k = twist.Next(n + 1);
-                temp = _randomIndeces[n];
+                var k = twist.Next(n + 1);
+                var temp = _randomIndeces[n];
                 _randomIndeces[n] = _randomIndeces[k];
                 _randomIndeces[k] = temp;
             }
@@ -44,10 +34,10 @@ namespace Cards
 
         public List<Card> GetCards(int number, Owner owner)
         {
-            List<Card> cards = new List<Card>();
-            for (int i = _index; i < number + _index; i++)
+            var cards = new List<Card>();
+            for (var i = _index; i < number + _index; i++)
             {
-                Card c = new Card((CardNames)_randomIndeces[i])
+                var c = new Card((CardNames) _randomIndeces[i])
                 {
                     Owner = owner
                 };
@@ -58,7 +48,5 @@ namespace Cards
 
             return cards;
         }
-
-
     }
 }

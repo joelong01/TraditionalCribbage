@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using Windows.Foundation;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -17,23 +16,21 @@ namespace Cribbage
 {
     public sealed partial class TraditionalBoard : UserControl
     {
+        //private Brush _scoreBrush = (Brush)App.Current.Resources["SelectColor"];
+        private Brush _scoreBrush = new SolidColorBrush(Colors.Red);
 
         public TraditionalBoard()
         {
-            this.InitializeComponent();
-            this.DataContext = this;
-           //if (StaticHelpers.IsInVisualStudioDesignMode)
-           //     HideButtonsAsync();
-            
+            InitializeComponent();
+            DataContext = this;
+            //if (StaticHelpers.IsInVisualStudioDesignMode)
+            //     HideButtonsAsync();
         }
-
-
 
 
         public async void ResetAsync()
         {
             await _board.Reset();
-
         }
 
 
@@ -43,12 +40,9 @@ namespace Cribbage
         }
 
 
-
         private void ButtonDownScore_Click(object sender, RoutedEventArgs e)
         {
-
-
-            int scoreDelta = Convert.ToInt32(_tbScoreToAdd.Text);
+            var scoreDelta = Convert.ToInt32(_tbScoreToAdd.Text);
             if (scoreDelta < 0) scoreDelta = 0;
             if (scoreDelta > 0)
             {
@@ -56,26 +50,19 @@ namespace Cribbage
                 scoreDelta -= 1;
                 _tbScoreToAdd.Text = scoreDelta.ToString();
             }
-
-
         }
 
-
-        //private Brush _scoreBrush = (Brush)App.Current.Resources["SelectColor"];
-        private Brush _scoreBrush = (Brush)new SolidColorBrush(Colors.Red);
         private void ButtonUpScore_Click(object sender, RoutedEventArgs e)
         {
-            int scoreDelta = Convert.ToInt32(_tbScoreToAdd.Text);
+            var scoreDelta = Convert.ToInt32(_tbScoreToAdd.Text);
             scoreDelta += 1;
             if (scoreDelta > 29) scoreDelta = 29;
             _tbScoreToAdd.Text = scoreDelta.ToString();
             _board.HighlightPeg(PlayerType.Player, _board.PlayerFrontScore + scoreDelta, true);
-
         }
 
 
-
-        private void DumpScores(PlayerType playerType, int scoreDelta, [CallerMemberName] String caller = "")
+        private void DumpScores(PlayerType playerType, int scoreDelta, [CallerMemberName] string caller = "")
         {
             //PegScore pegScore = _scorePlayer;
             //if (playerType == PlayerType.Computer)
@@ -84,30 +71,29 @@ namespace Cribbage
             //}
 
             //  MainPage.LogTrace.TraceMessageAsync(String.Format("[{0}] {1}: Front={2} Back={3} Add={4}", caller, playerType, pegScore.Score2, pegScore.Score1, scoreDelta));
-
         }
 
         public void HighlightScore(PlayerType player, int score, int count, bool highlight)
         {
-            int start = score + 1;
-            for (int i = start; i < start + 30; i++)
-            {
-                if (i < (start + count))
+            var start = score + 1;
+            for (var i = start; i < start + 30; i++)
+                if (i < start + count)
                     _board.HighlightPeg(player, i, highlight);
                 else
-                    _board.HighlightPeg(player, i, false); // this way if you went down, we always turn off the highlight
-            }
+                    _board.HighlightPeg(player, i,
+                        false); // this way if you went down, we always turn off the highlight
         }
-
 
 
         public async Task<int> HighlightScoreAndWaitForContinue(int actualScore, bool autosetScore)
         {
-            int maxHighlight = 0;
+            var maxHighlight = 0;
 
             if (autosetScore)
             {
-                HighlightScore(PlayerType.Player, _board.PlayerFrontScore + actualScore, Convert.ToInt32(_tbScoreToAdd.Text), false);  //if the player guessed too high, need to reset those back to normal
+                HighlightScore(PlayerType.Player, _board.PlayerFrontScore + actualScore,
+                    Convert.ToInt32(_tbScoreToAdd.Text),
+                    false); //if the player guessed too high, need to reset those back to normal
                 _tbScoreToAdd.Text = actualScore.ToString();
                 maxHighlight = actualScore;
                 HighlightScore(PlayerType.Player, _board.PlayerFrontScore, actualScore, true);
@@ -116,14 +102,13 @@ namespace Cribbage
             {
                 maxHighlight = Convert.ToInt32(_tbScoreToAdd.Text);
                 HighlightScore(PlayerType.Player, _board.PlayerFrontScore, maxHighlight, true);
-
             }
 
             var tcs = new TaskCompletionSource<object>();
 
             void OnCompletion(object _, RoutedEventArgs args)
             {
-                int scoreDelta = Convert.ToInt32(_tbScoreToAdd.Text);
+                var scoreDelta = Convert.ToInt32(_tbScoreToAdd.Text);
                 DumpScores(PlayerType.Player, scoreDelta);
                 tcs.SetResult(null);
             }
@@ -135,14 +120,12 @@ namespace Cribbage
                 ShowButtons();
                 await tcs.Task;
                 return Convert.ToInt32(_tbScoreToAdd.Text);
-
             }
             finally
             {
                 _btnAccept.Click -= OnCompletion;
                 HideButtonsAsync();
                 HighlightScore(PlayerType.Player, _board.PlayerFrontScore, maxHighlight, false);
-
             }
         }
 
@@ -182,7 +165,6 @@ namespace Cribbage
 
         public List<Task> AnimateScore(PlayerType playerType, int score)
         {
-
             return _board.AnimateScore(playerType, score, false);
         }
 
@@ -190,8 +172,6 @@ namespace Cribbage
         {
             _board.TraceBackPegPosition();
         }
-
-
 
 
         public void AnimateScoreAsync(PlayerType player, int scoreToAdd)
@@ -202,11 +182,8 @@ namespace Cribbage
 
         public (int computerBackScore, int computerScore, int playerBackScore, int playerScore) GetScores()
         {
-            return (_board.ComputerBackScore, _board.ComputerFrontScore, _board.PlayerBackScore, _board.PlayerFrontScore);
+            return (_board.ComputerBackScore, _board.ComputerFrontScore, _board.PlayerBackScore, _board.PlayerFrontScore
+                );
         }
-
     }
-
-
-
 }

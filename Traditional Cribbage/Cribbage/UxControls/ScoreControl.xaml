@@ -6,18 +6,23 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    x:Name="userControl"    
+    x:Name="userControl"
     d:DesignHeight="338"
-    d:DesignWidth="395" SizeChanged="OnControlSizeChanged" PointerPressed="LayoutRoot_PointerPressed" PointerReleased="LayoutRoot_PointerReleased" PointerMoved="LayoutRoot_PointerMoved">
+    d:DesignWidth="395" SizeChanged="OnControlSizeChanged" PointerPressed="LayoutRoot_PointerPressed"
+    PointerReleased="LayoutRoot_PointerReleased" PointerMoved="LayoutRoot_PointerMoved">
 
     <UserControl.Resources>
         <Storyboard x:Name="ScoreWindowAnimatePosition">
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)" Storyboard.TargetName="OuterGrid" >
-                <SplineDoubleKeyFrame x:Name="_xAnimation"  KeyTime="0:0:1" Value="-480"/>
+            <DoubleAnimationUsingKeyFrames
+                Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)"
+                Storyboard.TargetName="OuterGrid">
+                <SplineDoubleKeyFrame x:Name="_xAnimation" KeyTime="0:0:1" Value="-480" />
             </DoubleAnimationUsingKeyFrames>
         </Storyboard>
         <Storyboard x:Name="_rotate">
-            <DoubleAnimation x:Name="_rotateAnimation" Duration="0" To="0" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.Rotation)" Storyboard.TargetName="userControl" d:IsOptimized="True"/>
+            <DoubleAnimation x:Name="_rotateAnimation" Duration="0" To="0"
+                             Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.Rotation)"
+                             Storyboard.TargetName="userControl" d:IsOptimized="True" />
             <!--<DoubleAnimation x:Name="_rotateGridAnimation" Duration="0" To="0" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.Rotation)" Storyboard.TargetName="_scoreGrid" d:IsOptimized="True"/>
             <DoubleAnimation x:Name="_scaleX"  Duration="0:0:2" To=".75" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleX)" Storyboard.TargetName="_scoreGrid" d:IsOptimized="True"/>
             <DoubleAnimation x:Name="_scaleY"  Duration="0:0:2" To=".75" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleY)" Storyboard.TargetName="_scoreGrid" d:IsOptimized="True"/>-->
@@ -25,120 +30,151 @@
     </UserControl.Resources>
 
     <UserControl.RenderTransform>
-        <CompositeTransform/>
+        <CompositeTransform />
     </UserControl.RenderTransform>
 
 
     <Grid Name="OuterGrid">
         <Grid.Background>
-            <ImageBrush Stretch="Fill"/>
+            <ImageBrush Stretch="Fill" />
         </Grid.Background>
         <Grid.RowDefinitions>
-            <RowDefinition Height="25"/>
-            <RowDefinition Height="100*"/>
-            <RowDefinition Height="60"/>
-            <RowDefinition Height="100*"/>
-            <RowDefinition Height="25"/>
+            <RowDefinition Height="25" />
+            <RowDefinition Height="100*" />
+            <RowDefinition Height="60" />
+            <RowDefinition Height="100*" />
+            <RowDefinition Height="25" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="25"/>
-            <ColumnDefinition Width="100*"/>
-            <ColumnDefinition Width="60"/>
-            <ColumnDefinition Width="100*"/>
-            <ColumnDefinition Width="25"/>
+            <ColumnDefinition Width="25" />
+            <ColumnDefinition Width="100*" />
+            <ColumnDefinition Width="60" />
+            <ColumnDefinition Width="100*" />
+            <ColumnDefinition Width="25" />
         </Grid.ColumnDefinitions>
         <Grid.RenderTransform>
-            <CompositeTransform/>
+            <CompositeTransform />
         </Grid.RenderTransform>
 
 
-        <Rectangle Name="_rectBackground" RadiusX="20" RadiusY="20" Fill="Aqua" 
-                   Grid.Row="0" Grid.RowSpan="5"  Grid.Column="0" Grid.ColumnSpan="5" 
-                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+        <Rectangle Name="_rectBackground" RadiusX="20" RadiusY="20" Fill="Aqua"
+                   Grid.Row="0" Grid.RowSpan="5" Grid.Column="0" Grid.ColumnSpan="5"
+                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
 
-        <Border Name="_borderLeft" BorderThickness="0,0,5,0" BorderBrush="{StaticResource LineBrush}"   Grid.Row="2" Grid.RowSpan="1" Grid.Column="0" Grid.ColumnSpan="1" />
-        <Border Name="_borderRight" BorderThickness="5,0,0,0" BorderBrush="{StaticResource LineBrush}"  Grid.Row="2" Grid.RowSpan="1" Grid.Column="4" Grid.ColumnSpan="1" Canvas.ZIndex="100"/>
-        <Border Name="_borderTop" BorderThickness="0,0,0,5" BorderBrush="{StaticResource LineBrush}"    Grid.Row="0" Grid.RowSpan="1" Grid.Column="2" Grid.ColumnSpan="1" Canvas.ZIndex="100"/>
-        <Border Name="_borderBottom" BorderThickness="0,5,0,0" BorderBrush="{StaticResource LineBrush}" Grid.Row="4" Grid.RowSpan="1" Grid.Column="2" Grid.ColumnSpan="1" Canvas.ZIndex="100"/>
+        <Border Name="_borderLeft" BorderThickness="0,0,5,0" BorderBrush="{StaticResource LineBrush}" Grid.Row="2"
+                Grid.RowSpan="1" Grid.Column="0" Grid.ColumnSpan="1" />
+        <Border Name="_borderRight" BorderThickness="5,0,0,0" BorderBrush="{StaticResource LineBrush}" Grid.Row="2"
+                Grid.RowSpan="1" Grid.Column="4" Grid.ColumnSpan="1" Canvas.ZIndex="100" />
+        <Border Name="_borderTop" BorderThickness="0,0,0,5" BorderBrush="{StaticResource LineBrush}" Grid.Row="0"
+                Grid.RowSpan="1" Grid.Column="2" Grid.ColumnSpan="1" Canvas.ZIndex="100" />
+        <Border Name="_borderBottom" BorderThickness="0,5,0,0" BorderBrush="{StaticResource LineBrush}" Grid.Row="4"
+                Grid.RowSpan="1" Grid.Column="2" Grid.ColumnSpan="1" Canvas.ZIndex="100" />
 
         <StackPanel Name="_grabBarRight" Grid.Row="2" Grid.Column="8" Grid.RowSpan="3" Grid.ColumnSpan="2">
-            <local:CircleControl x:Name="_circle1" Grid.Row="6"  Grid.Column="9" HorizontalAlignment="Center" Height="15" Margin="2,3,3,2"  VerticalAlignment="Center" Width="15"/>
-            <local:CircleControl x:Name="_circle2" Grid.Row="7"  Grid.Column="9" HorizontalAlignment="Center" Height="15" Margin="2,3,3,2"  VerticalAlignment="Center" Width="15" />
-            <local:CircleControl x:Name="_circle3" Grid.Row="8"  Grid.Column="9" HorizontalAlignment="Center" Height="15" Margin="2,3,3,2"  VerticalAlignment="Center" Width="15" />
+            <local:CircleControl x:Name="_circle1" Grid.Row="6" Grid.Column="9" HorizontalAlignment="Center"
+                                 Height="15" Margin="2,3,3,2" VerticalAlignment="Center" Width="15" />
+            <local:CircleControl x:Name="_circle2" Grid.Row="7" Grid.Column="9" HorizontalAlignment="Center"
+                                 Height="15" Margin="2,3,3,2" VerticalAlignment="Center" Width="15" />
+            <local:CircleControl x:Name="_circle3" Grid.Row="8" Grid.Column="9" HorizontalAlignment="Center"
+                                 Height="15" Margin="2,3,3,2" VerticalAlignment="Center" Width="15" />
         </StackPanel>
 
         <StackPanel Name="_grabBarLeft" Grid.Row="2" Grid.Column="0" Grid.RowSpan="1" Grid.ColumnSpan="1">
-            <local:CircleControl HorizontalAlignment="Left" Height="15" Margin="2,3,3,2"  VerticalAlignment="Center" Width="15"/>
-            <local:CircleControl HorizontalAlignment="Left" Height="15" Margin="2,3,3,2"  VerticalAlignment="Center" Width="15" />
-            <local:CircleControl HorizontalAlignment="Left" Height="15" Margin="2,3,3,2"  VerticalAlignment="Center" Width="15" />
+            <local:CircleControl HorizontalAlignment="Left" Height="15" Margin="2,3,3,2" VerticalAlignment="Center"
+                                 Width="15" />
+            <local:CircleControl HorizontalAlignment="Left" Height="15" Margin="2,3,3,2" VerticalAlignment="Center"
+                                 Width="15" />
+            <local:CircleControl HorizontalAlignment="Left" Height="15" Margin="2,3,3,2" VerticalAlignment="Center"
+                                 Width="15" />
         </StackPanel>
 
-        <StackPanel Name="_grabBarTop" Grid.Row="0" Grid.Column="2" Grid.RowSpan="1" Grid.ColumnSpan="1" Orientation="Horizontal" VerticalAlignment="Top">
-            <local:CircleControl HorizontalAlignment="Left" Height="15" Margin="2,3,3,2"  VerticalAlignment="Center" Width="15"/>
-            <local:CircleControl HorizontalAlignment="Left" Height="15" Margin="2,3,3,2"  VerticalAlignment="Center" Width="15" />
-            <local:CircleControl HorizontalAlignment="Left" Height="15" Margin="2,3,3,2"  VerticalAlignment="Center" Width="15" />
+        <StackPanel Name="_grabBarTop" Grid.Row="0" Grid.Column="2" Grid.RowSpan="1" Grid.ColumnSpan="1"
+                    Orientation="Horizontal" VerticalAlignment="Top">
+            <local:CircleControl HorizontalAlignment="Left" Height="15" Margin="2,3,3,2" VerticalAlignment="Center"
+                                 Width="15" />
+            <local:CircleControl HorizontalAlignment="Left" Height="15" Margin="2,3,3,2" VerticalAlignment="Center"
+                                 Width="15" />
+            <local:CircleControl HorizontalAlignment="Left" Height="15" Margin="2,3,3,2" VerticalAlignment="Center"
+                                 Width="15" />
         </StackPanel>
 
-        <StackPanel Name="_grabBarBottom" Grid.Row="4" Grid.Column="2" Grid.RowSpan="1" Grid.ColumnSpan="1" Orientation="Horizontal" VerticalAlignment="Bottom">
-            <local:CircleControl HorizontalAlignment="Left" Height="15" Margin="2,3,3,2"  VerticalAlignment="Center" Width="15"/>
-            <local:CircleControl HorizontalAlignment="Left" Height="15" Margin="2,3,3,2"  VerticalAlignment="Center" Width="15" />
-            <local:CircleControl HorizontalAlignment="Left" Height="15" Margin="2,3,3,2"  VerticalAlignment="Center" Width="15" />
+        <StackPanel Name="_grabBarBottom" Grid.Row="4" Grid.Column="2" Grid.RowSpan="1" Grid.ColumnSpan="1"
+                    Orientation="Horizontal" VerticalAlignment="Bottom">
+            <local:CircleControl HorizontalAlignment="Left" Height="15" Margin="2,3,3,2" VerticalAlignment="Center"
+                                 Width="15" />
+            <local:CircleControl HorizontalAlignment="Left" Height="15" Margin="2,3,3,2" VerticalAlignment="Center"
+                                 Width="15" />
+            <local:CircleControl HorizontalAlignment="Left" Height="15" Margin="2,3,3,2" VerticalAlignment="Center"
+                                 Width="15" />
         </StackPanel>
 
-        <Grid Name="LayoutRoot"  Margin="0" 
-             Grid.Row="1"  Grid.Column="1" Grid.ColumnSpan="3" Grid.RowSpan="3" >
+        <Grid Name="LayoutRoot" Margin="0"
+              Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Grid.RowSpan="3">
 
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="25"/>
-                <ColumnDefinition Width="150*"/>
-                <ColumnDefinition Width="60"/>
-                <ColumnDefinition Width="100*"/>
-                <ColumnDefinition Width="50*"/>
-                <ColumnDefinition Width="25"/>
+                <ColumnDefinition Width="25" />
+                <ColumnDefinition Width="150*" />
+                <ColumnDefinition Width="60" />
+                <ColumnDefinition Width="100*" />
+                <ColumnDefinition Width="50*" />
+                <ColumnDefinition Width="25" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="25"/>
-                <RowDefinition/>
-                <RowDefinition Height="60"/>
-                <RowDefinition/>
-                <RowDefinition Height="5"/>
-                <RowDefinition Height="40"/>
+                <RowDefinition Height="25" />
+                <RowDefinition />
+                <RowDefinition Height="60" />
+                <RowDefinition />
+                <RowDefinition Height="5" />
+                <RowDefinition Height="40" />
             </Grid.RowDefinitions>
 
 
-            <Border BorderThickness="5" BorderBrush="{StaticResource LineBrush}" Grid.Row="4" Grid.RowSpan="1" Grid.Column="1" Grid.ColumnSpan="4" Canvas.ZIndex="100"/>
+            <Border BorderThickness="5" BorderBrush="{StaticResource LineBrush}" Grid.Row="4" Grid.RowSpan="1"
+                    Grid.Column="1" Grid.ColumnSpan="4" Canvas.ZIndex="100" />
 
 
-            <Button Name="_btnOK" Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="2" Grid.RowSpan="1" 
-                Content="Continue..."  HorizontalAlignment="Stretch" VerticalAlignment="Center" FontFamily="Century Schoolbook"  FontSize="20"
-                    Click="OnContinue" Background="Transparent" BorderBrush="Transparent" Visibility="Visible"  />
+            <Button Name="_btnOK" Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="2" Grid.RowSpan="1"
+                    Content="Continue..." HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                    FontFamily="Century Schoolbook" FontSize="20"
+                    Click="OnContinue" Background="Transparent" BorderBrush="Transparent" Visibility="Visible" />
 
 
-            <TextBlock Name="_txtTotal"  Text="Score: " FontSize="{Binding DynamicFontSize, ElementName=userControl, Mode=TwoWay}" FontFamily="Century Schoolbook" 
-                        Grid.Row="5" Grid.Column="2" Grid.ColumnSpan="2" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+            <TextBlock Name="_txtTotal" Text="Score: "
+                       FontSize="{Binding DynamicFontSize, ElementName=userControl, Mode=TwoWay}"
+                       FontFamily="Century Schoolbook"
+                       Grid.Row="5" Grid.Column="2" Grid.ColumnSpan="2" HorizontalAlignment="Right"
+                       VerticalAlignment="Top" />
 
 
-            <Grid Name="_scoreGrid"  Grid.Row="1" Grid.Column="0" Grid.RowSpan="3" Grid.ColumnSpan="6" Background="Transparent">
+            <Grid Name="_scoreGrid" Grid.Row="1" Grid.Column="0" Grid.RowSpan="3" Grid.ColumnSpan="6"
+                  Background="Transparent">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="20"/>
-                    <RowDefinition Height="5"/>
-                    <RowDefinition Height="5"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="20" />
+                    <RowDefinition Height="5" />
+                    <RowDefinition Height="5" />
+                    <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition  Width="100*"/>
-                    <ColumnDefinition  Width="50*"/>
-                    <ColumnDefinition  Width="100*"/>
+                    <ColumnDefinition Width="100*" />
+                    <ColumnDefinition Width="50*" />
+                    <ColumnDefinition Width="100*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RenderTransform>
-                    <CompositeTransform/>
+                    <CompositeTransform />
                 </Grid.RenderTransform>
-                <TextBlock  Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Bottom" Grid.RowSpan="1" Text="Type"   FontFamily="Century Schoolbook" FontSize="{Binding DynamicFontSize, ElementName=userControl, Mode=TwoWay}"/>
-                <TextBlock  Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Bottom" Grid.RowSpan="1" Text="Count"  FontFamily="Century Schoolbook" FontSize="{Binding DynamicFontSize, ElementName=userControl, Mode=TwoWay}"/>
-                <TextBlock  Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Bottom" Grid.RowSpan="1" Text="Score"  FontFamily="Century Schoolbook" FontSize="{Binding DynamicFontSize, ElementName=userControl, Mode=TwoWay}"/>
+                <TextBlock Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Bottom" Grid.RowSpan="1"
+                           Text="Type" FontFamily="Century Schoolbook"
+                           FontSize="{Binding DynamicFontSize, ElementName=userControl, Mode=TwoWay}" />
+                <TextBlock Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Bottom" Grid.RowSpan="1"
+                           Text="Count" FontFamily="Century Schoolbook"
+                           FontSize="{Binding DynamicFontSize, ElementName=userControl, Mode=TwoWay}" />
+                <TextBlock Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Bottom" Grid.RowSpan="1"
+                           Text="Score" FontFamily="Century Schoolbook"
+                           FontSize="{Binding DynamicFontSize, ElementName=userControl, Mode=TwoWay}" />
 
-                <Border  Grid.Row="2" Grid.ColumnSpan="3" BorderBrush="{StaticResource CardColor}" BorderThickness="3"/>
-                <ListView Grid.Row="3" Grid.RowSpan="1" Grid.Column="0" Grid.ColumnSpan="4" x:Name="_listScores"  SelectionMode="None" ItemsSource="{Binding}" >
+                <Border Grid.Row="2" Grid.ColumnSpan="3" BorderBrush="{StaticResource CardColor}" BorderThickness="3" />
+                <ListView Grid.Row="3" Grid.RowSpan="1" Grid.Column="0" Grid.ColumnSpan="4" x:Name="_listScores"
+                          SelectionMode="None" ItemsSource="{Binding}">
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">
                             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -152,13 +188,22 @@
                         <DataTemplate>
                             <Grid x:Name="_listGrid" HorizontalAlignment="Stretch">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition  Width="100*"/>
-                                    <ColumnDefinition  Width="50*"/>
-                                    <ColumnDefinition  Width="100*"/>
+                                    <ColumnDefinition Width="100*" />
+                                    <ColumnDefinition Width="50*" />
+                                    <ColumnDefinition Width="100*" />
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="{Binding Description, Mode=OneTime}"         Grid.Column="0"   FontSize="{Binding DynamicFontSize, ElementName=userControl, Mode=TwoWay}" HorizontalAlignment="Center" FontFamily="Century Schoolbook" Foreground="White" />
-                                <TextBlock Text="{Binding Count, Mode=TwoWay}"                Grid.Column="1"   FontSize="{Binding DynamicFontSize, ElementName=userControl, Mode=TwoWay}" HorizontalAlignment="Center" FontFamily="Century Schoolbook" Foreground="White" />
-                                <TextBlock Text="{Binding Score, Mode=TwoWay}"                Grid.Column="2"   FontSize="{Binding DynamicFontSize, ElementName=userControl, Mode=TwoWay}" HorizontalAlignment="Center" FontFamily="Century Schoolbook" Foreground="White" />
+                                <TextBlock Text="{Binding Description, Mode=OneTime}" Grid.Column="0"
+                                           FontSize="{Binding DynamicFontSize, ElementName=userControl, Mode=TwoWay}"
+                                           HorizontalAlignment="Center" FontFamily="Century Schoolbook"
+                                           Foreground="White" />
+                                <TextBlock Text="{Binding Count, Mode=TwoWay}" Grid.Column="1"
+                                           FontSize="{Binding DynamicFontSize, ElementName=userControl, Mode=TwoWay}"
+                                           HorizontalAlignment="Center" FontFamily="Century Schoolbook"
+                                           Foreground="White" />
+                                <TextBlock Text="{Binding Score, Mode=TwoWay}" Grid.Column="2"
+                                           FontSize="{Binding DynamicFontSize, ElementName=userControl, Mode=TwoWay}"
+                                           HorizontalAlignment="Center" FontFamily="Century Schoolbook"
+                                           Foreground="White" />
                             </Grid>
                         </DataTemplate>
                     </ListView.ItemTemplate>
