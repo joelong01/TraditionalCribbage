@@ -39,6 +39,7 @@ namespace CardView
     public enum CardOrientation { FaceDown, FaceUp };
     public delegate void CardSelectionChangedDelegate(object sender, CardSelectEventArgs e);
     public enum Location { Unintialized, Deck, Discarded, Computer, Player, Crib };
+    
 
     public sealed partial class CardCtrl : UserControl, INotifyPropertyChanged
     {
@@ -51,20 +52,26 @@ namespace CardView
         SolidColorBrush _red = new SolidColorBrush(Colors.DarkRed);
         SolidColorBrush _black = new SolidColorBrush(Colors.Black);
         private bool _highlightCards = false;
-        Location _location = Location.Unintialized;
-
-        public static Dictionary<CardNames, SvgImageSource> _cardNameToSvgImage = new Dictionary<CardNames, SvgImageSource>();
-
-
+        Location _location = Location.Unintialized;        
         Card _card = null;
+        static Dictionary<CardNames, Canvas> _cardCache = new Dictionary<CardNames, Canvas>();
+        public static readonly DependencyProperty CardNameProperty = DependencyProperty.Register("CardName", typeof(CardNames), typeof(Card), new PropertyMetadata(CardNames.AceOfSpades, CardNameChanged));
 
+        //
+        //  these are the properties that we save/load
+        private List<string> _savedProperties = new List<string> { "FaceDown", "Suit", "Rank" };
+
+        //
+        //  events
+        public event PropertyChangedEventHandler PropertyChanged;
+        public event CardSelectionChangedDelegate CardSelectionChanged;
 
         public CardCtrl()
         {
             this.InitializeComponent();
             this.DataContext = this;
-            InitializeCards();
             Selected = false;
+            
         }
 
         public CardCtrl(Card card)
@@ -73,39 +80,10 @@ namespace CardView
             this.DataContext = this;
             _card = card;
             CardName = _card.CardName;
-            InitializeCards();
+            
             Selected = false;
         }
-
-        public double ZoomRatio { get; set; } = 1.0;
-
-        private static void InitializeCards()
-        {
-            if (_cardNameToSvgImage.Count == 0)
-            {
-                foreach (CardNames cardName in Enum.GetValues(typeof(CardNames)))
-                {
-                    if (cardName == CardNames.Uninitialized)
-                        continue;
-
-                    string s = $"ms-appx:///Assets/Cards/{cardName}.svg";
-                    var uri = new Uri(s);
-                    var file = StorageFile.GetFileFromApplicationUriAsync(uri).AsTask().Result;
-                    SvgImageSource svgImage = new SvgImageSource();
-                    using (var stream = file.OpenStreamForReadAsync().Result)
-                    {
-                        stream.Seek(0, SeekOrigin.Begin);
-                        var rd = stream.AsRandomAccessStream();
-                        svgImage.RasterizePixelHeight = 175; // _cardImage.ActualHeight;
-                        svgImage.RasterizePixelWidth = 125; // _cardImage.ActualWidth;
-                        svgImage.SetSourceAsync(rd).AsTask();
-                    }
-
-                    _cardNameToSvgImage[cardName] = svgImage;
-
-                }
-            }
-        }
+        
 
         public Card Card
         {
@@ -115,8 +93,6 @@ namespace CardView
             }
         }
 
-
-        static Dictionary<CardNames, Canvas> _cardCache = new Dictionary<CardNames, Canvas>();
 
         public static void InitCardCache()
         {
@@ -161,7 +137,7 @@ namespace CardView
             _vbCard.Child = null;
         }
 
-        public static readonly DependencyProperty CardNameProperty = DependencyProperty.Register("CardName", typeof(CardNames), typeof(Card), new PropertyMetadata(CardNames.AceOfSpades, CardNameChanged));
+        
         public CardNames CardName
         {
             get
@@ -302,14 +278,7 @@ namespace CardView
             return CardUI;
         }
 
-        //
-        //  these are the properties that we save/load
-        private List<string> _savedProperties = new List<string> { "FaceDown", "Suit", "Rank" };
-
-        //
-        //  events
-        public event PropertyChangedEventHandler PropertyChanged;
-        public event CardSelectionChangedDelegate CardSelectionChanged;
+      
 
 
         public override string ToString()

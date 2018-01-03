@@ -22,8 +22,9 @@ namespace Cribbage
         {
             this.InitializeComponent();
             this.DataContext = this;
-
-            //  ShowButtons();
+           //if (StaticHelpers.IsInVisualStudioDesignMode)
+           //     HideButtonsAsync();
+            
         }
 
 
