@@ -226,25 +226,25 @@ namespace Cribbage
         //  one line. everything afer the "=" sign.
         public string Save()
         {
-            var s = string.Format("{0}-{1}-{2}-{3}|", ScoreType, Total, Accepted, ActualScore);
+            var s = $"{ScoreType}-{Total}-{Accepted}-{ActualScore}|";
             foreach (var scoreInstance in Scores) s += scoreInstance.Save() + "|";
             return s;
         }
 
         private bool Load(string s)
         {
-            char[] sep1 = {'|'};
-            char[] sep2 = {'-'};
+            char[] sep1 = { '|' };
+            char[] sep2 = { '-' };
 
             var tokens = s.Split(sep1, StringSplitOptions.RemoveEmptyEntries);
             var tokens2 = tokens[0].Split(sep2, StringSplitOptions.RemoveEmptyEntries);
 
-            ScoreType = (ScoreType) Enum.Parse(typeof(ScoreType), tokens2[0]);
+            ScoreType = (ScoreType)Enum.Parse(typeof(ScoreType), tokens2[0]);
             Total = Convert.ToInt32(tokens2[1]);
             Accepted = Convert.ToBoolean(tokens2[2]);
             ActualScore = Convert.ToInt32(tokens2[3]);
 
-            for (var i = 1; i < tokens.Count(); i++)
+            for (var i = 1; i < tokens.Length; i++)
             {
                 var scoreInstance = new ScoreInstance(tokens[i]);
                 Scores.Add(scoreInstance);
@@ -285,11 +285,7 @@ namespace Cribbage
                 return story;
             }
 
-            if (includeHeader)
-                if (formatForMessagebox)
-                    story = string.Format("{0}\t\t{1}\t\t{2}\n", "Type", "Count", "Score");
-                else
-                    story = string.Format("{0}\t\t{1}\t{2}\n", "Type", "     Count", "      Score");
+            if (includeHeader) story = formatForMessagebox ? string.Format("{0}\t\t{1}\t\t{2}\n", "Type", "Count", "Score") : string.Format("{0}\t\t{1}\t{2}\n", "Type", "     Count", "      Score");
 
 
             foreach (var p in Scores)
@@ -297,14 +293,11 @@ namespace Cribbage
                 len = p.Description.Length;
                 if (len > 5 && !formatForMessagebox || p.Description == "Saved")
                 {
-                    line = string.Format("{0}{1}{2}{3}{4}\n", p.Description, tabs, p.Count, tabs, p.Score);
+                    line = $"{p.Description}{tabs}{p.Count}{tabs}{p.Score}\n";
                 }
                 else
                 {
-                    if (formatForMessagebox)
-                        line = string.Format("{0}{1}{2}{3}{4}\n", p.Description, tabs, p.Count, tabs, p.Score);
-                    else
-                        line = string.Format("{0}{1}{2}{3}{4}\n", p.Description, tabs + tab, p.Count, tabs, p.Score);
+                    line = formatForMessagebox ? $"{p.Description}{tabs}{p.Count}{tabs}{p.Score}\n" : $"{p.Description}{tabs + tab}{p.Count}{tabs}{p.Score}\n";
                 }
 
                 story += line;
@@ -358,7 +351,7 @@ namespace Cribbage
             {
                 var resourceKey = "Score" + ScoreType;
 
-                return (string) Application.Current.Resources[resourceKey];
+                return (string)Application.Current.Resources[resourceKey];
             }
         }
 
@@ -376,7 +369,7 @@ namespace Cribbage
         //  put all state on one line
         public string Save()
         {
-            var s = string.Format("{0},{1},{2},{3},{4},", Count, Score, ScoreType, ActualScore, ActualScoreType);
+            var s = $"{Count},{Score},{ScoreType},{ActualScore},{ActualScoreType},";
             foreach (var i in Cards) s += string.Format("{0},", i);
 
             return s;
@@ -384,20 +377,20 @@ namespace Cribbage
 
         public bool Load(string s)
         {
-            char[] sep1 = {','};
+            char[] sep1 = { ',' };
 
             var tokens = s.Split(sep1, StringSplitOptions.RemoveEmptyEntries);
 
-            if (tokens.Count() < 7) return false;
+            if (tokens.Length < 7) return false;
 
             Count = Convert.ToInt32(tokens[0]);
             Score = Convert.ToInt32(tokens[1]);
-            ScoreType = (StatName) Enum.Parse(typeof(StatName), tokens[2]);
+            ScoreType = (StatName)Enum.Parse(typeof(StatName), tokens[2]);
 
             ActualScore = Convert.ToInt32(tokens[4]);
-            ActualScoreType = (StatName) Enum.Parse(typeof(StatName), tokens[5]);
+            ActualScoreType = (StatName)Enum.Parse(typeof(StatName), tokens[5]);
 
-            for (var i = 7; i < tokens.Count(); i++) Cards.Add(Convert.ToInt32(tokens[i]));
+            for (var i = 7; i < tokens.Length; i++) Cards.Add(Convert.ToInt32(tokens[i]));
 
             return true;
         }

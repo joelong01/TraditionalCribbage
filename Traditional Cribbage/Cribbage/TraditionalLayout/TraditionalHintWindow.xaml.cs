@@ -151,7 +151,7 @@ namespace Cribbage
                     Height = Width * HEIGHT_WIDTH_RATIO
                 };
                 view.UpdateLayout();
-                await view.PopulateGrid(cards, score, player, scores.ScoreType, HistoryList.Count, scores.Total,
+                await view.PopulateGrid(cards, score, player, scores.ScoreType, HistoryList.Count, scores.Total, 
                     scores.ActualScore, gameScore);
                 HistoryList.Insert(0, view);
             }

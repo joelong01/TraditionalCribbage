@@ -308,7 +308,7 @@ namespace CardView
             foreach (var token in tokens)
             {
                 var subTokens = token.Split(".".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-                if (subTokens.Count() != 3) return (false, token);
+                if (subTokens.Length != 3) return (false, token);
 
                 if (Enum.TryParse(subTokens[0], out CardNames cardName))
                     if (Enum.TryParse(subTokens[1], out Owner owner))
@@ -486,11 +486,7 @@ namespace CardView
         //
         public Point GetNextCardPosition(CardCtrl card, int index = -1)
         {
-            int nCards;
-            if (index == -1)
-                nCards = Cards.Count;
-            else
-                nCards = index;
+            var nCards = index == -1 ? Cards.Count : index;
 
             if (Cards.Contains(card)) // one of mine -- move it back where it belongs!
                 nCards = Cards.IndexOf(card);
@@ -500,10 +496,9 @@ namespace CardView
 
             if (ColumnDefinitions.Count > 1)
             {
-                double firstColWidth = 0;
                 if (CardLayout != CardLayout.Stacked)
                 {
-                    firstColWidth = ColumnDefinitions[0].Width.Value;
+                    var firstColWidth = ColumnDefinitions[0].Width.Value;
                     pt.X = firstColWidth + nCards * ColumnDefinitions[1].Width.Value;
                     pt.X += BorderThickness.Left;
                 }
@@ -642,11 +637,7 @@ namespace CardView
                 }
 
 
-                if (DropTarget != null)
-                    if (MouseInGrid(DropTarget, e))
-                        DropTarget.Highlight(true);
-                    else
-                        DropTarget.Highlight(false);
+                DropTarget?.Highlight(MouseInGrid(DropTarget, e));
 
 
                 pointMouseDown = pt;
@@ -664,8 +655,7 @@ namespace CardView
                 localCard.ReleasePointerCapture(origE.Pointer);
                 cardClickedOn.PushCard(false);
 
-                if (DropTarget != null)
-                    DropTarget.Highlight(false);
+                DropTarget?.Highlight(false);
 
 
                 if (!dragging)
