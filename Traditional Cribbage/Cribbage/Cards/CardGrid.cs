@@ -351,8 +351,7 @@ namespace CardView
         {
             if (bHighlight)
             {
-                BorderThickness = _highlightThickness;
-                // var brush = Application.Current.Resources["SelectColor"] as SolidColorBrush;
+                BorderThickness = _highlightThickness;                
                 var brush = Application.Current.Resources["LineBrush"] as SolidColorBrush;
                 BorderBrush = brush;
             }
