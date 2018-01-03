@@ -303,7 +303,7 @@ namespace Cribbage
 
             foreach (var card in _cgDiscarded.Cards)
             {
-                card.Opacity = 0.8;
+                card.Opacity = 0.50;
                 card.Counted = true;
             }
 
