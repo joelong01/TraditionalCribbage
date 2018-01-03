@@ -41,7 +41,7 @@ namespace LongShotHelpers
             if (viewbox.Child == null ||
                 viewbox.Child is FrameworkElement == false)
                 return double.NaN;
-            var child = viewbox.Child as FrameworkElement;
+            var child = (FrameworkElement) viewbox.Child;
             return viewbox.ActualWidth / child.ActualWidth;
         }
     }
@@ -368,7 +368,7 @@ namespace LongShotHelpers
 
         public static void AddRange<T>(this ObservableCollection<T> oc, IEnumerable<T> collection)
         {
-            if (collection == null) throw new ArgumentNullException("collection");
+            if (collection == null) throw new ArgumentNullException(nameof(collection));
             foreach (var item in collection) oc.Add(item);
         }
 
@@ -458,8 +458,7 @@ namespace LongShotHelpers
                     Y = pt.Y - pointMouseDown.Y
                 };
 
-                var compositeTransform = control.RenderTransform as CompositeTransform;
-                if (compositeTransform == null)
+                if (!(control.RenderTransform is CompositeTransform compositeTransform))
                 {
                     compositeTransform = new CompositeTransform();
                     control.RenderTransform = compositeTransform;
@@ -469,7 +468,7 @@ namespace LongShotHelpers
                 compositeTransform.TranslateY += delta.Y;
                 control.RenderTransform = compositeTransform;
                 pointMouseDown = pt;
-                if (progress != null) progress.Report(pt);
+                progress?.Report(pt);
             };
 
             pointerReleasedHandler = (s, e) =>
@@ -579,7 +578,7 @@ namespace LongShotHelpers
         {
             var strings = s.Split(sep.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             var ret = new Stack<int>();
-            for (var i = strings.Count() - 1; i >= 0; i--) ret.Push(Convert.ToInt32(strings[i]));
+            for (var i = strings.Length - 1; i >= 0; i--) ret.Push(Convert.ToInt32(strings[i]));
 
             return ret;
         }
@@ -914,13 +913,13 @@ namespace LongShotHelpers
             foreach (var s in tokens)
             {
                 var pairs = s.Split(sep2, StringSplitOptions.RemoveEmptyEntries);
-                if (pairs.Count() == 2)
+                if (pairs.Length == 2)
                     dictionary.Add(pairs[0], pairs[1]);
-                else if (pairs.Count() == 1)
+                else if (pairs.Length == 1)
                     dictionary.Add(pairs[0], "");
                 else
                     Debug.Assert(false,
-                        string.Format($"Bad token count in DeserializeDictionary. Pairs.Count: {pairs.Count()} "));
+                        string.Format($"Bad token count in DeserializeDictionary. Pairs.Count: {pairs.Length} "));
             }
 
 

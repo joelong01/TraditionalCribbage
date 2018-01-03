@@ -41,13 +41,7 @@ namespace Cribbage
         public bool ShowCheckBox
         {
             get => _chkAutoSetScore.Visibility == Visibility.Visible;
-            set
-            {
-                if (value)
-                    _chkAutoSetScore.Visibility = Visibility.Visible;
-                else
-                    _chkAutoSetScore.Visibility = Visibility.Collapsed;
-            }
+            set => _chkAutoSetScore.Visibility = value ? Visibility.Visible : Visibility.Collapsed;
         }
 
         public event MessageBoxEventHandler OnCheckedAutoUpdateScore;
@@ -55,17 +49,17 @@ namespace Cribbage
 
         private void OnChecked(object sender, RoutedEventArgs e)
         {
-            if (OnCheckedAutoUpdateScore != null) OnCheckedAutoUpdateScore(this, new ScoreMessageEventArgs(true));
+            OnCheckedAutoUpdateScore?.Invoke(this, new ScoreMessageEventArgs(true));
         }
 
         private void OnUnchecked(object sender, RoutedEventArgs e)
         {
-            if (OnCheckedAutoUpdateScore != null) OnCheckedAutoUpdateScore(this, new ScoreMessageEventArgs(false));
+            OnCheckedAutoUpdateScore?.Invoke(this, new ScoreMessageEventArgs(false));
         }
 
         private void OnFinish(object sender, RoutedEventArgs e)
         {
-            if (OnDone != null) OnDone(this, null);
+            OnDone?.Invoke(this, null);
         }
     }
 }

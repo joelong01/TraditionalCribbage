@@ -35,40 +35,36 @@ namespace Cribbage
             _textBlock.UpdateLayout();
             UpdateLayout();
 
-            //_textBlock.Measure(new Size(Double.PositiveInfinity, Double.PositiveInfinity));
-            //_textBlock.Arrange(new Rect(0, 0, TranslateX, this.ActualHeight)); 
-
-
             double durationPerChar = 25;
             var duration = durationPerChar * Message.Length;
             duration = Math.Max(3000, duration);
-//            this.TraceMessage($"Len:{Message.Length} Animation Duration {duration} for {Message} ");
+
             _daMoveText.BeginTime = TimeSpan.FromMilliseconds(0);
             _daMoveText.Duration = new Duration(TimeSpan.FromMilliseconds(duration));
             _daMoveText.To = TranslateX - ActualWidth;
             _textBlock.Text = _textBlock.Text.Replace('.', ' ');
 
-            EventHandler<object> Animation_Phase1_Completed = null;
-            EventHandler<object> Animation_Phase2_Completed = null;
+           
 
-            Animation_Phase1_Completed = (s, ex) =>
+            void AnimationPhase1Completed(object s, object ex) 
             {
-                _sbMoveText.Completed -= Animation_Phase1_Completed;
-                _sbMoveText.Completed += Animation_Phase2_Completed;
+                _sbMoveText.Completed -= AnimationPhase1Completed;
+                _sbMoveText.Completed += AnimationPhase2Completed;
                 _daMoveText.To = -ActualWidth;
                 _daMoveText.Duration = new Duration(TimeSpan.FromMilliseconds(duration));
                 _sbMoveText.Begin();
                 Phase1Completed?.Invoke(this, ex);
             };
 
-            Animation_Phase2_Completed = async (s, ex) =>
+             void AnimationPhase2Completed(object s, object ex)
             {
-                _sbMoveText.Completed -= Animation_Phase1_Completed;
-                await Task.Delay(0);
+                _sbMoveText.Completed -= AnimationPhase1Completed;                
                 Phase2Completed?.Invoke(this, ex);
-            };
+            }
 
-            _sbMoveText.Completed += Animation_Phase1_Completed;
+            
+
+            _sbMoveText.Completed += AnimationPhase1Completed;
 
             _sbMoveText.Begin();
         }

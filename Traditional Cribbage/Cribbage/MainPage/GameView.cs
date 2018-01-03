@@ -94,7 +94,7 @@ namespace Cribbage
                 var task = CardGrid.AnimateMoveOneCard(_cgComputer, _cgDiscarded, card, _cgDiscarded.Cards.Count, false,
                     MOVE_CARDS_ANIMATION_DURATION, 0);
                 tList.Add(task);
-                task = card.SetOrientationTask(CardOrientation.FaceUp, FLIP_ANIMATION_DURATION, 0);
+                task = card.SetOrientationTask(CardOrientation.FaceUp, FlipAnimationDuration, 0);
                 if (task != null)
                     tList.Add(task);
 
@@ -181,9 +181,9 @@ namespace Cribbage
                 t = CardGrid.AnimateMoveOneCard(_cgDeck, _cgComputer, cards[1], 0, true, MOVE_CARDS_ANIMATION_DURATION,
                     0);
                 taskList.Add(t);
-                t = cards[1].SetOrientationTask(CardOrientation.FaceUp, FLIP_ANIMATION_DURATION, 500);
+                t = cards[1].SetOrientationTask(CardOrientation.FaceUp, FlipAnimationDuration, 500);
                 taskList.Add(t);
-                t = cards[0].SetOrientationTask(CardOrientation.FaceUp, FLIP_ANIMATION_DURATION, 1500);
+                t = cards[0].SetOrientationTask(CardOrientation.FaceUp, FlipAnimationDuration, 1500);
                 taskList.Add(t);
                 await Task.WhenAll(taskList);
                 await Task.Delay(1000); // let the user see it for a second
@@ -192,15 +192,15 @@ namespace Cribbage
             async Task Reset()
             {
                 taskList.Clear();
-                t = cards[1].SetOrientationTask(CardOrientation.FaceDown, FLIP_ANIMATION_DURATION, waitToReset);
+                t = cards[1].SetOrientationTask(CardOrientation.FaceDown, FlipAnimationDuration, waitToReset);
                 taskList.Add(t);
-                t = cards[0].SetOrientationTask(CardOrientation.FaceDown, FLIP_ANIMATION_DURATION, waitToReset);
+                t = cards[0].SetOrientationTask(CardOrientation.FaceDown, FlipAnimationDuration, waitToReset);
                 taskList.Add(t);
                 t = CardGrid.AnimateMoveOneCard(_cgPlayer, _cgDeck, cards[0], 0, true, MOVE_CARDS_ANIMATION_DURATION,
-                    FLIP_ANIMATION_DURATION);
+                    FlipAnimationDuration);
                 taskList.Add(t);
                 t = CardGrid.AnimateMoveOneCard(_cgComputer, _cgDeck, cards[1], 0, true, MOVE_CARDS_ANIMATION_DURATION,
-                    FLIP_ANIMATION_DURATION);
+                    FlipAnimationDuration);
                 taskList.Add(t);
                 await Task.WhenAll(taskList);
             }
@@ -380,11 +380,7 @@ namespace Cribbage
 
         public void SetPlayableCards(int count)
         {
-            foreach (var card in _cgPlayer.Cards)
-                if (card.Value + count <= 31)
-                    card.IsEnabled = true;
-                else
-                    card.IsEnabled = false;
+            foreach (var card in _cgPlayer.Cards) card.IsEnabled = card.Value + count <= 31;
         }
 
         public async Task<int> HighlightScoreAndWaitForContinue(PlayerType player, int actualScore, bool autosetScore)

@@ -117,11 +117,13 @@ namespace Cribbage
         {
             var el = (FrameworkElement) value;
             el.UpdateLayout();
-            var rect = new Rect();
-            rect.X = 0;
-            rect.Y = el.Height / 2.0;
-            rect.Width = el.Width;
-            rect.Height = el.Height;
+            var rect = new Rect
+            {
+                X = 0,
+                Y = el.Height / 2.0,
+                Width = el.Width,
+                Height = el.Height
+            };
             return rect;
         }
 

@@ -220,10 +220,7 @@ namespace Cribbage
                             else
                             {
                                 var goPlayer = await ScoreGo();
-                                if (goPlayer == PlayerType.Computer)
-                                    state = GameState.CountPlayer;
-                                else
-                                    state = GameState.CountComputer;
+                                state = goPlayer == PlayerType.Computer ? GameState.CountPlayer : GameState.CountComputer;
                             }
                     }
 
@@ -244,10 +241,7 @@ namespace Cribbage
                             else
                             {
                                 var goPlayer = await ScoreGo();
-                                if (goPlayer == PlayerType.Computer)
-                                    state = GameState.CountPlayer;
-                                else
-                                    state = GameState.CountComputer;
+                                state = goPlayer == PlayerType.Computer ? GameState.CountPlayer : GameState.CountComputer;
                             }
                     }
                         break;
@@ -256,27 +250,18 @@ namespace Cribbage
                         break;
                     case GameState.CountingEnded:
                         await EndCounting();
-                        if (Dealer == PlayerType.Computer)
-                            state = GameState.ScorePlayerHand;
-                        else
-                            state = GameState.ScoreComputerHand;
+                        state = Dealer == PlayerType.Computer ? GameState.ScorePlayerHand : GameState.ScoreComputerHand;
                         break;
                     case GameState.ScorePlayerHand:
                         PlayerTurn = PlayerType.Player;
 
                         var playerScore = await GetScoreFromPlayer(PlayerCards, SharedCard, HandType.Hand);
-                        if (Dealer == PlayerType.Computer)
-                            state = GameState.ScoreComputerHand;
-                        else
-                            state = GameState.ScorePlayerCrib;
+                        state = Dealer == PlayerType.Computer ? GameState.ScoreComputerHand : GameState.ScorePlayerCrib;
                         break;
                     case GameState.ScoreComputerHand:
                         PlayerTurn = PlayerType.Computer;
                         await ScoreComputerHandAndNotifyView(ComputerCards, SharedCard, HandType.Hand);
-                        if (Dealer == PlayerType.Computer)
-                            state = GameState.ScoreComputerCrib;
-                        else
-                            state = GameState.ScorePlayerHand;
+                        state = Dealer == PlayerType.Computer ? GameState.ScoreComputerCrib : GameState.ScorePlayerHand;
                         break;
                     case GameState.ScoreComputerCrib:
                         await _gameView.ReturnCribCards(Dealer);

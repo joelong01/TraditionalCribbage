@@ -8,7 +8,7 @@ namespace Cribbage
 {
     public sealed partial class MainPage : Page
     {
-        public const double FLIP_ANIMATION_DURATION = 250;
+        public const double FlipAnimationDuration = 250;
 
         public const double
             MOVE_CARDS_ANIMATION_DURATION = 250; // how long for the cards to get to the player and the computer
@@ -34,15 +34,13 @@ namespace Cribbage
             //  assume dealer is player and then set it if it is not
             var dealersCards = playerCards;
             var nonDealerCards = computerCards;
-            var dealerGrid = _cgPlayer;
-            var nonDealerGrid = _cgComputer;
+         
 
             if (dealer == PlayerType.Computer)
             {
                 dealersCards = computerCards;
                 nonDealerCards = playerCards;
-                dealerGrid = _cgComputer;
-                nonDealerGrid = _cgPlayer;
+              
             }
 
 
@@ -58,14 +56,9 @@ namespace Cribbage
             }
 
 
-            _cgDeck.Cards.Sort(delegate(CardCtrl c1, CardCtrl c2)
-            {
-                return Canvas.GetZIndex(c2) - Canvas.GetZIndex(c1);
-            });
+            _cgDeck.Cards.Sort((c1, c2) => Canvas.GetZIndex(c2) - Canvas.GetZIndex(c1));
 
-            double
-                targetIndex =
-                    0; // just being a bit silly here -- by incrementing by 0.5 and casting to an int, we can increate the target index by 1 after 2 iterations through the loop
+            double targetIndex = 0; // just being a bit silly here -- by incrementing by 0.5 and casting to an int, we can increate the target index by 1 after 2 iterations through the loop
             foreach (var card in _cgDeck.Cards)
             {
                 switch (card.Owner)
@@ -83,9 +76,7 @@ namespace Cribbage
                         card.Location = Location.Computer;
                         break;
                     case Owner.Shared:
-                        continue;
-                    case Owner.Crib:
-                    case Owner.Uninitialized:
+                        continue;                    
                     default:
                         throw new InvalidOperationException("Card owner not set");
                 }
@@ -98,7 +89,7 @@ namespace Cribbage
             //
             //  Now flip the players cards
             taskList.AddRange(CardGrid.SetCardsToOrientationTask(playerCards, CardOrientation.FaceUp,
-                FLIP_ANIMATION_DURATION, beginTime));
+                FlipAnimationDuration, beginTime));
             await Task.WhenAll(taskList);
 
             taskList.Clear();
@@ -106,7 +97,7 @@ namespace Cribbage
             //  move computer cards to the crib.  do it slow the first time so that the user can learn where to place the cards
             //
             beginTime = 0;
-            var animationDuration = FLIP_ANIMATION_DURATION;
+            var animationDuration = FlipAnimationDuration;
             if (_firstDeal)
             {
                 animationDuration *= 4;
@@ -138,23 +129,13 @@ namespace Cribbage
 
             var cards = _cgCrib.Cards;
 
-            //foreach (CardCtrl card in cards)
-            //{
-            //    if (card.Orientation == CardOrientation.FaceUp)
-            //        card.BoostZindex();
-            //}
-            ////
-            ////  flip the cards -- note that the 2 computer cards are face down
-            //taskList = CardGrid.SetCardsToOrientationTask(cards, CardOrientation.FaceDown, FLIP_ANIMATION_DURATION, beginTime);
-            //await Task.WhenAll(taskList);
-            //taskList.Clear();
-
+            
 
             //
             //  when that is done flip the shared card
             beginTime = 0;
             taskList.AddRange(CardGrid.SetCardsToOrientationTask(_cgDeck.Cards, CardOrientation.FaceUp,
-                FLIP_ANIMATION_DURATION, beginTime));
+                FlipAnimationDuration, beginTime));
 
             //
             // run the animation
@@ -258,9 +239,9 @@ namespace Cribbage
             double beginTime = 0;
             foreach (var card in cards)
             {
-                var t = card.SetOrientationTask(orientation, FLIP_ANIMATION_DURATION, beginTime);
+                var t = card.SetOrientationTask(orientation, FlipAnimationDuration, beginTime);
                 if (!parallel)
-                    beginTime += FLIP_ANIMATION_DURATION;
+                    beginTime += FlipAnimationDuration;
                 if (t != null)
                     taskList.Add(t);
             }

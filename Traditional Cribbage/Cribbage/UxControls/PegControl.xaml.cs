@@ -84,10 +84,7 @@ namespace Cribbage
 
         private void UpdateOwner()
         {
-            if (_owner == Owner.Computer)
-                _ellipse.Fill = ComputerBrush;
-            else
-                _ellipse.Fill = PlayerBrush;
+            _ellipse.Fill = _owner == Owner.Computer ? ComputerBrush : PlayerBrush;
         }
 
         internal void AnimateTo(Point pt, double duration, List<Task> taskList)

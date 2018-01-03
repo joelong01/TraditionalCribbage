@@ -76,12 +76,7 @@ namespace Cribbage
         public void HighlightScore(PlayerType player, int score, int count, bool highlight)
         {
             var start = score + 1;
-            for (var i = start; i < start + 30; i++)
-                if (i < start + count)
-                    _board.HighlightPeg(player, i, highlight);
-                else
-                    _board.HighlightPeg(player, i,
-                        false); // this way if you went down, we always turn off the highlight
+            for (var i = start; i < start + 30; i++) _board.HighlightPeg(player, i, i < start + count && highlight);
         }
 
 

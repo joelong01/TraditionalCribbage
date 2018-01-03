@@ -45,7 +45,7 @@ namespace Cribbage
 
         private void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
-            var ignored = Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => { CardCtrl.InitCardCache(); });
+            var ignored = Dispatcher.RunAsync(CoreDispatcherPriority.Normal, CardCtrl.InitCardCache);
         }
 
         private void MainPage_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -68,7 +68,7 @@ namespace Cribbage
 
             // check items directly under the pointer
             foreach (var element in VisualTreeHelper.FindElementsInHostCoordinates(position, root))
-                if (element.GetType() == typeof(CardCtrl))
+                if (element is CardCtrl)
                 {
                     _cardPressed = element as CardCtrl;
                     _cardPressed.PushCard(true);
@@ -133,7 +133,7 @@ namespace Cribbage
             for (var i = LayoutRoot.Children.Count - 1; i >= 0; i--)
             {
                 var el = LayoutRoot.Children[i];
-                if (el.GetType() == typeof(CardCtrl)) LayoutRoot.Children.RemoveAt(i);
+                if (el is CardCtrl) LayoutRoot.Children.RemoveAt(i);
             }
 
             _cgComputer.Reset();
@@ -368,105 +368,103 @@ namespace Cribbage
 
             try
             {
-                if (file != null)
+                
+                var contents = await FileIO.ReadTextAsync(file);
+                var settings = await StaticHelpers.LoadSettingsFile(contents, file.Name);
+                if (settings["Game"]["Version"] != "1.0")
                 {
-                    var contents = await FileIO.ReadTextAsync(file);
-                    var settings = await StaticHelpers.LoadSettingsFile(contents, file.Name);
-                    if (settings["Game"]["Version"] != "1.0")
-                    {
-                        await StaticHelpers.ShowErrorText($"Bad Version {settings["Game"]["Version"]}");
-                        return;
-                    }
-
-                    _game.CurrentCount = int.Parse(settings["Game"]["CurrentCount"]);
-                    _game.Player.Score = int.Parse(settings["Game"]["PlayerBackScore"]);
-                    _game.AutoEnterScore = bool.Parse(settings["Game"]["AutoEnterScore"]);
-
-                    _board.AnimateScoreAsync(PlayerType.Player, _game.Player.Score);
-                    var scoreDelta = int.Parse(settings["Game"]["PlayerScoreDelta"]);
-                    _board.AnimateScoreAsync(PlayerType.Player, scoreDelta);
-                    _game.Player.Score += scoreDelta;
-
-                    _game.Computer.Score = int.Parse(settings["Game"]["ComputerBackScore"]);
-                    _board.AnimateScoreAsync(PlayerType.Computer, _game.Computer.Score);
-                    scoreDelta = int.Parse(settings["Game"]["ComputerScoreDelta"]);
-                    _board.AnimateScoreAsync(PlayerType.Computer, scoreDelta);
-                    _game.Computer.Score += scoreDelta;
-
-                    _game.Dealer = StaticHelpers.ParseEnum<PlayerType>(settings["Game"]["Dealer"]);
-                    _game.State = StaticHelpers.ParseEnum<GameState>(settings["Game"]["State"]);
-                    SetState(_game.State);
-                    await MoveCrib(_game.Dealer);
-
-                    var retTuple = LoadCardsIntoGrid(_cgComputer, settings["Cards"]["Computer"]);
-                    if (!retTuple.ret) throw new Exception(retTuple.badToken);
-
-                    retTuple = LoadCardsIntoGrid(_cgPlayer, settings["Cards"]["Player"]);
-                    if (!retTuple.ret) throw new Exception(retTuple.badToken);
-
-                    retTuple = LoadCardsIntoGrid(_cgDiscarded, settings["Cards"]["Counted"]);
-                    if (!retTuple.ret) throw new Exception(retTuple.badToken);
-
-                    var countedCards = new List<CardCtrl>();
-                    var count = 0;
-                    foreach (var card in _cgDiscarded.Cards)
-                    {
-                        count += card.Value;
-                        if (count <= 31)
-                        {
-                            countedCards.Add(card);
-                        }
-                        else
-                        {
-                            foreach (var cc in countedCards)
-                            {
-                                cc.Counted = true;
-                                cc.Opacity = 0.8;
-                            }
-
-                            countedCards.Clear();
-                            count = 0;
-                        }
-                    }
-
-                    retTuple = LoadCardsIntoGrid(_cgCrib, settings["Cards"]["Crib"]);
-                    if (!retTuple.ret) throw new Exception(retTuple.badToken);
-
-                    retTuple = LoadCardsIntoGrid(_cgDeck, settings["Cards"]["SharedCard"]);
-                    if (!retTuple.ret) throw new Exception(retTuple.badToken);
-
-                    var taskList = new List<Task>();
-                    Task t = null;
-
-                    if ((int) _game.State > (int) GameState.GiveToCrib)
-                    {
-                        t = _cgDeck.Cards[0].SetOrientationTask(CardOrientation.FaceUp, 500, 0);
-                        taskList.Add(t);
-                    }
-
-                    foreach (var card in _cgPlayer.Cards)
-                    {
-                        t = card.SetOrientationTask(CardOrientation.FaceUp, 0, 0);
-                        taskList.Add(t);
-                    }
-
-                    foreach (var card in _cgDiscarded.Cards)
-                    {
-                        t = card.SetOrientationTask(CardOrientation.FaceUp, 0, 0);
-                        taskList.Add(t);
-                    }
-
-                    if ((int) _game.State >= (int) GameState.ScoreComputerHand)
-                        foreach (var card in _cgComputer.Cards)
-                        {
-                            t = card.SetOrientationTask(CardOrientation.FaceUp, 0, 0);
-                            taskList.Add(t);
-                        }
-
-                    await Task.WhenAll(taskList);
-
-                    await StartGame(_game.State);
+                    await StaticHelpers.ShowErrorText($"Bad Version {settings["Game"]["Version"]}");
+                    return;
                 }
+
+                _game.CurrentCount = int.Parse(settings["Game"]["CurrentCount"]);
+                _game.Player.Score = int.Parse(settings["Game"]["PlayerBackScore"]);
+                _game.AutoEnterScore = bool.Parse(settings["Game"]["AutoEnterScore"]);
+
+                _board.AnimateScoreAsync(PlayerType.Player, _game.Player.Score);
+                var scoreDelta = int.Parse(settings["Game"]["PlayerScoreDelta"]);
+                _board.AnimateScoreAsync(PlayerType.Player, scoreDelta);
+                _game.Player.Score += scoreDelta;
+
+                _game.Computer.Score = int.Parse(settings["Game"]["ComputerBackScore"]);
+                _board.AnimateScoreAsync(PlayerType.Computer, _game.Computer.Score);
+                scoreDelta = int.Parse(settings["Game"]["ComputerScoreDelta"]);
+                _board.AnimateScoreAsync(PlayerType.Computer, scoreDelta);
+                _game.Computer.Score += scoreDelta;
+
+                _game.Dealer = StaticHelpers.ParseEnum<PlayerType>(settings["Game"]["Dealer"]);
+                _game.State = StaticHelpers.ParseEnum<GameState>(settings["Game"]["State"]);
+                SetState(_game.State);
+                await MoveCrib(_game.Dealer);
+
+                var retTuple = LoadCardsIntoGrid(_cgComputer, settings["Cards"]["Computer"]);
+                if (!retTuple.ret) throw new Exception(retTuple.badToken);
+
+                retTuple = LoadCardsIntoGrid(_cgPlayer, settings["Cards"]["Player"]);
+                if (!retTuple.ret) throw new Exception(retTuple.badToken);
+
+                retTuple = LoadCardsIntoGrid(_cgDiscarded, settings["Cards"]["Counted"]);
+                if (!retTuple.ret) throw new Exception(retTuple.badToken);
+
+                var countedCards = new List<CardCtrl>();
+                var count = 0;
+                foreach (var card in _cgDiscarded.Cards)
+                {
+                    count += card.Value;
+                    if (count <= 31)
+                    {
+                        countedCards.Add(card);
+                    }
+                    else
+                    {
+                        foreach (var cc in countedCards)
+                        {
+                            cc.Counted = true;
+                            cc.Opacity = 0.8;
+                        }
+
+                        countedCards.Clear();
+                        count = 0;
+                    }
+                }
+
+                retTuple = LoadCardsIntoGrid(_cgCrib, settings["Cards"]["Crib"]);
+                if (!retTuple.ret) throw new Exception(retTuple.badToken);
+
+                retTuple = LoadCardsIntoGrid(_cgDeck, settings["Cards"]["SharedCard"]);
+                if (!retTuple.ret) throw new Exception(retTuple.badToken);
+
+                var taskList = new List<Task>();
+                Task t = null;
+
+                if ((int) _game.State > (int) GameState.GiveToCrib)
+                {
+                    t = _cgDeck.Cards[0].SetOrientationTask(CardOrientation.FaceUp, 500, 0);
+                    taskList.Add(t);
+                }
+
+                foreach (var card in _cgPlayer.Cards)
+                {
+                    t = card.SetOrientationTask(CardOrientation.FaceUp, 0, 0);
+                    taskList.Add(t);
+                }
+
+                foreach (var card in _cgDiscarded.Cards)
+                {
+                    t = card.SetOrientationTask(CardOrientation.FaceUp, 0, 0);
+                    taskList.Add(t);
+                }
+
+                if ((int) _game.State >= (int) GameState.ScoreComputerHand)
+                    foreach (var card in _cgComputer.Cards)
+                    {
+                        t = card.SetOrientationTask(CardOrientation.FaceUp, 0, 0);
+                        taskList.Add(t);
+                    }
+
+                await Task.WhenAll(taskList);
+
+                await StartGame(_game.State);
             }
             catch (Exception ex)
             {
@@ -479,10 +477,7 @@ namespace Cribbage
         {
             var winner = await _game.StartGame(state);
             var msg = "";
-            if (winner == PlayerType.Player)
-                msg = "Congratulations, you won!";
-            else
-                msg = "Oh well. \n\nThe computer won.  Better luck next time!";
+            msg = winner == PlayerType.Player ? "Congratulations, you won!" : "Oh well. \n\nThe computer won.  Better luck next time!";
 
             await StaticHelpers.ShowErrorText(msg, "");
             SetState(GameState.GameOver);
@@ -509,8 +504,7 @@ namespace Cribbage
 
         private void ButtonDownScore_Click(object sender, RoutedEventArgs e)
         {
-            if (_game == null) return;
-            if (_game.Player == null) return;
+            if (_game?.Player == null) return;
 
             var scoreDelta = Convert.ToInt32(_tbScoreToAdd.Text);
             scoreDelta -= 1;
@@ -523,8 +517,7 @@ namespace Cribbage
 
         private void ButtonUpScore_Click(object sender, RoutedEventArgs e)
         {
-            if (_game == null) return;
-            if (_game.Player == null) return;
+            if (_game?.Player == null) return;
 
             var scoreDelta = Convert.ToInt32(_tbScoreToAdd.Text);
             scoreDelta += 1;
