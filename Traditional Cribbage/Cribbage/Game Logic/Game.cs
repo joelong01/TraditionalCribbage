@@ -373,8 +373,8 @@ namespace Cribbage
                 enteredScore = await Player.GetScoreFromUser(playerScore, AutoEnterScore);
                 if (enteredScore != playerScore)
                     AutoEnterScore = await StaticHelpers.AskUserYesNoQuestion("Cribbage",
-                        $"{enteredScore} is the wrong score.\n\nWould you like the computer to set the score?", "Yes",
-                        "No");
+                        $"{enteredScore} is the wrong score.\n\nWould you like the computer to set the score?", "Yes", "No");
+
             } while (enteredScore != playerScore);
 
             AddScore(scores, PlayerType.Player);

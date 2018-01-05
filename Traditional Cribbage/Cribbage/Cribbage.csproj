@@ -18,7 +18,7 @@
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WindowsXamlEnableOverview>true</WindowsXamlEnableOverview>
     <PackageCertificateKeyFile>Cribbage_TemporaryKey.pfx</PackageCertificateKeyFile>
-    <PackageCertificateThumbprint>472BDEE36A7EC93C8D39434D1C1732E11C159705</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>0593A271890318023668B0A99E20FDE20EE89928</PackageCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -131,11 +131,16 @@
     <Compile Include="UxControls\ScoreHistoryView.xaml.cs" />
     <Compile Include="UxControls\ScoreSummaryView.xaml.cs" />
     <Compile Include="UxControls\XAMLValueConverters.cs" />
+    <Compile Include="WrongScoreDlg.xaml.cs">
+      <DependentUpon>WrongScoreDlg.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
+    <None Include="Assets\Base Vectors\AdobeStock_116737813.png" />
+    <None Include="Assets\Base Vectors\deck of cards.svg" />
     <Content Include="Assets\Cards\AceOfDiamonds.svg" />
     <Content Include="Assets\Cards\AceOfHearts.svg" />
     <Content Include="Assets\Cards\AceOfSpades.svg" />
@@ -143,6 +148,9 @@
     <Content Include="Assets\Cards\AdobeStock_116737813.png" />
     <Content Include="Assets\Cards\BackOfCard.svg" />
     <Content Include="Assets\Cards\cardback.ttf" />
+    <None Include="Assets\Base Vectors\basketball hoop.ai" />
+    <None Include="Assets\Base Vectors\card deck face only.afdesign" />
+    <None Include="Assets\Base Vectors\card deck.afdesign" />
     <None Include="Cribbage_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
@@ -514,6 +522,10 @@
     <Page Include="UxControls\ScoreSummaryView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="WrongScoreDlg.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
