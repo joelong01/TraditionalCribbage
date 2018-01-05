@@ -145,12 +145,13 @@
     <Content Include="Assets\Cards\AceOfHearts.svg" />
     <Content Include="Assets\Cards\AceOfSpades.svg" />
     <Content Include="Assets\Cards\AceOfClubs.svg" />
-    <Content Include="Assets\Cards\AdobeStock_116737813.png" />
     <Content Include="Assets\Cards\BackOfCard.svg" />
     <Content Include="Assets\Cards\cardback.ttf" />
     <None Include="Assets\Base Vectors\basketball hoop.ai" />
     <None Include="Assets\Base Vectors\card deck face only.afdesign" />
     <None Include="Assets\Base Vectors\card deck.afdesign" />
+    <None Include="Assets\Base Vectors\shooter.ai" />
+    <None Include="Assets\splashscreen.pdf" />
     <None Include="Cribbage_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
@@ -207,10 +208,13 @@
     <Content Include="Assets\Cards\TwoOfHearts.svg" />
     <Content Include="Assets\Cards\TwoOfSpades.svg" />
     <Content Include="Assets\cherry.png" />
-    <Content Include="Assets\deck of cards.svg" />
     <Content Include="Assets\felt.png" />
     <Content Include="Assets\mother of pearl.png" />
     <Content Include="Assets\ruby.png" />
+    <Content Include="Assets\SplashScreen.scale-100.png" />
+    <Content Include="Assets\SplashScreen.scale-125.png" />
+    <Content Include="Assets\SplashScreen.scale-150.png" />
+    <Content Include="Assets\SplashScreen.scale-400.png" />
     <Content Include="Assets\TraditionalBoard.png" />
     <Content Include="Assets\walnut.png" />
     <Content Include="Properties\Default.rd.xml" />
