@@ -116,7 +116,10 @@ namespace Cards
         public static string CardsToString(List<Card> cards)
         {
             var s = "";
-            foreach (var c in cards) s += c + "-";
+            foreach (var c in cards)
+            {
+                s += c + "-";
+            }
 
             return s;
         }
@@ -124,48 +127,75 @@ namespace Cards
         public static int CompareCardsByRank(Card x, Card y)
         {
             if (x == null)
+            {
                 if (y == null)
+                {
                     return 0;
+                }
                 else
+                {
                     return -1;
+                }
+            }
 
             // If x is not null... 
             // 
             if (y == null)
+            {
                 // ...and y is null, x is greater.
                 return 1;
+            }
+
             return x.Rank - y.Rank;
         }
 
         public static int CompareCardsByIndex(Card x, Card y)
         {
             if (x == null)
+            {
                 if (y == null)
+                {
                     return 0;
+                }
                 else
+                {
                     return -1;
+                }
+            }
 
             // If x is not null... 
             // 
             if (y == null)
+            {
                 // ...and y is null, x is greater.
                 return 1;
+            }
+
             return y.Index - x.Index;
         }
 
         public static int CompareCardsBySuit(Card x, Card y)
         {
             if (x == null)
+            {
                 if (y == null)
+                {
                     return 0;
+                }
                 else
+                {
                     return -1;
+                }
+            }
 
             // If x is not null... 
             // 
             if (y == null)
+            {
                 // ...and y is null, x is greater.
                 return 1;
+            }
+
             return (int) y.Suit - (int) x.Suit;
         }
 

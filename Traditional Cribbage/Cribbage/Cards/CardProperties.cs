@@ -48,7 +48,9 @@ namespace Cards
                 //  given a number of 0-51, set the suit and the rank
 
                 if ((int) value < 0 || (int) value > 51)
+                {
                     throw new Exception($"The value {(int) value} is an invalid CardNumber");
+                }
 
                 var val = (int) value;
                 Index = val;
@@ -63,7 +65,9 @@ namespace Cards
             get
             {
                 if (Rank <= 10)
+                {
                     return Rank;
+                }
 
                 return 10;
             }

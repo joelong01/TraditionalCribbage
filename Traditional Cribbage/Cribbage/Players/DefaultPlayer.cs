@@ -34,10 +34,16 @@ namespace CribbagePlayers
             //  NOTE: we assume that the Player correctly returns a legal card!
             //
             if (uncountedCards.Count == 1)
+            {
                 if (uncountedCards[0].Value + currentCount <= 31)
+                {
                     return Task.FromResult(uncountedCards[0]);
+                }
                 else
+                {
                     return Task.FromResult<Card>(null);
+                }
+            }
 
             //
             //  see which card we can play that gives us the most points
@@ -52,10 +58,14 @@ namespace CribbagePlayers
             }
 
             if (maxScore == -1)
+            {
                 return Task.FromResult<Card>(null);
-            ; // we have no valid card to play
+            }; // we have no valid card to play
 
-            if (maxScore > 0) return Task.FromResult(maxCard);
+            if (maxScore > 0)
+            {
+                return Task.FromResult(maxCard);
+            }
 
             if (maxScore == 0) // there isn't a card for us to play that generates points
             {
@@ -68,11 +78,17 @@ namespace CribbagePlayers
                 {
                     //  dont' do it if it will force us over 31
                     if (uncountedCards[i].Rank * 3 + currentCount > 31)
+                    {
                         continue;
+                    }
 
                     if (uncountedCards[i].Rank == uncountedCards[i + 1].Rank)
+                    {
                         if (uncountedCards[i].Rank != 5)
+                        {
                             return Task.FromResult(uncountedCards[i]);
+                        }
+                    }
                 }
 
                 //
@@ -85,10 +101,14 @@ namespace CribbagePlayers
                 {
                     var sum = cards[0].Value + cards[1].Value;
                     if (sum + currentCount == 5) // i'll 15 them if they play a 10
+                    {
                         return Task.FromResult(cards[1]);
+                    }
 
                     if (sum + currentCount == 21) // i'll 31 them if they play a 10
+                    {
                         return Task.FromResult(cards[1]);
+                    }
                 }
 
                 // tried returning the smallest legal card -- no difference
@@ -105,12 +125,16 @@ namespace CribbagePlayers
             //  adds about .1/count and if both are being silly and dropping 5's then both get about .04 ave point boost.  still a good optimization when playing humans.
 
             if (maxCard.Rank == 5)
+            {
                 foreach (var c in uncountedCards)
+                {
                     if (c.Rank != 5 && c.Value + currentCount <= 31)
                     {
                         maxCard = c;
                         break;
                     }
+                }
+            }
 
             //
             //   don't play a card that adds up to 5 because there are so many 10's
@@ -147,6 +171,7 @@ namespace CribbagePlayers
             List<Card> maxCrib = null;
             var maxScore = -1000.0;
             if (hand.Count == 6)
+            {
                 foreach (List<Card> cards in combinations)
                 {
                     double score = CardScoring.ScoreHand(cards, null, HandType.Hand, out var scoreList);
@@ -172,6 +197,7 @@ namespace CribbagePlayers
                         maxCrib = crib;
                     }
                 }
+            }
 
             return Task.FromResult(maxCrib);
         }
@@ -180,7 +206,11 @@ namespace CribbagePlayers
         {
             var crib = new List<Card>(hand);
 
-            foreach (var card in cards) crib.Remove(card);
+            foreach (var card in cards)
+            {
+                crib.Remove(card);
+            }
+
             return crib;
         }
 

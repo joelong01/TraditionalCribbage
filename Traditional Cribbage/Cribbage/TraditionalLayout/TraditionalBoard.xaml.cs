@@ -43,7 +43,11 @@ namespace Cribbage
         private void ButtonDownScore_Click(object sender, RoutedEventArgs e)
         {
             var scoreDelta = Convert.ToInt32(_tbScoreToAdd.Text);
-            if (scoreDelta < 0) scoreDelta = 0;
+            if (scoreDelta < 0)
+            {
+                scoreDelta = 0;
+            }
+
             if (scoreDelta > 0)
             {
                 _board.HighlightPeg(PlayerType.Player, _board.PlayerFrontScore + scoreDelta, false);
@@ -56,7 +60,11 @@ namespace Cribbage
         {
             var scoreDelta = Convert.ToInt32(_tbScoreToAdd.Text);
             scoreDelta += 1;
-            if (scoreDelta > 29) scoreDelta = 29;
+            if (scoreDelta > 29)
+            {
+                scoreDelta = 29;
+            }
+
             _tbScoreToAdd.Text = scoreDelta.ToString();
             _board.HighlightPeg(PlayerType.Player, _board.PlayerFrontScore + scoreDelta, true);
         }
@@ -76,7 +84,10 @@ namespace Cribbage
         public void HighlightScore(PlayerType player, int score, int count, bool highlight)
         {
             var start = score + 1;
-            for (var i = start; i < start + 30; i++) _board.HighlightPeg(player, i, i < start + count && highlight);
+            for (var i = start; i < start + 30; i++)
+            {
+                _board.HighlightPeg(player, i, i < start + count && highlight);
+            }
         }
 
 

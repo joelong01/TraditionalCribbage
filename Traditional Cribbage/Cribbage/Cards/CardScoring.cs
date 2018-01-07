@@ -42,7 +42,10 @@ namespace Cards
         public string ToString(PlayerType player)
         {
             if (player == PlayerType.Player)
+            {
                 return string.Format($"{CardScoring.PlayerScoreDescription[(int) ScoreName]} for {Value}");
+            }
+
             return string.Format($"{CardScoring.ComputerScoreDescription[(int) ScoreName]} for {Value}");
         }
     }
@@ -67,7 +70,10 @@ namespace Cards
             out List<Score> scoreList)
         {
             scoreList = new List<Score>();
-            if (card.Value + currentCount > 31) return -1;
+            if (card.Value + currentCount > 31)
+            {
+                return -1;
+            }
 
             var score = 0;
 
@@ -97,10 +103,16 @@ namespace Cards
             //   search for 2, 3, or 4 of a kind -- this has to happen before the sort!
             var samenessCount = 0;
             for (var i = allCards.Count - 1; i > 0; i--)
+            {
                 if (allCards[i].Rank == allCards[i - 1].Rank)
+                {
                     samenessCount++;
+                }
                 else
+                {
                     break;
+                }
+            }
 
             switch (samenessCount)
             {
@@ -141,12 +153,16 @@ namespace Cards
             foreach (var cards in cardLists)
             {
                 var l = GetRuns(cards);
-                if (l != null) runs.Add(l);
+                if (l != null)
+                {
+                    runs.Add(l);
+                }
             }
 
             //
             //  eliminate duplicate lists - this happens if you have a hand that looks like 5, 5, 7, 8, 9 where the pair is not in the run
             if (runs.Count == 2)
+            {
                 if (runs[0].Count == runs[1].Count) // same length
                 {
                     var same = false;
@@ -161,8 +177,12 @@ namespace Cards
                         same = true;
                     }
 
-                    if (same) runs.RemoveAt(1);
+                    if (same)
+                    {
+                        runs.RemoveAt(1);
+                    }
                 }
+            }
 
 
             //
@@ -170,8 +190,12 @@ namespace Cards
             var score = 0;
             {
                 foreach (var cards in runs)
+                {
                     if (cards.Count > 2)
+                    {
                         score += cards.Count;
+                    }
+                }
             }
 
             return score;
@@ -181,7 +205,9 @@ namespace Cards
         {
             if (card1.Rank == card2.Rank - 1 &&
                 card2.Rank == card3.Rank - 1)
+            {
                 return true;
+            }
 
             return false;
         }
@@ -203,7 +229,10 @@ namespace Cards
                 else if (previousCard.Rank != thisCard.Rank)
                 {
                     consecutive = 0;
-                    foreach (var cards in cardList) cards.Add(thisCard);
+                    foreach (var cards in cardList)
+                    {
+                        cards.Add(thisCard);
+                    }
                 }
                 else if (previousCard.Rank == thisCard.Rank) // pair
                 {
@@ -242,29 +271,44 @@ namespace Cards
         {
             var count = list.Count;
             if (count < 3)
+            {
                 return null;
-
+            }
 
             if (Is3CardRun(list[0], list[1], list[2]))
+            {
                 if (count > 3 && list[2].Rank == list[3].Rank - 1)
                 {
-                    if (count > 4 && list[3].Rank == list[4].Rank - 1) return new List<Card>(list); // 5 card run
+                    if (count > 4 && list[3].Rank == list[4].Rank - 1)
+                    {
+                        return new List<Card>(list); // 5 card run
+                    }
 
                     if (count > 4)
+                    {
                         list.RemoveAt(4);
+                    }
+
                     return new List<Card>(list); // 4 card run
                 }
                 else
                 {
                     if (count > 4)
+                    {
                         list.RemoveAt(4);
+                    }
+
                     if (count > 3)
+                    {
                         list.RemoveAt(3);
+                    }
 
                     return new List<Card>(list); // 3 card run
                 }
+            }
 
             if (count > 3 && Is3CardRun(list[1], list[2], list[3]))
+            {
                 if (count > 4 && list[3].Rank == list[4].Rank - 1)
                 {
                     list.RemoveAt(0);
@@ -273,13 +317,18 @@ namespace Cards
                 else
                 {
                     if (count > 4)
+                    {
                         list.RemoveAt(4);
+                    }
 
                     if (count > 3)
+                    {
                         list.RemoveAt(0);
+                    }
 
                     return new List<Card>(list); // 3 card run
                 }
+            }
 
             if (count > 4 && Is3CardRun(list[2], list[3], list[4]))
             {
@@ -298,12 +347,16 @@ namespace Cards
             var score = 0;
             var pairs = 0;
             for (var i = 0; i < list.Count; i++)
-            for (var j = i + 1; j < list.Count; j++)
-                if (list[i].Rank == list[j].Rank) // pair
+            {
+                for (var j = i + 1; j < list.Count; j++)
+                {
+                    if (list[i].Rank == list[j].Rank) // pair
                 {
                     score += 2;
                     pairs++;
                 }
+                }
+            }
 
             return score;
         }
@@ -318,25 +371,42 @@ namespace Cards
                 {
                     var ijVal = list[j].Value + iVal;
                     if (ijVal > 15)
+                    {
                         break; //because we are ordered;
+                    }
+
                     if (ijVal == 15)
+                    {
                         score += 2;
+                    }
                     else
+                    {
                         for (var k = j + 1; k < list.Count; k++)
                         {
                             var ijkVal = list[k].Value + ijVal;
                             if (ijkVal > 15)
+                            {
                                 break;
+                            }
 
                             if (ijkVal == 15)
+                            {
                                 score += 2;
+                            }
                             else
+                            {
                                 for (var x = k + 1; x < list.Count; x++)
                                 {
                                     var ijkxVal = list[x].Value + ijkVal;
                                     if (ijkxVal > 15)
+                                    {
                                         break;
-                                    if (ijkxVal == 15) score += 2;
+                                    }
+
+                                    if (ijkxVal == 15)
+                                    {
+                                        score += 2;
+                                    }
 
                                     if (list.Count == 5) // if the shared card is passed in...
                                     {
@@ -348,10 +418,14 @@ namespace Cards
                                         }
 
                                         if (sumAll < 15) // not enough points to get to 15 with all 5 cards
+                                        {
                                             return 0;
+                                        }
                                     }
                                 }
+                            }
                         }
+                    }
                 }
             }
 
@@ -370,13 +444,16 @@ namespace Cards
             {
                 var cards = new List<Card>();
                 var longestRun = 0;
-                var i = 0;
                 do
                 {
                     cards.Clear();
                     //
                     //  add the last n cards ... starting with 3
-                    for (i = 0; i < n; i++) cards.Add(playedCards[count - i - 1]);
+                    var i = 0;
+                    for (i = 0; i < n; i++)
+                    {
+                        cards.Add(playedCards[count - i - 1]);
+                    }
                     //
                     //  sort them
                     cards.Sort(Card.CompareCardsByRank);
@@ -384,15 +461,26 @@ namespace Cards
                     //
                     //  check to see if they are in order
                     for (i = 0; i < n - 1; i++)
+                    {
                         if (cards[i].Rank != cards[i + 1].Rank - 1)
+                        {
                             break;
-                    if (i >= n - 1) longestRun = i;
+                        }
+                    }
+
+                    if (i >= n - 1)
+                    {
+                        longestRun = i;
+                    }
                     //
                     //  if we have enough cards, look for the next longest run
                     n++;
                 } while (n <= playedCards.Count);
 
-                if (longestRun > 1) score += longestRun + 1;
+                if (longestRun > 1)
+                {
+                    score += longestRun + 1;
+                }
             }
 
             return score;
@@ -416,13 +504,18 @@ namespace Cards
             scoreList = new List<Score>();
             score += ScoreNibs(hand,
                 sharedCard); // this is the only one where it matters which particular card is shared
-            if (score > 0) scoreList.Add(new Score(ScoreName.HisNibs, 1));
+            if (score > 0)
+            {
+                scoreList.Add(new Score(ScoreName.HisNibs, 1));
+            }
 
             //
             //   DON't SORT BEFORE NIBS!!!
             var cards = new List<Card>(hand);
             if (sharedCard != null) // sharedCard null when calculating value of hand prior to seeing the shared card
+            {
                 cards.Add(sharedCard);
+            }
 
             cards.Sort(Card.CompareCardsByRank);
             var tempScore = 0;
@@ -438,8 +531,16 @@ namespace Cards
             if (tempScore > 0)
             {
                 var scoreName = ScoreName.Pair;
-                if (tempScore == 6) scoreName = ScoreName.ThreeOfaKind;
-                if (tempScore == 12) scoreName = ScoreName.FourOfAKind;
+                if (tempScore == 6)
+                {
+                    scoreName = ScoreName.ThreeOfaKind;
+                }
+
+                if (tempScore == 12)
+                {
+                    scoreName = ScoreName.FourOfAKind;
+                }
+
                 scoreList.Add(new Score(scoreName, tempScore));
                 score += tempScore;
             }
@@ -468,21 +569,31 @@ namespace Cards
             var max = 0;
             var run = 1;
             for (var i = 0; i < cards.Count - 1; i++)
+            {
                 if (cards[i].Suit == cards[i + 1].Suit)
                 {
                     run++;
                 }
                 else
                 {
-                    if (run > max) max = run;
+                    if (run > max)
+                    {
+                        max = run;
+                    }
+
                     run = 1;
                 }
+            }
 
             if (handType == HandType.Crib && max == 5)
+            {
                 return max;
+            }
 
             if (handType == HandType.Hand && max > 3)
+            {
                 return max;
+            }
 
             return 0;
         }
@@ -490,12 +601,21 @@ namespace Cards
         private static int ScoreNibs(List<Card> hand, Card sharedCard)
         {
             if (sharedCard == null)
+            {
                 return 0;
+            }
 
             for (var i = 0; i < 4; i++)
+            {
                 if (hand[i].Rank == 11) //Jack -- 1 indexed
+                {
                     if (hand[i].Suit == sharedCard.Suit)
+                    {
                         return 1;
+                    }
+                }
+            }
+
             return 0;
         }
     }

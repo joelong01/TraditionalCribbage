@@ -8,7 +8,10 @@ namespace Cribbage
         public static double PixelWidth(this Grid grid, int col, int colSpan)
         {
             double width = 0;
-            for (var i = 0; i < colSpan; i++) width += grid.ColumnDefinitions[i + col].ActualWidth;
+            for (var i = 0; i < colSpan; i++)
+            {
+                width += grid.ColumnDefinitions[i + col].ActualWidth;
+            }
 
             return width;
         }
@@ -23,7 +26,10 @@ namespace Cribbage
         public static double PixelHeight(this Grid grid, int row, int rowSpan)
         {
             double height = 0;
-            for (var i = 0; i < rowSpan; i++) height += grid.RowDefinitions[i + row].ActualHeight;
+            for (var i = 0; i < rowSpan; i++)
+            {
+                height += grid.RowDefinitions[i + row].ActualHeight;
+            }
 
             return height;
         }

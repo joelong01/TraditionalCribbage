@@ -106,7 +106,11 @@ namespace Cribbage
 
             var tList = CardGrid.MoveListOfCards(_cgComputer, _cgCrib, discardedComputerCards, animationDuration,
                 beginTime);
-            if (tList != null) taskList.AddRange(tList);
+            if (tList != null)
+            {
+                taskList.AddRange(tList);
+            }
+
             await Task.WhenAll(taskList);
 
             //
@@ -144,7 +148,10 @@ namespace Cribbage
 
         private void SetZIndex(List<CardCtrl> cards, int zIndex)
         {
-            foreach (var card in cards) Canvas.SetZIndex(card, zIndex);
+            foreach (var card in cards)
+            {
+                Canvas.SetZIndex(card, zIndex);
+            }
         }
 
 
@@ -241,9 +248,14 @@ namespace Cribbage
             {
                 var t = card.SetOrientationTask(orientation, FlipAnimationDuration, beginTime);
                 if (!parallel)
+                {
                     beginTime += FlipAnimationDuration;
+                }
+
                 if (t != null)
+                {
                     taskList.Add(t);
+                }
             }
 
             return taskList;

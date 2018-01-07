@@ -83,7 +83,10 @@ namespace CardView
 
         public new void Add(CardCtrl card)
         {
-            if (Selectable) card.PointerPressed += _parent.CardGrid_PointerPressed;
+            if (Selectable)
+            {
+                card.PointerPressed += _parent.CardGrid_PointerPressed;
+            }
 
             base.Add(card);
             OnListChanged?.Invoke(this, new ListChangedEventArgs(ListChangedAction.Added, card));
@@ -91,17 +94,27 @@ namespace CardView
 
         public void ClearPointerPressed()
         {
-            foreach (var c in this) c.PointerPressed -= _parent.CardGrid_PointerPressed;
+            foreach (var c in this)
+            {
+                c.PointerPressed -= _parent.CardGrid_PointerPressed;
+            }
         }
 
         public void AddPointerPressed()
         {
-            foreach (var c in this) c.PointerPressed += _parent.CardGrid_PointerPressed;
+            foreach (var c in this)
+            {
+                c.PointerPressed += _parent.CardGrid_PointerPressed;
+            }
         }
 
         public new void Insert(int index, CardCtrl card)
         {
-            if (Selectable) card.PointerPressed += _parent.CardGrid_PointerPressed;
+            if (Selectable)
+            {
+                card.PointerPressed += _parent.CardGrid_PointerPressed;
+            }
+
             base.Insert(index, card);
             OnListChanged?.Invoke(this, new ListChangedEventArgs(ListChangedAction.Inserted, card));
         }
@@ -109,10 +122,17 @@ namespace CardView
         public new void Clear()
         {
             if (Selectable)
+            {
                 foreach (var c in this)
+                {
                     c.PointerPressed -= _parent.CardGrid_PointerPressed;
+                }
+            }
 
-            foreach (var card in this) card.DisconnectCardCanvas();
+            foreach (var card in this)
+            {
+                card.DisconnectCardCanvas();
+            }
 
             base.Clear();
             OnListChanged?.Invoke(this, new ListChangedEventArgs(ListChangedAction.Cleared, null));
@@ -120,10 +140,16 @@ namespace CardView
 
         public new bool Remove(CardCtrl card)
         {
-            if (Selectable) card.PointerPressed -= _parent.CardGrid_PointerPressed;
+            if (Selectable)
+            {
+                card.PointerPressed -= _parent.CardGrid_PointerPressed;
+            }
 
             var ret = base.Remove(card);
-            if (ret) OnListChanged?.Invoke(this, new ListChangedEventArgs(ListChangedAction.Removed, card));
+            if (ret)
+            {
+                OnListChanged?.Invoke(this, new ListChangedEventArgs(ListChangedAction.Removed, card));
+            }
 
             return ret;
         }
@@ -192,13 +218,13 @@ namespace CardView
 
         public CardGrid DropTarget
         {
-            get => (CardGrid) GetValue(DropTargetProperty);
+            get => (CardGrid)GetValue(DropTargetProperty);
             set => SetValue(DropTargetProperty, value);
         }
 
         public Grid ParentGrid
         {
-            get => (Grid) GetValue(ParentGridProperty);
+            get => (Grid)GetValue(ParentGridProperty);
             set => SetValue(ParentGridProperty, value);
         }
 
@@ -207,7 +233,10 @@ namespace CardView
             get => _tbDescription.Text;
             set
             {
-                if (value != Description) _tbDescription.Text = value;
+                if (value != Description)
+                {
+                    _tbDescription.Text = value;
+                }
             }
         }
 
@@ -228,7 +257,10 @@ namespace CardView
                 //  to update the mouse events.  this will do it correctly every time MaxSelectedCards is called. The reason I remove the event
                 //  before adding it back is that I don't want it there twice.
                 Cards.ClearPointerPressed();
-                if (value > 0) Cards.AddPointerPressed();
+                if (value > 0)
+                {
+                    Cards.AddPointerPressed();
+                }
             }
         }
 
@@ -280,7 +312,9 @@ namespace CardView
         public string Serialize(string sep = ",")
         {
             if (Cards.Count == 0)
+            {
                 return "";
+            }
 
             var sb = new StringBuilder();
             foreach (var card in Cards)
@@ -301,17 +335,24 @@ namespace CardView
         public (bool ret, string badToken) Deserialize(string saveString, string sep)
         {
             if (saveString == "")
+            {
                 return (true, "");
+            }
 
             var tokens = saveString.Split(sep.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             var cards = new List<Card>();
             foreach (var token in tokens)
             {
                 var subTokens = token.Split(".".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-                if (subTokens.Length != 3) return (false, token);
+                if (subTokens.Length != 3)
+                {
+                    return (false, token);
+                }
 
                 if (Enum.TryParse(subTokens[0], out CardNames cardName))
+                {
                     if (Enum.TryParse(subTokens[1], out Owner owner))
+                    {
                         if (bool.TryParse(subTokens[2], out var enabled))
                         {
                             var card = new Card(cardName)
@@ -325,15 +366,24 @@ namespace CardView
                         {
                             return (false, "IsEnabled incorrectly set");
                         }
+                    }
                     else
+                    {
                         return (false, subTokens[1]);
+                    }
+                }
                 else
+                {
                     return (false, subTokens[0]);
+                }
             }
 
             Cards.Clear();
             var uiCards = CardCtrl.CreateCardCtrlFromListOfCards(cards);
-            foreach (var card in uiCards) Cards.Add(card);
+            foreach (var card in uiCards)
+            {
+                Cards.Add(card);
+            }
 
             return (true, "");
         }
@@ -351,7 +401,7 @@ namespace CardView
         {
             if (bHighlight)
             {
-                BorderThickness = _highlightThickness;                
+                BorderThickness = _highlightThickness;
                 var brush = Application.Current.Resources["LineBrush"] as SolidColorBrush;
                 BorderBrush = brush;
             }
@@ -366,7 +416,9 @@ namespace CardView
         public async void CardGrid_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             if (_maxSelectedCards == 0)
+            {
                 return;
+            }
 
             var draggedCards =
                 new List<CardCtrl>(); // we don't drag the selected cards, because you can click and drag something that isn't selected
@@ -411,12 +463,21 @@ namespace CardView
                     // card.TraceMessage($"Moving {card.ToString()} from {fromGrid} to {toGrid}");
                     fromGrid.Cards.Remove(card);
                     if (toGrid.CardLayout == CardLayout.Normal)
+                    {
                         if (pushCards)
+                        {
                             toGrid.Cards.Insert(0, card); // preserves the order of Cards as they may be sorted    
+                        }
                         else
+                        {
                             toGrid.Cards.Add(card);
+                        }
+                    }
                     else
+                    {
                         toGrid.Cards.Add(card);
+                    }
+
                     card.Location = toGrid.Location;
                     card.Selected = false;
                 }
@@ -444,8 +505,9 @@ namespace CardView
         private void ToggleSelect(CardCtrl card)
         {
             if (card == null)
+            {
                 return;
-
+            }
 
             if (card.Selected)
             {
@@ -455,7 +517,9 @@ namespace CardView
             }
 
             if (_maxSelectedCards == 0)
+            {
                 return;
+            }
 
             if (SelectedCards.Count == _maxSelectedCards)
             {
@@ -469,7 +533,10 @@ namespace CardView
 
         public void SelectCard(CardCtrl card)
         {
-            if (!card.Selected) ToggleSelect(card);
+            if (!card.Selected)
+            {
+                ToggleSelect(card);
+            }
         }
 
         private void ReleaseCard(CardCtrl card)
@@ -488,8 +555,9 @@ namespace CardView
             var nCards = index == -1 ? Cards.Count : index;
 
             if (Cards.Contains(card)) // one of mine -- move it back where it belongs!
+            {
                 nCards = Cards.IndexOf(card);
-
+            }
 
             var pt = new Point(0, 0);
 
@@ -529,7 +597,9 @@ namespace CardView
             var dragging = false;
 
             if (dragList.Contains(cardClickedOn) == false)
+            {
                 dragList.Insert(0, cardClickedOn); // card you clicked is always the first one
+            }
 
             #region Pointer_moved
 
@@ -547,13 +617,20 @@ namespace CardView
                 totalCardMovement.X += Math.Abs(delta.X);
                 totalCardMovement.Y += Math.Abs(delta.Y);
 
-                var localCard = (CardCtrl) s;
+                var localCard = (CardCtrl)s;
                 var reorderCards = false;
                 foreach (var c in SelectedCards)
+                {
                     if (dragList.Contains(c) == false)
+                    {
                         dragList.Add(c);
+                    }
+                }
 
-                if (dragList.Contains(localCard) == false) dragList.Add(localCard);
+                if (dragList.Contains(localCard) == false)
+                {
+                    dragList.Add(localCard);
+                }
 
                 if (dragList.Count > MaxSelectedCards)
                 {
@@ -564,10 +641,14 @@ namespace CardView
                 }
 
                 if (totalCardMovement.X > MOUSE_MOVE_SENSITIVITY || totalCardMovement.Y > MOUSE_MOVE_SENSITIVITY)
+                {
                     dragging = true;
+                }
 
                 if (MouseInGrid(container, e)) //still inside the host container
+                {
                     reorderCards = true;
+                }
 
                 if (dragList.Count > 1)
                 {
@@ -575,11 +656,13 @@ namespace CardView
                     var otherCard = dragList[0];
                     var cardWidth = cardClickedOn.ActualWidth;
                     if (cardClickedOn.Index == otherCard.Index)
+                    {
                         otherCard = dragList[1];
+                    }
 
                     //
                     //  this moves the card to make space for reordering
-                    var left = (int) (cardClickedOn.AnimationPosition.X - otherCard.AnimationPosition.X);
+                    var left = (int)(cardClickedOn.AnimationPosition.X - otherCard.AnimationPosition.X);
 
                     if (left > cardWidth)
                     {
@@ -648,7 +731,7 @@ namespace CardView
 
             pointerReleasedHandler = async (s, e) =>
             {
-                var localCard = (CardCtrl) s;
+                var localCard = (CardCtrl)s;
                 localCard.PointerMoved -= pointerMovedHandler;
                 localCard.PointerReleased -= pointerReleasedHandler;
                 localCard.ReleasePointerCapture(origE.Pointer);
@@ -782,26 +865,39 @@ namespace CardView
 
             var beginTime = msBeginTime;
             var index = 0;
-            if (layoutOptions == AnimateMoveOptions.MoveSequentlyEndingAtZero) index = from.Cards.Count - 1;
+            if (layoutOptions == AnimateMoveOptions.MoveSequentlyEndingAtZero)
+            {
+                index = from.Cards.Count - 1;
+            }
+
             foreach (var card in from.Cards)
             {
                 var task = AnimateMoveOneCard(from, to, card, index, false, msDuration, beginTime);
 
                 if (layoutOptions == AnimateMoveOptions.MoveSequentlyEndingAtZero)
+                {
                     index--;
+                }
                 else if (layoutOptions == AnimateMoveOptions.MoveSequentlyStartingAtZero)
+                {
                     index++;
-
+                }
 
                 if (task != null)
+                {
                     taskList.Add(task);
+                }
 
                 if (!parallel)
+                {
                     beginTime += msDuration;
+                }
             }
 
-            if (taskList.Count == 0) return null;
-
+            if (taskList.Count == 0)
+            {
+                return null;
+            }
 
             return taskList;
         }
@@ -814,7 +910,6 @@ namespace CardView
             var i = 0;
 
             var taskList = new List<Task>();
-            Task t = null;
 
             try
             {
@@ -822,9 +917,12 @@ namespace CardView
                 {
                     c.BoostZindex();
                     var pTo = to.GetNextCardPosition(c, i++);
-                    t = c.AnimateToTask(pTo, false, msDuration, msBeginTime);
+                    var t = c.AnimateToTask(pTo, false, msDuration, msBeginTime);
                     if (t != null)
+                    {
                         taskList.Add(t);
+                    }
+
                     cards.Add(c);
                 }
 
@@ -835,7 +933,11 @@ namespace CardView
             }
             finally
             {
-                foreach (var c in from.Cards) c.ResetZIndex();
+                foreach (var c in from.Cards)
+                {
+                    c.ResetZIndex();
+                }
+
                 Canvas.SetZIndex(from, zIndex);
             }
         }
@@ -846,18 +948,21 @@ namespace CardView
             var i = 0;
 
             if (cards == null)
+            {
                 return null;
+            }
 
-            Task t = null;
             var taskList = new List<Task>();
 
 
             foreach (var c in cards)
             {
                 var pTo = to.GetNextCardPosition(c, i++);
-                t = c.AnimateToTask(pTo, false, msDuration, msBeginTime);
+                var t = c.AnimateToTask(pTo, false, msDuration, msBeginTime);
                 if (t != null)
+                {
                     taskList.Add(t);
+                }
             }
 
             return taskList;
@@ -872,7 +977,9 @@ namespace CardView
             {
                 var t = card.SetOrientationTask(orientation, msDuration, msBeginTime);
                 if (t != null)
+                {
                     taskList.Add(t);
+                }
             }
 
 
@@ -889,7 +996,9 @@ namespace CardView
             {
                 var t = card.SetOrientationTask(orientation, msDuration, msBeginTime);
                 if (t != null)
+                {
                     taskList.Add(t);
+                }
             }
 
             return taskList;
@@ -905,8 +1014,10 @@ namespace CardView
         {
             var ret = false;
 
-            if (OnBeginCardDropped != null) ret = await OnBeginCardDropped(dragList, _maxSelectedCards);
-
+            if (OnBeginCardDropped != null)
+            {
+                ret = await OnBeginCardDropped(dragList, _maxSelectedCards);
+            }
 
             return ret;
         }
@@ -915,8 +1026,10 @@ namespace CardView
         {
             var ret = false;
 
-            if (OnEndCardDropped != null) ret = await OnEndCardDropped(dragList, _maxSelectedCards);
-
+            if (OnEndCardDropped != null)
+            {
+                ret = await OnEndCardDropped(dragList, _maxSelectedCards);
+            }
 
             return ret;
         }

@@ -44,7 +44,9 @@ namespace Cribbage
         public void Locate()
         {
             if (LogicalParent == null)
+            {
                 return;
+            }
 
             var parent = LogicalParent;
 
@@ -53,10 +55,13 @@ namespace Cribbage
             var scaleY = parent.ActualHeight / ActualHeight;
 
             if (scaleX < scaleY)
+            {
                 scaleY = scaleX;
+            }
             else
+            {
                 scaleX = scaleY;
-
+            }
 
             var gt = LogicalParent.TransformToVisual(this);
             var ptTo = new Point(parent.ActualWidth * .5 - ActualWidth * .5,

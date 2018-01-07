@@ -240,7 +240,9 @@ namespace Cribbage
         public List<Task> AnimateScore(PlayerType type, int scoreDelta, bool async)
         {
             if (scoreDelta == 0)
+            {
                 return null;
+            }
 
             var data = GetPlayerData(type);
             var newScore = data.FrontScore + scoreDelta;
@@ -306,8 +308,9 @@ namespace Cribbage
             FrameworkElement target = _p86Target;
 
             if (data.BackPeg.Owner == Owner.Computer)
+            {
                 target = _c86Target;
-
+            }
 
             var gt = target.TransformToVisual(from);
 
@@ -424,12 +427,16 @@ namespace Cribbage
         private double AnimateUpFirstColumn(PlayerDataObject data, Storyboard storyboard, int newScore,
             double durationPerPoint)
         {
-            if (data.BackPeg.Score > SCORE_BEFORE_FIRST_ROTATION) return 0;
+            if (data.BackPeg.Score > SCORE_BEFORE_FIRST_ROTATION)
+            {
+                return 0;
+            }
 
             var animateScore = newScore;
             if (newScore >= SCORE_BEFORE_FIRST_ROTATION)
+            {
                 animateScore = SCORE_BEFORE_FIRST_ROTATION - 1;
-
+            }
 
             var animateY = (DoubleAnimation) storyboard.Children[(int) PegStoryAnimationChildren.YFirstColumn];
             double durationXY = 0;
@@ -453,8 +460,15 @@ namespace Cribbage
         private double AnimateAroundTop(PlayerDataObject data, Storyboard storyboard, int newScore,
             double durationPerPoint)
         {
-            if (newScore < 36) return 0; // haven't gotten here yet
-            if (data.BackPeg.Score > SCORE_END_FIRST_CURVE) return 0; // past here
+            if (newScore < 36)
+            {
+                return 0; // haven't gotten here yet
+            }
+
+            if (data.BackPeg.Score > SCORE_END_FIRST_CURVE)
+            {
+                return 0; // past here
+            }
 
             var animateScore = Math.Min(newScore, SCORE_END_FIRST_CURVE);
 
@@ -469,7 +483,9 @@ namespace Cribbage
             rotateAnimation.To = ellipseRotateTransform.Angle;
 
             if (newScore > SCORE_END_FIRST_CURVE)
+            {
                 rotateAnimation.To = 180;
+            }
 
             var duration = (Math.Min(animateScore, 45) - Math.Max(data.BackPeg.Score, 36)) * durationPerPoint * 4;
             return duration;
@@ -479,11 +495,16 @@ namespace Cribbage
             double durationPerPoint)
         {
             double duration = 0;
-            if (newScore < 81) return 0; // haven't gotten here yet
-
+            if (newScore < 81)
+            {
+                return 0; // haven't gotten here yet
+            }
 
             var animateScore = newScore;
-            if (newScore > 85) animateScore = 85;
+            if (newScore > 85)
+            {
+                animateScore = 85;
+            }
 
             var rotateAnimation =
                 (DoubleAnimation) storyboard.Children[
@@ -503,11 +524,16 @@ namespace Cribbage
             translateTransform.Y = radiusDiff;
 
             if (newScore > 85)
+            {
                 rotateAnimation.To = 180;
+            }
 
             duration = (Math.Min(animateScore, 85) - Math.Max(data.BackPeg.Score, 80)) * durationPerPoint * 4;
 
-            if (duration < 0) duration = 0; // HACK
+            if (duration < 0)
+            {
+                duration = 0; // HACK
+            }
             // this.TraceMessage($"AnimateAroundBottom: newScore:{newScore} Duration:{duration} CenterX:{pegRotate.CenterX} CenterY:{pegRotate.CenterY} Angle: {rotateAnimation.To}"); 
 
             return duration;
@@ -516,18 +542,30 @@ namespace Cribbage
         private double AnimateDownThirdColumn(PlayerDataObject data, Storyboard storyboard, int newScore,
             double durationPerPoint)
         {
-            if (newScore <= SCORE_END_FIRST_CURVE) return 0; // haven't gotten here yet
-            if (data.BackPeg.Score >= SCORE_BEFORE_SECOND_CURVE) return 0;
+            if (newScore <= SCORE_END_FIRST_CURVE)
+            {
+                return 0; // haven't gotten here yet
+            }
+
+            if (data.BackPeg.Score >= SCORE_BEFORE_SECOND_CURVE)
+            {
+                return 0;
+            }
+
             var animateScore = newScore;
             if (newScore > SCORE_BEFORE_SECOND_CURVE) // going past the end - we set up the animation to 81
+            {
                 animateScore = SCORE_BEFORE_SECOND_CURVE;
-
+            }
 
             var animateY = (DoubleAnimation) storyboard.Children[(int) PegStoryAnimationChildren.YThirdColumn];
             var diff = GetThirdColumnHeightForScore(data, animateScore);
             animateY.To += Math.Abs(diff);
             if (animateScore >= 81) // need to go a little extra here
+            {
                 animateY.To = ThirdColumnDistanceBetweenCurves;
+            }
+
             double duration = 0;
             var scoreDelta = animateScore - Math.Max(data.BackPeg.Score, SCORE_END_FIRST_CURVE);
             var deltaCenterY = scoreDelta * data.Score.Diameter / 2.0;
@@ -546,12 +584,21 @@ namespace Cribbage
         private double AnimateUpSecondColumn(PlayerDataObject data, Storyboard storyboard, int newScore,
             double durationPerPoint)
         {
-            if (newScore <= 85) return 0; // haven't gotten here yet
-            if (data.BackPeg.Score >= 120) return 0; // at the top
+            if (newScore <= 85)
+            {
+                return 0; // haven't gotten here yet
+            }
+
+            if (data.BackPeg.Score >= 120)
+            {
+                return 0; // at the top
+            }
+
             var animateScore = newScore;
             if (newScore > 120) // going past the end - we set up the animation to the end of this animation
+            {
                 animateScore = 120;
-
+            }
 
             var animateCorrectX = (DoubleAnimation) storyboard.Children[(int) PegStoryAnimationChildren.XCorrectLayout];
 
@@ -578,7 +625,11 @@ namespace Cribbage
             double durationPerPoint)
         {
             double duration = 250;
-            if (newScore < 121) return 0;
+            if (newScore < 121)
+            {
+                return 0;
+            }
+
             var from = data.Pegs[121]; // point 120
             var to = _ellipseWinningPeg; //winning peg
             var gt = from.TransformToVisual(to);
@@ -596,11 +647,23 @@ namespace Cribbage
 
         public void HighlightPeg(PlayerType playerType, int score, bool highlight)
         {
-            if (score > 121) score = 121;
-            if (score < 1) score = 1;
+            if (score > 121)
+            {
+                score = 121;
+            }
+
+            if (score < 1)
+            {
+                score = 1;
+            }
+
             var data = GetPlayerData(playerType);
             var br = data.Pegs[0].Fill;
-            if (highlight) br = _brushHighlight;
+            if (highlight)
+            {
+                br = _brushHighlight;
+            }
+
             data.Pegs[score + 1].Fill = br;
         }
 
@@ -610,8 +673,15 @@ namespace Cribbage
             var storyboard = data.BackStoryBoard;
 
 
-            if (newScore == 0) storyboard = data.Score.FirstPegControl.TraditionalBoardStoryboard; // for Reset()
-            if (newScore == -1) storyboard = data.Score.SecondPegControl.TraditionalBoardStoryboard; // for Reset()
+            if (newScore == 0)
+            {
+                storyboard = data.Score.FirstPegControl.TraditionalBoardStoryboard; // for Reset()
+            }
+
+            if (newScore == -1)
+            {
+                storyboard = data.Score.SecondPegControl.TraditionalBoardStoryboard; // for Reset()
+            }
 
             if (newScore == 0 || newScore == -1)
             {
@@ -628,15 +698,20 @@ namespace Cribbage
                 animateX.To = to.X;
                 animateY.To = to.Y;
                 if (async)
+                {
                     storyboard.Begin();
+                }
                 else
+                {
                     taskList.Add(storyboard.ToTask());
+                }
+
                 return;
             }
 
             //double durationPerPoint = 500 / 5.0; 
-            var durationPerPoint = 100 / 5.0;
-            if (newScore > 85) durationPerPoint = 100;
+            var durationPerPoint = 100;
+            //if (newScore > 85) durationPerPoint = 100;
             var durationXY = AnimateUpFirstColumn(data, storyboard, newScore, durationPerPoint);
             var durationTop = AnimateAroundTop(data, storyboard, newScore, durationPerPoint / 2);
             double durationThirdColumnY = durationThirdColumnY =
@@ -649,9 +724,13 @@ namespace Cribbage
             SetDurations(storyboard, durationXY, durationTop, durationThirdColumnY, durationBottomRotation,
                 durationUpSecondCol, durationToWin);
             if (async)
+            {
                 storyboard.Begin();
+            }
             else
+            {
                 taskList.Add(storyboard.ToTask());
+            }
         }
 
         public void TraceBackPegPosition()
@@ -701,7 +780,10 @@ namespace Cribbage
             get
             {
                 if (Score.FirstPegControl.Score < Score.SecondPegControl.Score)
+                {
                     return Score.FirstPegControl.TraditionalBoardStoryboard;
+                }
+
                 return Score.SecondPegControl.TraditionalBoardStoryboard;
             }
         }
@@ -711,7 +793,10 @@ namespace Cribbage
             get
             {
                 if (Score.FirstPegControl.Score > Score.SecondPegControl.Score)
+                {
                     return Score.SecondPegControl.TraditionalBoardStoryboard;
+                }
+
                 return Score.FirstPegControl.TraditionalBoardStoryboard;
             }
         }
@@ -736,7 +821,10 @@ namespace Cribbage
             get
             {
                 if (Score.FirstPegControl.Score < Score.SecondPegControl.Score)
+                {
                     return Score.FirstPegControl;
+                }
+
                 return Score.SecondPegControl;
             }
         }
@@ -746,7 +834,10 @@ namespace Cribbage
             get
             {
                 if (Score.FirstPegControl.Score > Score.SecondPegControl.Score)
+                {
                     return Score.FirstPegControl;
+                }
+
                 return Score.SecondPegControl;
             }
         }
@@ -756,7 +847,10 @@ namespace Cribbage
             get
             {
                 if (Score.Score1 > Score.Score2)
+                {
                     return Score.Score1;
+                }
+
                 return Score.Score2;
             }
         }

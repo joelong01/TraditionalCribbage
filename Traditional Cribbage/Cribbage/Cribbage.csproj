@@ -114,33 +114,32 @@
     <Compile Include="Players\InteractivePlayer.cs" />
     <Compile Include="Players\RandomPlayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ScoreViewerCtrl.xaml.cs" />
-    <Compile Include="ScrollingTextCtrl.xaml.cs" />
+    <Compile Include="UxControls\ScoreViewerCtrl.xaml.cs" />
+    <Compile Include="UxControls\ScrollingTextCtrl.xaml.cs" />
     <Compile Include="StaticHelpers.cs" />
     <Compile Include="TraditionalLayout\InnerTraditionalBoard.xaml.cs" />
     <Compile Include="TraditionalLayout\TraditionalBoard.xaml.cs" />
-    <Compile Include="TraditionalLayout\TraditionalHintWindow.xaml.cs" />
-    <Compile Include="UxControls\CircleControl.xaml.cs" />
     <Compile Include="UxControls\CountCtrl.xaml.cs" />
     <Compile Include="UxControls\Extensions.cs" />
-    <Compile Include="UxControls\FlipMessageControl.xaml.cs" />
-    <Compile Include="UxControls\HintWindow.xaml.cs" />
-    <Compile Include="UxControls\Number.xaml.cs" />
     <Compile Include="UxControls\PegControl.xaml.cs" />
-    <Compile Include="UxControls\ScoreControl.xaml.cs" />
-    <Compile Include="UxControls\ScoreHistoryView.xaml.cs" />
-    <Compile Include="UxControls\ScoreSummaryView.xaml.cs" />
-    <Compile Include="UxControls\XAMLValueConverters.cs" />
-    <Compile Include="WrongScoreDlg.xaml.cs">
-      <DependentUpon>WrongScoreDlg.xaml</DependentUpon>
+    <Compile Include="UxControls\WrongScoreCtrl.xaml.cs">
+      <DependentUpon>WrongScoreCtrl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UxControls\XAMLValueConverters.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
     <None Include="Assets\Base Vectors\AdobeStock_116737813.png" />
+    <None Include="Assets\Base Vectors\cherry wood background.ai" />
+    <None Include="Assets\Base Vectors\cribbage vector.afdesign" />
     <None Include="Assets\Base Vectors\deck of cards.svg" />
+    <Content Include="Assets\BadgeLogo.scale-100.png" />
+    <Content Include="Assets\BadgeLogo.scale-125.png" />
+    <Content Include="Assets\BadgeLogo.scale-150.png" />
+    <Content Include="Assets\BadgeLogo.scale-200.png" />
+    <Content Include="Assets\BadgeLogo.scale-400.png" />
     <Content Include="Assets\Cards\AceOfDiamonds.svg" />
     <Content Include="Assets\Cards\AceOfHearts.svg" />
     <Content Include="Assets\Cards\AceOfSpades.svg" />
@@ -151,7 +150,8 @@
     <None Include="Assets\Base Vectors\card deck face only.afdesign" />
     <None Include="Assets\Base Vectors\card deck.afdesign" />
     <None Include="Assets\Base Vectors\shooter.ai" />
-    <None Include="Assets\splashscreen.pdf" />
+    <None Include="Assets\Base Vectors\splashscreen.afdesign" />
+    <None Include="Assets\Base Vectors\splashscreen.pdf" />
     <None Include="Cribbage_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
@@ -209,21 +209,56 @@
     <Content Include="Assets\Cards\TwoOfSpades.svg" />
     <Content Include="Assets\cherry.png" />
     <Content Include="Assets\felt.png" />
+    <Content Include="Assets\LargeTile.scale-100.png" />
+    <Content Include="Assets\LargeTile.scale-125.png" />
+    <Content Include="Assets\LargeTile.scale-150.png" />
+    <Content Include="Assets\LargeTile.scale-200.png" />
+    <Content Include="Assets\LargeTile.scale-400.png" />
     <Content Include="Assets\mother of pearl.png" />
     <Content Include="Assets\ruby.png" />
+    <Content Include="Assets\SmallTile.scale-100.png" />
+    <Content Include="Assets\SmallTile.scale-125.png" />
+    <Content Include="Assets\SmallTile.scale-150.png" />
+    <Content Include="Assets\SmallTile.scale-200.png" />
+    <Content Include="Assets\SmallTile.scale-400.png" />
     <Content Include="Assets\SplashScreen.scale-100.png" />
     <Content Include="Assets\SplashScreen.scale-125.png" />
     <Content Include="Assets\SplashScreen.scale-150.png" />
     <Content Include="Assets\SplashScreen.scale-400.png" />
+    <Content Include="Assets\Square150x150Logo.scale-100.png" />
+    <Content Include="Assets\Square150x150Logo.scale-125.png" />
+    <Content Include="Assets\Square150x150Logo.scale-150.png" />
+    <Content Include="Assets\Square150x150Logo.scale-400.png" />
+    <Content Include="Assets\Square44x44Logo.altform-unplated_targetsize-16.png" />
+    <Content Include="Assets\Square44x44Logo.altform-unplated_targetsize-256.png" />
+    <Content Include="Assets\Square44x44Logo.altform-unplated_targetsize-32.png" />
+    <Content Include="Assets\Square44x44Logo.altform-unplated_targetsize-48.png" />
+    <Content Include="Assets\Square44x44Logo.scale-100.png" />
+    <Content Include="Assets\Square44x44Logo.scale-125.png" />
+    <Content Include="Assets\Square44x44Logo.scale-150.png" />
+    <Content Include="Assets\Square44x44Logo.scale-400.png" />
+    <Content Include="Assets\Square44x44Logo.targetsize-16.png" />
+    <Content Include="Assets\Square44x44Logo.targetsize-24.png" />
+    <Content Include="Assets\Square44x44Logo.targetsize-256.png" />
+    <Content Include="Assets\Square44x44Logo.targetsize-32.png" />
+    <Content Include="Assets\Square44x44Logo.targetsize-48.png" />
+    <Content Include="Assets\StoreLogo.scale-100.png" />
+    <Content Include="Assets\StoreLogo.scale-125.png" />
+    <Content Include="Assets\StoreLogo.scale-150.png" />
+    <Content Include="Assets\StoreLogo.scale-200.png" />
+    <Content Include="Assets\StoreLogo.scale-400.png" />
     <Content Include="Assets\TraditionalBoard.png" />
     <Content Include="Assets\walnut.png" />
+    <Content Include="Assets\Wide310x150Logo.scale-100.png" />
+    <Content Include="Assets\Wide310x150Logo.scale-125.png" />
+    <Content Include="Assets\Wide310x150Logo.scale-150.png" />
+    <Content Include="Assets\Wide310x150Logo.scale-400.png" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
     <Content Include="Assets\Square150x150Logo.scale-200.png" />
     <Content Include="Assets\Square44x44Logo.scale-200.png" />
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
-    <Content Include="Assets\StoreLogo.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
   </ItemGroup>
   <ItemGroup>
@@ -471,11 +506,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="ScoreViewerCtrl.xaml">
+    <Page Include="UxControls\ScoreViewerCtrl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="ScrollingTextCtrl.xaml">
+    <Page Include="UxControls\ScrollingTextCtrl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -487,27 +522,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="TraditionalLayout\TraditionalHintWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="UxControls\CircleControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="UxControls\CountCtrl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="UxControls\FlipMessageControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="UxControls\HintWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="UxControls\Number.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -515,19 +530,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="UxControls\ScoreControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="UxControls\ScoreHistoryView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="UxControls\ScoreSummaryView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="WrongScoreDlg.xaml">
+    <Page Include="UxControls\WrongScoreCtrl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

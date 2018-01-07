@@ -40,14 +40,20 @@ namespace CribbagePlayers
             {
                 var taskList = new List<Task>();
                 foreach (var card in droppedCards)
+                {
                     if (card.Orientation == CardOrientation.FaceUp
                     ) // if you drop two cards, these are already face down
                     {
                         card.Selected = false;
                         taskList.Add(card.SetOrientationTask(CardOrientation.FaceDown, 250, 0));
                     }
+                }
 
-                if (taskList.Count > 0) await Task.WhenAll(taskList);
+                if (taskList.Count > 0)
+                {
+                    await Task.WhenAll(taskList);
+                }
+
                 return true;
             }
 
@@ -55,10 +61,16 @@ namespace CribbagePlayers
             {
                 totalCards.AddRange(droppedCards);
                 if (count > 1)
+                {
                     GameView.PlayerCardDroppedToCrib(
                         totalCards); // reduces the max # of cards that the player can select                    
+                }
+
                 if (droppedCards.Count == 1 && totalCards.Count == 1)
+                {
                     GameView.SetInstructions("Drop one more card to the crib");
+                }
+
                 if (totalCards.Count == count)
                 {
                     tcs.TrySetResult(totalCards);
@@ -71,7 +83,11 @@ namespace CribbagePlayers
 
             try
             {
-                if (flipCards) dropTarget.OnBeginCardDropped += OnBeginCardsDropped;
+                if (flipCards)
+                {
+                    dropTarget.OnBeginCardDropped += OnBeginCardsDropped;
+                }
+
                 dropTarget.OnEndCardDropped += OnEndCardsDropped;
                 var retList = await tcs.Task;
                 return retList;
@@ -79,7 +95,10 @@ namespace CribbagePlayers
             finally
             {
                 dropTarget.OnEndCardDropped -= OnEndCardsDropped;
-                if (flipCards) dropTarget.OnBeginCardDropped -= OnBeginCardsDropped;
+                if (flipCards)
+                {
+                    dropTarget.OnBeginCardDropped -= OnBeginCardsDropped;
+                }
             }
         }
 

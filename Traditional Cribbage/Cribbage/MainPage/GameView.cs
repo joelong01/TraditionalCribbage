@@ -76,7 +76,11 @@ namespace Cribbage
 
         public void SetCount(int count)
         {
-            if (count == 31) this.TraceMessage("break here");
+            if (count == 31)
+            {
+                this.TraceMessage("break here");
+            }
+
             _ctrlCount.Count = count;
             _ctrlCount.UpdateLayout();
         }
@@ -96,8 +100,9 @@ namespace Cribbage
                 tList.Add(task);
                 task = card.SetOrientationTask(CardOrientation.FaceUp, FlipAnimationDuration, 0);
                 if (task != null)
+                {
                     tList.Add(task);
-
+                }
 
                 CardGrid.TransferCards(_cgComputer, _cgDiscarded, new List<CardCtrl> {card});
 
@@ -125,7 +130,9 @@ namespace Cribbage
         {
             await AnimateMoveToCribAndFlipDeckCard();
             if (_game != null) // can be null if we are testing animations
+            {
                 _cgPlayer.MaxSelectedCards = _game.PlayerTurn == PlayerType.Player ? 1 : 0;
+            }
         }
 
         public async Task SendCardsBackToOwner()
@@ -163,7 +170,11 @@ namespace Cribbage
             }
 
             var playerType = PlayerType.Computer;
-            if (cards[0].Card.CardOrdinal < cards[1].Card.CardOrdinal) playerType = PlayerType.Player;
+            if (cards[0].Card.CardOrdinal < cards[1].Card.CardOrdinal)
+            {
+                playerType = PlayerType.Player;
+            }
+
             var user = playerType == PlayerType.Player ? "You" : "The Computer";
             var message = string.Format($"{user} got low card and will deal.");
             AddMessage(message);
@@ -317,7 +328,9 @@ namespace Cribbage
         {
             var scoreDelta = 0;
             if (scores == null)
+            {
                 return 0;
+            }
 
             scoreDelta = ShowScoreMessage(scores, playerTurn);
             _board.AnimateScoreAsync(playerTurn, scoreDelta);
@@ -380,7 +393,10 @@ namespace Cribbage
 
         public void SetPlayableCards(int count)
         {
-            foreach (var card in _cgPlayer.Cards) card.IsEnabled = card.Value + count <= 31;
+            foreach (var card in _cgPlayer.Cards)
+            {
+                card.IsEnabled = card.Value + count <= 31;
+            }
         }
 
         public async Task<int> HighlightScoreAndWaitForContinue(PlayerType player, int actualScore, bool autosetScore)
@@ -431,9 +447,13 @@ namespace Cribbage
         private Task MoveCrib(PlayerType player)
         {
             if (player == PlayerType.Computer)
+            {
                 _daMoveCribY.To = -(_cgCrib.ActualHeight + 10); // 10 is a row that is used as empty space
+            }
             else
+            {
                 _daMoveCribY.To = _cgCrib.ActualHeight + 10;
+            }
 
             return _sbMoveCrib.ToTask();
         }
@@ -480,7 +500,10 @@ namespace Cribbage
             var sep = ", ";
             s.Append(playerTurn == PlayerType.Player ? "You " : "The Computer ");
             var scoreDelta = 0;
-            foreach (var score in scores) scoreDelta += score.Value;
+            foreach (var score in scores)
+            {
+                scoreDelta += score.Value;
+            }
 
             if (scores.Count == 1)
             {
@@ -500,15 +523,25 @@ namespace Cribbage
                 {
                     var score = scores[i];
                     s.Append(score.ToString(playerTurn));
-                    if (i < scores.Count - 1) s.Append(sep);
+                    if (i < scores.Count - 1)
+                    {
+                        s.Append(sep);
+                    }
 
-                    if (i == scores.Count - 2) s.Append("and ");
+                    if (i == scores.Count - 2)
+                    {
+                        s.Append("and ");
+                    }
                 }
 
                 s.Append(". ");
             }
 
-            if (multiLine) s.Append("\n\n");
+            if (multiLine)
+            {
+                s.Append("\n\n");
+            }
+
             s.Append($"Total of {scoreDelta}. ");
             return (s.ToString(), scoreDelta);
         }

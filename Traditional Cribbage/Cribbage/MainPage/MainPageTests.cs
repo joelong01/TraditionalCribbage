@@ -45,8 +45,10 @@ namespace Cribbage
             var playerCribCards = new List<CardCtrl> {_cgPlayer.Cards[0], _cgPlayer.Cards[1]};
             var index = 2;
             foreach (var card in playerCribCards)
+            {
                 await CardGrid.AnimateMoveOneCard(_cgPlayer, _cgDiscarded, card, index++, false,
                     MOVE_CARDS_ANIMATION_DURATION, 0);
+            }
 
             CardGrid.TransferCards(_cgPlayer, _cgDiscarded, playerCribCards);
         }
@@ -73,11 +75,17 @@ namespace Cribbage
 
                 var delta = 0;
                 if (_testScore < 79)
+                {
                     delta = 79;
+                }
                 else if (_testScore > 85)
+                {
                     delta = 5;
+                }
                 else
+                {
                     delta = 1;
+                }
 
                 _testScore += delta;
 

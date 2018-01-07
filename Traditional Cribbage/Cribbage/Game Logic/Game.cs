@@ -78,8 +78,13 @@ namespace Cribbage
             {
                 var countedCards = new List<Card>();
                 foreach (var card in _gameView.GetCards(CardType.Counted))
+                {
                     if (!card.Counted)
+                    {
                         countedCards.Add(card.Card);
+                    }
+                }
+
                 return countedCards;
             }
         }
@@ -111,9 +116,11 @@ namespace Cribbage
             get
             {
                 if (CountedCards.Count == 0)
+                {
                     return Owner.Uninitialized;
+                }
 
-                var lastCard = (CardCtrl) CountedCards.Last().Tag;
+                var lastCard = (CardCtrl)CountedCards.Last().Tag;
                 return lastCard.Owner;
             }
         }
@@ -161,15 +168,15 @@ namespace Cribbage
                         state = GameState.Deal;
                         break;
                     case GameState.Deal:
-                    {
-                        ToggleDealer();
-                        PlayerTurn = Dealer == PlayerType.Computer ? PlayerType.Player : PlayerType.Computer;
-                        var (computerCards, playerCards, sharedCard) = GetHands();
-                        var crib = ComputerSelectCrib(computerCards, Dealer == PlayerType.Computer);
-                        await _gameView.Deal(playerCards, computerCards, sharedCard, crib, Dealer);
-                        CurrentCount = 0;
-                        state = GameState.PlayerSelectsCribCards;
-                    }
+                        {
+                            ToggleDealer();
+                            PlayerTurn = Dealer == PlayerType.Computer ? PlayerType.Player : PlayerType.Computer;
+                            var (computerCards, playerCards, sharedCard) = GetHands();
+                            var crib = ComputerSelectCrib(computerCards, Dealer == PlayerType.Computer);
+                            await _gameView.Deal(playerCards, computerCards, sharedCard, crib, Dealer);
+                            CurrentCount = 0;
+                            state = GameState.PlayerSelectsCribCards;
+                        }
                         break;
                     case GameState.PlayerSelectsCribCards:
                         var playerCrib =
@@ -186,7 +193,7 @@ namespace Cribbage
                         if (SharedCard.CardOrdinal == CardOrdinal.Jack)
                         {
                             var score = new Score(ScoreName.HisNibs, 2);
-                            AddScore(new List<Score> {score}, Dealer);
+                            AddScore(new List<Score> { score }, Dealer);
                         }
 
                         state = GameState.Count;
@@ -200,50 +207,60 @@ namespace Cribbage
                         state = Dealer == PlayerType.Player ? GameState.CountComputer : GameState.CountPlayer;
                         break;
                     case GameState.CountPlayer:
-                    {
-                        SetPlayableCards();
+                        {
+                            SetPlayableCards();
 
-                        PlayerTurn = PlayerType.Player;
-                        var (computerCanPlay, playerCanPlay) = CanPlay(ComputerCards, PlayerCards, CurrentCount);
-                        state = GameState.CountComputer;
-                        if (playerCanPlay)
-                            CurrentCount = await DoCountForPlayer(Player, PlayerType.Player, CountedCards, PlayerCards,
+                            PlayerTurn = PlayerType.Player;
+                            var (computerCanPlay, playerCanPlay) = CanPlay(ComputerCards, PlayerCards, CurrentCount);
+                            state = GameState.CountComputer;
+                            if (playerCanPlay)
+                            {
+                                CurrentCount = await DoCountForPlayer(Player, PlayerType.Player, CountedCards, PlayerCards,
                                 CurrentCount);
-
-                        (computerCanPlay, playerCanPlay) = CanPlay(ComputerCards, PlayerCards, CurrentCount);
-
-                        if (computerCanPlay == false && playerCanPlay == false)
-                            if (PlayerCards.Count == 0 && ComputerCards.Count == 0)
-                            {
-                                state = GameState.CountingEnded;
                             }
-                            else
+
+                            (computerCanPlay, playerCanPlay) = CanPlay(ComputerCards, PlayerCards, CurrentCount);
+
+                            if (computerCanPlay == false && playerCanPlay == false)
                             {
-                                var goPlayer = await ScoreGo();
-                                state = goPlayer == PlayerType.Computer ? GameState.CountPlayer : GameState.CountComputer;
+                                if (PlayerCards.Count == 0 && ComputerCards.Count == 0)
+                                {
+                                    state = GameState.CountingEnded;
+                                }
+                                else
+                                {
+                                    var goPlayer = await ScoreGo();
+                                    state = goPlayer == PlayerType.Computer ? GameState.CountPlayer : GameState.CountComputer;
+                                }
                             }
-                    }
+                        }
 
                         break;
                     case GameState.CountComputer:
-                    {
-                        PlayerTurn = PlayerType.Computer;
-                        CurrentCount = await DoCountForPlayer(Computer, PlayerType.Computer, CountedCards,
-                            ComputerCards, CurrentCount);
-                        state = GameState.CountPlayer;
-                        var (computerCanPlay, playerCanPlay) = CanPlay(ComputerCards, PlayerCards, CurrentCount);
-                        if (!computerCanPlay && playerCanPlay) _gameView.AddMessage("Computer can't play.  Go again.");
-                        if (computerCanPlay == false && playerCanPlay == false)
-                            if (PlayerCards.Count == 0 && ComputerCards.Count == 0)
+                        {
+                            PlayerTurn = PlayerType.Computer;
+                            CurrentCount = await DoCountForPlayer(Computer, PlayerType.Computer, CountedCards,
+                                ComputerCards, CurrentCount);
+                            state = GameState.CountPlayer;
+                            var (computerCanPlay, playerCanPlay) = CanPlay(ComputerCards, PlayerCards, CurrentCount);
+                            if (!computerCanPlay && playerCanPlay)
                             {
-                                state = GameState.CountingEnded;
+                                _gameView.AddMessage("Computer can't play.  Go again.");
                             }
-                            else
+
+                            if (computerCanPlay == false && playerCanPlay == false)
                             {
-                                var goPlayer = await ScoreGo();
-                                state = goPlayer == PlayerType.Computer ? GameState.CountPlayer : GameState.CountComputer;
+                                if (PlayerCards.Count == 0 && ComputerCards.Count == 0)
+                                {
+                                    state = GameState.CountingEnded;
+                                }
+                                else
+                                {
+                                    var goPlayer = await ScoreGo();
+                                    state = goPlayer == PlayerType.Computer ? GameState.CountPlayer : GameState.CountComputer;
+                                }
                             }
-                    }
+                        }
                         break;
 
                     case GameState.ScoreHand:
@@ -294,11 +311,16 @@ namespace Cribbage
                 }
 
 
-                if (Player.Score > 120) return PlayerType.Player;
-                if (Computer.Score > 120) return PlayerType.Computer;
-            }
+                if (Player.Score > 120)
+                {
+                    return PlayerType.Player;
+                }
 
-            throw new Exception("Shouldn't have exited the state loop");
+                if (Computer.Score > 120)
+                {
+                    return PlayerType.Computer;
+                }
+            }
         }
 
         //
@@ -309,7 +331,9 @@ namespace Cribbage
             PlayerTurn = playerTurn;
 
             if (uncountedCards.Count == 0)
+            {
                 return currentCount;
+            }
 
             var cardPlayed = await player.GetCountCard(countedCards, uncountedCards, CurrentCount);
 
@@ -322,12 +346,14 @@ namespace Cribbage
                 currentCount += uiCard.Value;
                 await _gameView.CountCard(playerTurn, uiCard, currentCount);
                 AddScore(scoreList, playerTurn);
-                if (currentCount == 31)
+                if (currentCount != 31)
                 {
-                    CurrentCount = 31; // force the UI to show 31 before you hit Continue
-                    await _gameView.RestartCounting(playerTurn);
-                    currentCount = 0;
+                    return currentCount;
                 }
+
+                CurrentCount = 31; // force the UI to show 31 before you hit Continue
+                await _gameView.RestartCounting(playerTurn);
+                currentCount = 0;
             }
 
             return currentCount;
@@ -335,7 +361,10 @@ namespace Cribbage
 
         public async Task<CardCtrl> GetSuggestionForCount()
         {
-            if (PlayerCards.Count == 0) return null;
+            if (PlayerCards.Count == 0)
+            {
+                return null;
+            }
 
             var cardPlayed = await Computer.GetCountCard(CountedCards, PlayerCards, CurrentCount);
             return cardPlayed.Tag as CardCtrl;
@@ -347,20 +376,24 @@ namespace Cribbage
             var cCanPlay = false;
             var pCanPlay = false;
             foreach (var card in computerCards)
+            {
                 if (card.Value + currentCount <= 31)
                 {
                     cCanPlay = true;
                     break;
                 }
+            }
 
             foreach (var card in playerCards)
+            {
                 if (card.Value + currentCount <= 31)
                 {
                     pCanPlay = true;
                     break;
                 }
+            }
 
-            return (computerCanPlay: cCanPlay, playerCanPlay: pCanPlay );
+            return (computerCanPlay: cCanPlay, playerCanPlay: pCanPlay);
         }
 
         private async Task<int> GetScoreFromPlayer(List<Card> cards, Card sharedCard, HandType handType)
@@ -372,9 +405,10 @@ namespace Cribbage
             {
                 enteredScore = await Player.GetScoreFromUser(playerScore, AutoEnterScore);
                 if (enteredScore != playerScore)
+                {
                     AutoEnterScore = await StaticHelpers.AskUserYesNoQuestion("Cribbage",
                         $"{enteredScore} is the wrong score.\n\nWould you like the computer to set the score?", "Yes", "No");
-
+                }
             } while (enteredScore != playerScore);
 
             AddScore(scores, PlayerType.Player);
@@ -386,11 +420,14 @@ namespace Cribbage
         private PlayerType LastPlayerCounted()
         {
             if (CountedCards.Count == 0)
+            {
                 throw new Exception("no counted cards");
-
+            }
 
             if (LastCardOwner == Owner.Player)
+            {
                 return PlayerType.Player;
+            }
 
             return PlayerType.Computer;
         }
@@ -414,10 +451,14 @@ namespace Cribbage
         private void AddScore(List<Score> scores, PlayerType playerTurn)
         {
             if (scores == null)
+            {
                 return;
+            }
 
             if (scores.Count == 0)
+            {
                 return;
+            }
 
             var player = playerTurn == PlayerType.Computer ? Computer : Player;
             var scoreDelta = _gameView.AddScore(scores, playerTurn);
@@ -445,7 +486,9 @@ namespace Cribbage
                 var player = PlayerType.Computer;
 
                 if (LastCardOwner == Owner.Player)
+                {
                     player = PlayerType.Player;
+                }
 
                 AddScore(scores, player);
             }
@@ -455,7 +498,11 @@ namespace Cribbage
 
         public List<CardCtrl> ComputerSelectCrib(List<CardCtrl> cards, bool computerCrib)
         {
-            if (cards.Count != 6) return null;
+            if (cards.Count != 6)
+            {
+                return null;
+            }
+
             var crib = Computer.SelectCribCards(CardCtrlToCards(cards), computerCrib).Result;
             return CardsToCardCtrl(crib);
         }
@@ -464,7 +511,10 @@ namespace Cribbage
         public static List<Card> CardCtrlToCards(List<CardCtrl> uiCards)
         {
             var cards = new List<Card>();
-            foreach (var uiCard in uiCards) cards.Add(uiCard.Card);
+            foreach (var uiCard in uiCards)
+            {
+                cards.Add(uiCard.Card);
+            }
 
             return cards;
         }
@@ -472,13 +522,20 @@ namespace Cribbage
         public static List<CardCtrl> CardsToCardCtrl(List<Card> hand)
         {
             var newHand = new List<CardCtrl>();
-            foreach (var card in hand) newHand.Add(card.Tag as CardCtrl);
+            foreach (var card in hand)
+            {
+                newHand.Add(card.Tag as CardCtrl);
+            }
+
             return newHand;
         }
 
         internal void SetPlayableCards()
         {
-            foreach (var card in PlayerCardCtrls) card.IsEnabled = card.Value + CurrentCount <= 31;
+            foreach (var card in PlayerCardCtrls)
+            {
+                card.IsEnabled = card.Value + CurrentCount <= 31;
+            }
         }
     }
 }

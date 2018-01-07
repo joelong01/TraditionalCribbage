@@ -19,13 +19,17 @@ namespace CribbagePlayers
             do
             {
                 if (myCards.Count == 0)
+                {
                     break;
+                }
 
                 var n = _random.Next(myCards.Count);
 
 
                 if (myCards[n].Value + currentCount <= 31)
+                {
                     return Task.FromResult(myCards[n]);
+                }
 
                 myCards.RemoveAt(n);
             } while (myCards.Count > 0);

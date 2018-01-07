@@ -227,7 +227,11 @@ namespace Cribbage
         public string Save()
         {
             var s = $"{ScoreType}-{Total}-{Accepted}-{ActualScore}|";
-            foreach (var scoreInstance in Scores) s += scoreInstance.Save() + "|";
+            foreach (var scoreInstance in Scores)
+            {
+                s += scoreInstance.Save() + "|";
+            }
+
             return s;
         }
 
@@ -257,7 +261,10 @@ namespace Cribbage
         {
             var s = "";
 
-            foreach (var p in Scores) s += string.Format("|{0}, {1}, {2}|-", p.Description, p.Count, p.Score);
+            foreach (var p in Scores)
+            {
+                s += string.Format("|{0}, {1}, {2}|-", p.Description, p.Count, p.Score);
+            }
 
             s += string.Format("Total: {0}", Total);
 
@@ -285,8 +292,10 @@ namespace Cribbage
                 return story;
             }
 
-            if (includeHeader) story = formatForMessagebox ? string.Format("{0}\t\t{1}\t\t{2}\n", "Type", "Count", "Score") : string.Format("{0}\t\t{1}\t{2}\n", "Type", "     Count", "      Score");
-
+            if (includeHeader)
+            {
+                story = formatForMessagebox ? string.Format("{0}\t\t{1}\t\t{2}\n", "Type", "Count", "Score") : string.Format("{0}\t\t{1}\t{2}\n", "Type", "     Count", "      Score");
+            }
 
             foreach (var p in Scores)
             {
@@ -311,8 +320,12 @@ namespace Cribbage
         internal ScoreInstance GetScoreType(StatName statName)
         {
             foreach (var s in Scores)
+            {
                 if (s.ScoreType == statName)
+                {
                     return s;
+                }
+            }
 
             return null;
         }
@@ -370,7 +383,10 @@ namespace Cribbage
         public string Save()
         {
             var s = $"{Count},{Score},{ScoreType},{ActualScore},{ActualScoreType},";
-            foreach (var i in Cards) s += string.Format("{0},", i);
+            foreach (var i in Cards)
+            {
+                s += string.Format("{0},", i);
+            }
 
             return s;
         }
@@ -381,7 +397,10 @@ namespace Cribbage
 
             var tokens = s.Split(sep1, StringSplitOptions.RemoveEmptyEntries);
 
-            if (tokens.Length < 7) return false;
+            if (tokens.Length < 7)
+            {
+                return false;
+            }
 
             Count = Convert.ToInt32(tokens[0]);
             Score = Convert.ToInt32(tokens[1]);
@@ -390,7 +409,10 @@ namespace Cribbage
             ActualScore = Convert.ToInt32(tokens[4]);
             ActualScoreType = (StatName)Enum.Parse(typeof(StatName), tokens[5]);
 
-            for (var i = 7; i < tokens.Length; i++) Cards.Add(Convert.ToInt32(tokens[i]));
+            for (var i = 7; i < tokens.Length; i++)
+            {
+                Cards.Add(Convert.ToInt32(tokens[i]));
+            }
 
             return true;
         }

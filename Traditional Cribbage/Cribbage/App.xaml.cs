@@ -58,7 +58,11 @@ namespace Cribbage
                 Window.Current.Content = rootFrame;
             }
 
-            if (e.PrelaunchActivated != false) return;
+            if (e.PrelaunchActivated != false)
+            {
+                return;
+            }
+
             if (rootFrame.Content == null)
             {
                 // When the navigation stack isn't restored navigate to the first page,

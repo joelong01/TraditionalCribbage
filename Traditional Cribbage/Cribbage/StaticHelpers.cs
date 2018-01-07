@@ -40,7 +40,10 @@ namespace LongShotHelpers
         {
             if (viewbox.Child == null ||
                 viewbox.Child is FrameworkElement == false)
+            {
                 return double.NaN;
+            }
+
             var child = (FrameworkElement) viewbox.Child;
             return viewbox.ActualWidth / child.ActualWidth;
         }
@@ -81,9 +84,13 @@ namespace LongShotHelpers
         {
             double normal = 250;
             if (_speed == AnimationSpeedSetting.Fast)
+            {
                 normal = 50;
+            }
             else if (_speed == AnimationSpeedSetting.Slow)
+            {
                 normal = 500;
+            }
 
             VerySlow = normal * 20;
             Slow = normal * 4;
@@ -206,10 +213,13 @@ namespace LongShotHelpers
 
             folder = await picker.PickSingleFolderAsync();
             if (folder != null)
+            {
                 StorageApplicationPermissions.FutureAccessList.AddOrReplace(token, folder);
+            }
             else
+            {
                 folder = ApplicationData.Current.LocalFolder;
-
+            }
 
             return folder;
         }
@@ -294,10 +304,14 @@ namespace LongShotHelpers
         public static bool IsNumber(VirtualKey key)
         {
             if ((int) key >= (int) VirtualKey.Number0 && (int) key <= (int) VirtualKey.Number9)
+            {
                 return true;
+            }
 
             if ((int) key >= (int) VirtualKey.NumberPad0 && (int) key <= (int) VirtualKey.NumberPad9)
+            {
                 return true;
+            }
 
             return false;
         }
@@ -305,7 +319,9 @@ namespace LongShotHelpers
         public static bool IsOnKeyPad(VirtualKey key)
         {
             if (IsNumber(key))
+            {
                 return true;
+            }
 
             switch (key)
             {
@@ -337,19 +353,31 @@ namespace LongShotHelpers
         {
             //
             //  filter out everythign not on Keypad (but other keyboard works too)
-            if (!IsOnKeyPad(key)) return false;
+            if (!IsOnKeyPad(key))
+            {
+                return false;
+            }
 
             if (chars.Length == 0) // first char
+            {
                 if (key == VirtualKey.Number0 || key == VirtualKey.NumberPad0)
+                {
                     return true;
+                }
+            }
+
             if (chars.Length == 1)
             {
-                if (chars[0] != '1') return true;
+                if (chars[0] != '1')
+                {
+                    return true;
+                }
 
                 if (key == VirtualKey.Number0 || key == VirtualKey.Number1 || key == VirtualKey.Number2 ||
                     key == VirtualKey.NumberPad0 || key == VirtualKey.NumberPad1 || key == VirtualKey.NumberPad2)
+                {
                     return false;
-
+                }
 
                 return true;
             }
@@ -368,8 +396,15 @@ namespace LongShotHelpers
 
         public static void AddRange<T>(this ObservableCollection<T> oc, IEnumerable<T> collection)
         {
-            if (collection == null) throw new ArgumentNullException(nameof(collection));
-            foreach (var item in collection) oc.Add(item);
+            if (collection == null)
+            {
+                throw new ArgumentNullException(nameof(collection));
+            }
+
+            foreach (var item in collection)
+            {
+                oc.Add(item);
+            }
         }
 
         //
@@ -397,7 +432,11 @@ namespace LongShotHelpers
                 {
                     var listInstance = (IList) propValue;
                     s += prop + kvpSep;
-                    foreach (var o in listInstance) s += o + listSeperator;
+                    foreach (var o in listInstance)
+                    {
+                        s += o + listSeperator;
+                    }
+
                     s += propSep;
                 }
                 else
@@ -413,11 +452,17 @@ namespace LongShotHelpers
         {
             // provided by Array
             var elType = type.GetElementType();
-            if (null != elType) return elType;
+            if (null != elType)
+            {
+                return elType;
+            }
 
             // otherwise provided by collection
             var elTypes = type.GetGenericArguments();
-            if (elTypes.Length > 0) return elTypes[0];
+            if (elTypes.Length > 0)
+            {
+                return elTypes[0];
+            }
 
             // otherwise is not an 'enumerated' type
             return null;
@@ -425,7 +470,11 @@ namespace LongShotHelpers
 
         public static Dictionary<string, object> DictionaryFromType(object atype)
         {
-            if (atype == null) return new Dictionary<string, object>();
+            if (atype == null)
+            {
+                return new Dictionary<string, object>();
+            }
+
             var t = atype.GetType();
             var props = t.GetProperties();
             var dict = new Dictionary<string, object>();
@@ -506,7 +555,11 @@ namespace LongShotHelpers
                 }
 
                 var typeInfo = propInfo.PropertyType.GetTypeInfo();
-                if (typeInfo.Name == "Guid") continue;
+                if (typeInfo.Name == "Guid")
+                {
+                    continue;
+                }
+
                 if (typeInfo.IsEnum)
                 {
                     propInfo.SetValue(t, Enum.Parse(propInfo.PropertyType, kvp.Value));
@@ -535,6 +588,7 @@ namespace LongShotHelpers
                     var isPrimitive = elementType.GetTypeInfo().IsPrimitive;
                     var isEnum = elementType.GetTypeInfo().IsEnum;
                     foreach (var val in arrayValues)
+                    {
                         if (isPrimitive)
                         {
                             var o = Convert.ChangeType(val, elementType);
@@ -550,6 +604,7 @@ namespace LongShotHelpers
                             t.TraceMessage($"Can't deserialize list of type {elementType.GetTypeInfo()}");
                             break;
                         }
+                    }
 
                     propInfo.SetValue(t, listInstance);
                 }
@@ -568,8 +623,12 @@ namespace LongShotHelpers
             var strings = s.Split(new[] {sep}, StringSplitOptions.RemoveEmptyEntries);
             var ret = new List<int>();
             foreach (var v in strings)
+            {
                 if (v != "")
+                {
                     ret.Add(Convert.ToInt32(v));
+                }
+            }
 
             return ret;
         }
@@ -578,7 +637,10 @@ namespace LongShotHelpers
         {
             var strings = s.Split(sep.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             var ret = new Stack<int>();
-            for (var i = strings.Length - 1; i >= 0; i--) ret.Push(Convert.ToInt32(strings[i]));
+            for (var i = strings.Length - 1; i >= 0; i--)
+            {
+                ret.Push(Convert.ToInt32(strings[i]));
+            }
 
             return ret;
         }
@@ -610,7 +672,10 @@ namespace LongShotHelpers
         {
             var tokens = s.Split(sep);
             var kvp = new KeyValuePair("", "");
-            if (tokens.Length == 2) kvp = new KeyValuePair(tokens[0], tokens[1]);
+            if (tokens.Length == 2)
+            {
+                kvp = new KeyValuePair(tokens[0], tokens[1]);
+            }
 
             return kvp;
         }
@@ -757,7 +822,10 @@ namespace LongShotHelpers
         {
             var ret = "";
 
-            foreach (var kvp in dictionary) ret += string.Format("{0}={1}{2}", kvp.Key, kvp.Value, seperator);
+            foreach (var kvp in dictionary)
+            {
+                ret += string.Format("{0}={1}{2}", kvp.Key, kvp.Value, seperator);
+            }
 
             return ret;
         }
@@ -818,8 +886,12 @@ namespace LongShotHelpers
         {
             var s = "";
             if (list != null)
+            {
                 foreach (var item in list)
+                {
                     s += item + sep;
+                }
+            }
 
             return s;
         }
@@ -854,11 +926,13 @@ namespace LongShotHelpers
         {
             returnValue = default(T);
             if (int.TryParse(valueToParse, out var intEnumValue))
+            {
                 if (Enum.IsDefined(typeof(T), intEnumValue))
                 {
                     returnValue = (T) (object) intEnumValue;
                     return true;
                 }
+            }
 
             return false;
         }
@@ -914,12 +988,18 @@ namespace LongShotHelpers
             {
                 var pairs = s.Split(sep2, StringSplitOptions.RemoveEmptyEntries);
                 if (pairs.Length == 2)
+                {
                     dictionary.Add(pairs[0], pairs[1]);
+                }
                 else if (pairs.Length == 1)
+                {
                     dictionary.Add(pairs[0], "");
+                }
                 else
+                {
                     Debug.Assert(false,
                         string.Format($"Bad token count in DeserializeDictionary. Pairs.Count: {pairs.Length} "));
+                }
             }
 
 
@@ -930,7 +1010,9 @@ namespace LongShotHelpers
         {
             var sections = GetSections(file);
             if (sections == null)
+            {
                 return null;
+            }
 
             return DeserializeDictionary(sections[section]);
         }
@@ -938,8 +1020,12 @@ namespace LongShotHelpers
         public static void RunStoryBoardAsync(Storyboard sb, double ms = 500, bool setTimeout = true)
         {
             if (setTimeout)
+            {
                 foreach (var animations in sb.Children)
+                {
                     animations.Duration = new Duration(TimeSpan.FromMilliseconds(ms));
+                }
+            }
 
             sb.Begin();
         }
@@ -948,8 +1034,12 @@ namespace LongShotHelpers
             bool setTimeout = true)
         {
             if (setTimeout)
+            {
                 foreach (var animations in sb.Children)
+                {
                     animations.Duration = new Duration(TimeSpan.FromMilliseconds(ms));
+                }
+            }
 
             var tcs = new TaskCompletionSource<object>();
 
@@ -967,7 +1057,10 @@ namespace LongShotHelpers
             finally
             {
                 sb.Completed -= completed;
-                if (callStop) sb.Stop();
+                if (callStop)
+                {
+                    sb.Stop();
+                }
             }
         }
 
@@ -1005,7 +1098,9 @@ namespace LongShotHelpers
         public static T Peek<T>(this List<T> list)
         {
             if (list.Count > 0)
+            {
                 return list.Last();
+            }
 
             return default(T);
         }
@@ -1075,10 +1170,14 @@ namespace LongShotHelpers
             foreach (var animation in sb.Children)
             {
                 if (animation.Duration != TimeSpan.FromMilliseconds(0))
+                {
                     animation.Duration = TimeSpan.FromMilliseconds(milliseconds);
+                }
 
                 if (animation.BeginTime != TimeSpan.FromMilliseconds(0))
+                {
                     animation.BeginTime = TimeSpan.FromMilliseconds(milliseconds);
+                }
             }
         }
 
@@ -1245,7 +1344,10 @@ namespace LongShotHelpers
             try
             {
                 if (!SettingExists(key, location))
+                {
                     return otherwise;
+                }
+
                 switch (location)
                 {
                     case StorageStrategies.Local:
@@ -1323,7 +1425,10 @@ namespace LongShotHelpers
         {
             var _File = await GetIfFileExistsAsync(key, location);
             if (_File != null)
+            {
                 await _File.DeleteAsync();
+            }
+
             return !await FileExistsAsync(key, location);
         }
 
@@ -1339,7 +1444,9 @@ namespace LongShotHelpers
                 // fetch file
                 var _File = await GetIfFileExistsAsync(key, location);
                 if (_File == null)
+                {
                     return default(T);
+                }
                 // read content
                 var _String = await FileIO.ReadTextAsync(_File);
                 // convert to obj

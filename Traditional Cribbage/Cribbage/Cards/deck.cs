@@ -19,7 +19,10 @@ namespace Cards
         {
             var twist = Randoms.Create(seed, RandomType.FastestInt32);
 
-            for (var i = 0; i < 52; i++) _randomIndeces[i] = i;
+            for (var i = 0; i < 52; i++)
+            {
+                _randomIndeces[i] = i;
+            }
 
             for (var n = 0; n < 52; n++)
             {

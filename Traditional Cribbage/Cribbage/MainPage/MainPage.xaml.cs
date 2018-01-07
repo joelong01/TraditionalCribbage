@@ -68,6 +68,7 @@ namespace Cribbage
 
             // check items directly under the pointer
             foreach (var element in VisualTreeHelper.FindElementsInHostCoordinates(position, root))
+            {
                 if (element is CardCtrl)
                 {
                     _cardPressed = element as CardCtrl;
@@ -75,6 +76,7 @@ namespace Cribbage
 
                     break;
                 }
+            }
         }
 
         private void OnPointerReleased(object sender, PointerRoutedEventArgs e)
@@ -107,7 +109,11 @@ namespace Cribbage
             double startTime = 1000;
             foreach (var card in _cgPlayer.Cards)
             {
-                if (card.Orientation == CardOrientation.FaceUp) orientation = CardOrientation.FaceDown;
+                if (card.Orientation == CardOrientation.FaceUp)
+                {
+                    orientation = CardOrientation.FaceDown;
+                }
+
                 var task = card.SetOrientationTask(orientation, duration, startTime);
                 taskList.Add(task);
                 startTime += duration;
@@ -133,7 +139,10 @@ namespace Cribbage
             for (var i = LayoutRoot.Children.Count - 1; i >= 0; i--)
             {
                 var el = LayoutRoot.Children[i];
-                if (el is CardCtrl) LayoutRoot.Children.RemoveAt(i);
+                if (el is CardCtrl)
+                {
+                    LayoutRoot.Children.RemoveAt(i);
+                }
             }
 
             _cgComputer.Reset();
@@ -166,9 +175,15 @@ namespace Cribbage
             if (_game.State == GameState.PlayerSelectsCribCards)
             {
                 if (_cgPlayer.Cards.Count != 6)
+                {
                     return;
+                }
 
-                foreach (var c in _cgPlayer.Cards) c.Selected = false;
+                foreach (var c in _cgPlayer.Cards)
+                {
+                    c.Selected = false;
+                }
+
                 _cgPlayer.SelectedCards?.Clear();
                 _cgPlayer.SelectedCards = _game.ComputerSelectCrib(_cgPlayer.Cards, _game.Dealer == PlayerType.Player);
 
@@ -207,9 +222,13 @@ namespace Cribbage
                 if (_game != null)
                 {
                     if (_game.State != GameState.None)
+                    {
                         if (await StaticHelpers.AskUserYesNoQuestion("Cribbage", "Start a new game?", "Yes", "No") ==
                             false)
+                        {
                             return;
+                        }
+                    }
 
                     _game = null; // what happens if we are in an await???    
                 }
@@ -343,10 +362,16 @@ namespace Cribbage
             MyMenu.IsPaneOpen = false;
 
             if (_game != null)
+            {
                 if (_game.State != GameState.None)
+                {
                     if (await StaticHelpers.AskUserYesNoQuestion("Cribbage", "End this game and open an old one?",
                             "yes", "no") == false)
+                    {
                         return;
+                    }
+                }
+            }
 
             var openPicker = new FileOpenPicker
             {
@@ -356,7 +381,10 @@ namespace Cribbage
             openPicker.FileTypeFilter.Add(".crib");
 
             var file = await openPicker.PickSingleFileAsync();
-            if (file == null) return;
+            if (file == null)
+            {
+                return;
+            }
 
             await Reset();
             _txtInstructions.Text = "";
@@ -398,13 +426,22 @@ namespace Cribbage
                 await MoveCrib(_game.Dealer);
 
                 var retTuple = LoadCardsIntoGrid(_cgComputer, settings["Cards"]["Computer"]);
-                if (!retTuple.ret) throw new Exception(retTuple.badToken);
+                if (!retTuple.ret)
+                {
+                    throw new Exception(retTuple.badToken);
+                }
 
                 retTuple = LoadCardsIntoGrid(_cgPlayer, settings["Cards"]["Player"]);
-                if (!retTuple.ret) throw new Exception(retTuple.badToken);
+                if (!retTuple.ret)
+                {
+                    throw new Exception(retTuple.badToken);
+                }
 
                 retTuple = LoadCardsIntoGrid(_cgDiscarded, settings["Cards"]["Counted"]);
-                if (!retTuple.ret) throw new Exception(retTuple.badToken);
+                if (!retTuple.ret)
+                {
+                    throw new Exception(retTuple.badToken);
+                }
 
                 var countedCards = new List<CardCtrl>();
                 var count = 0;
@@ -429,10 +466,16 @@ namespace Cribbage
                 }
 
                 retTuple = LoadCardsIntoGrid(_cgCrib, settings["Cards"]["Crib"]);
-                if (!retTuple.ret) throw new Exception(retTuple.badToken);
+                if (!retTuple.ret)
+                {
+                    throw new Exception(retTuple.badToken);
+                }
 
                 retTuple = LoadCardsIntoGrid(_cgDeck, settings["Cards"]["SharedCard"]);
-                if (!retTuple.ret) throw new Exception(retTuple.badToken);
+                if (!retTuple.ret)
+                {
+                    throw new Exception(retTuple.badToken);
+                }
 
                 var taskList = new List<Task>();
                 Task t = null;
@@ -456,11 +499,13 @@ namespace Cribbage
                 }
 
                 if ((int) _game.State >= (int) GameState.ScoreComputerHand)
+                {
                     foreach (var card in _cgComputer.Cards)
                     {
                         t = card.SetOrientationTask(CardOrientation.FaceUp, 0, 0);
                         taskList.Add(t);
                     }
+                }
 
                 await Task.WhenAll(taskList);
 
@@ -487,9 +532,14 @@ namespace Cribbage
         {
             var ret = grid.Deserialize(saveString, ",");
             if (!ret.ret)
+            {
                 return ret;
+            }
 
-            foreach (var card in grid.Cards) LayoutRoot.Children.Add(card);
+            foreach (var card in grid.Cards)
+            {
+                LayoutRoot.Children.Add(card);
+            }
 
             grid.SetCardPositionsNoAnimation();
 
@@ -504,12 +554,17 @@ namespace Cribbage
 
         private void ButtonDownScore_Click(object sender, RoutedEventArgs e)
         {
-            if (_game?.Player == null) return;
+            if (_game?.Player == null)
+            {
+                return;
+            }
 
             var scoreDelta = Convert.ToInt32(_tbScoreToAdd.Text);
             scoreDelta -= 1;
-            if (scoreDelta < 0) scoreDelta = 0;
-
+            if (scoreDelta < 0)
+            {
+                scoreDelta = 0;
+            }
 
             _board.HighlightScore(PlayerType.Player, _game.Player.Score, scoreDelta, true);
             _tbScoreToAdd.Text = scoreDelta.ToString();
@@ -517,11 +572,18 @@ namespace Cribbage
 
         private void ButtonUpScore_Click(object sender, RoutedEventArgs e)
         {
-            if (_game?.Player == null) return;
+            if (_game?.Player == null)
+            {
+                return;
+            }
 
             var scoreDelta = Convert.ToInt32(_tbScoreToAdd.Text);
             scoreDelta += 1;
-            if (scoreDelta > 29) scoreDelta = 29;
+            if (scoreDelta > 29)
+            {
+                scoreDelta = 29;
+            }
+
             _tbScoreToAdd.Text = scoreDelta.ToString();
             _board.HighlightScore(PlayerType.Player, _game.Player.Score, scoreDelta, true);
         }
@@ -529,8 +591,10 @@ namespace Cribbage
         private void ShowEnterScore(bool show)
         {
             var opacity = 0.0;
-            if (show) opacity = 1.0;
-
+            if (show)
+            {
+                opacity = 1.0;
+            }
 
             _daAnimateShowScoreControls.To = opacity;
             _daAnimateShowScoreControls.Duration = TimeSpan.FromMilliseconds(100);

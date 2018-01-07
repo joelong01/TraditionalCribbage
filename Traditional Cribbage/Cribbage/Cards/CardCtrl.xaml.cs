@@ -56,7 +56,7 @@ namespace CardView
 
         //
         //  these are the properties that we save/load
-        private readonly List<string> _savedProperties = new List<string> {"FaceDown", "Suit", "Rank"};
+        private readonly List<string> _savedProperties = new List<string> { "FaceDown", "Suit", "Rank" };
 
         private Location _location = Location.Unintialized;
         private CardOrientation _myOrientation = CardOrientation.FaceUp;
@@ -87,10 +87,14 @@ namespace CardView
             get
             {
                 if (Card != null)
-                    if ((CardNames) GetValue(CardNameProperty) != Card.CardName)
+                {
+                    if ((CardNames)GetValue(CardNameProperty) != Card.CardName)
+                    {
                         CardName = Card.CardName;
+                    }
+                }
 
-                return (CardNames) GetValue(CardNameProperty);
+                return (CardNames)GetValue(CardNameProperty);
             }
             set => SetValue(CardNameProperty, value);
         }
@@ -101,7 +105,9 @@ namespace CardView
             get
             {
                 if (Card == null)
+                {
                     return 0;
+                }
 
                 return Card.Rank;
             }
@@ -112,7 +118,9 @@ namespace CardView
             get
             {
                 if (Card == null)
+                {
                     return 0;
+                }
 
                 return Card.Index;
             }
@@ -123,7 +131,9 @@ namespace CardView
             get
             {
                 if (Card == null)
+                {
                     return 0;
+                }
 
                 return Card.Value;
             }
@@ -164,8 +174,8 @@ namespace CardView
         {
             get
             {
-                var x = (double) MoveCardDoubleAnimationX.To;
-                var y = (double) MoveCardDoubleAnimationY.To;
+                var x = (double)MoveCardDoubleAnimationX.To;
+                var y = (double)MoveCardDoubleAnimationY.To;
                 return new Point(x, y);
             }
             set
@@ -177,7 +187,7 @@ namespace CardView
 
         public double AnimateRotation
         {
-            get => (double) MoveCardDoubleAnimationAngle.To;
+            get => (double)MoveCardDoubleAnimationAngle.To;
             set => MoveCardDoubleAnimationAngle.To = value;
         }
 
@@ -224,14 +234,21 @@ namespace CardView
         {
             foreach (CardNames cardName in Enum.GetValues(typeof(CardNames)))
             {
-                if (cardName == CardNames.Uninitialized) continue;
-                if (cardName == CardNames.BackOfCard) continue;
+                if (cardName == CardNames.Uninitialized)
+                {
+                    continue;
+                }
+
+                if (cardName == CardNames.BackOfCard)
+                {
+                    continue;
+                }
 
                 var s = $"ms-appx:///Assets/Cards/xaml/{cardName}.xaml";
                 var uri = new Uri(s);
                 var file = StorageFile.GetFileFromApplicationUriAsync(uri).AsTask().Result;
                 var xaml = FileIO.ReadTextAsync(file).AsTask().Result;
-                CardCache[cardName] = (Canvas) XamlReader.Load(xaml);
+                CardCache[cardName] = (Canvas)XamlReader.Load(xaml);
             }
         }
 
@@ -243,7 +260,7 @@ namespace CardView
                 var uri = new Uri(s);
                 var file = StorageFile.GetFileFromApplicationUriAsync(uri).AsTask().Result;
                 var xaml = FileIO.ReadTextAsync(file).AsTask().Result;
-                cardCanvas = (Canvas) XamlReader.Load(xaml);
+                cardCanvas = (Canvas)XamlReader.Load(xaml);
                 CardCache[cardName] = cardCanvas;
             }
             //
@@ -264,7 +281,7 @@ namespace CardView
         private static void CardNameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var cardCtrl = d as CardCtrl;
-            var cardName = (CardNames) e.NewValue;
+            var cardName = (CardNames)e.NewValue;
 
             cardCtrl?.SetImageForCard(cardName);
         }
@@ -274,6 +291,7 @@ namespace CardView
         ///     This is where the cards are created...
         /// </summary>
         /// <param name="number"></param>
+        /// <param name="owner"></param>
         /// <returns></returns>
         public static List<CardCtrl> GetCards(int number, Owner owner)
         {
@@ -313,7 +331,11 @@ namespace CardView
 
         public override string ToString()
         {
-            if (Card == null) return "";
+            if (Card == null)
+            {
+                return "";
+            }
+
             return string.Format($"{Card} Owner: {Owner}\n ZIndex: {Canvas.GetZIndex(this)}\n Location: {Location}");
         }
 
@@ -372,7 +394,9 @@ namespace CardView
             MoveCardDoubleAnimationAngle.BeginTime = TimeSpan.FromMilliseconds(beginTime);
 
             if (rotate)
+            {
                 MoveCardDoubleAnimationAngle.To += 360;
+            }
         }
 
         /// <summary>
@@ -409,8 +433,8 @@ namespace CardView
         {
             var to = new Point
             {
-                X = (double) MoveCardDoubleAnimationX.To + delta.X,
-                Y = (double) MoveCardDoubleAnimationY.To + delta.Y
+                X = (double)MoveCardDoubleAnimationX.To + delta.X,
+                Y = (double)MoveCardDoubleAnimationY.To + delta.Y
             };
             SetCardPositionAndDoAnimationFixups(to);
         }
@@ -475,14 +499,21 @@ namespace CardView
 
         public void SetOrientationAsync(CardOrientation orientation, double msDuration, double msBeginTime)
         {
-            if (orientation == _myOrientation) return;
+            if (orientation == _myOrientation)
+            {
+                return;
+            }
+
             SetupFlipAnimation(orientation, msDuration, msBeginTime);
             sbFlip.Begin();
         }
 
         public Task SetOrientationTask(CardOrientation orientation, double msDuration, double msBeginTime)
         {
-            if (orientation == _myOrientation) return null;
+            if (orientation == _myOrientation)
+            {
+                return null;
+            }
 
             SetupFlipAnimation(orientation, msDuration, msBeginTime);
             return sbFlip.ToTask();
@@ -501,16 +532,25 @@ namespace CardView
         public static int CompareCardsByRank(CardCtrl x, CardCtrl y)
         {
             if (x == null)
+            {
                 if (y == null)
+                {
                     return 0;
+                }
                 else
+                {
                     return -1;
+                }
+            }
 
             // If x is not null... 
             // 
             if (y == null)
+            {
                 // ...and y is null, x is greater.
                 return 1;
+            }
+
             return x.Rank - y.Rank;
         }
 
@@ -522,9 +562,13 @@ namespace CardView
             set
             {
                 if (value && HighlightCards)
+                {
                     _highlightBorder.Visibility = Visibility.Visible;
+                }
                 else
+                {
                     _highlightBorder.Visibility = Visibility.Collapsed;
+                }
             }
         }
 
@@ -535,7 +579,9 @@ namespace CardView
             {
                 var vis = Visibility.Visible;
                 if (!value)
+                {
                     vis = Visibility.Collapsed;
+                }
 
                 DebugGrid.Visibility = vis;
             }
@@ -581,7 +627,10 @@ namespace CardView
             var zIndex = Canvas.GetZIndex(this);
             zIndex += 1000;
 
-            if (zIndex > 2000) zIndex -= 1000;
+            if (zIndex > 2000)
+            {
+                zIndex -= 1000;
+            }
 
             //   Debug.WriteLine($"Card:{this.CardName} New ZIndex:{ZIndex}" );
             Canvas.SetZIndex(this, zIndex);

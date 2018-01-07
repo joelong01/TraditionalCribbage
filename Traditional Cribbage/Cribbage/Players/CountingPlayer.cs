@@ -29,10 +29,16 @@ namespace CribbagePlayers
             var score = 0;
 
             if (uncountedCards.Count == 1)
+            {
                 if (uncountedCards[0].Value + currentCount <= 31)
+                {
                     return Task.FromResult(uncountedCards[0]);
+                }
                 else
+                {
                     return null;
+                }
+            }
 
             //
             //  see which card we can play that gives us the most points
@@ -47,8 +53,9 @@ namespace CribbagePlayers
             }
 
             if (maxScore == -1)
+            {
                 return null; // we have no valid card to play
-
+            }
 
             if (maxScore == 0) // there isn't a card for us to play that generates points
             {
@@ -60,11 +67,17 @@ namespace CribbagePlayers
                 {
                     //  dont' do it if it will force us over 31
                     if (uncountedCards[i].Rank * 3 + currentCount > 31)
+                    {
                         continue;
+                    }
 
                     if (uncountedCards[i].Rank == uncountedCards[i + 1].Rank)
+                    {
                         if (uncountedCards[i].Rank != 5)
+                        {
                             return Task.FromResult(uncountedCards[i]);
+                        }
+                    }
                 }
 
                 //
@@ -76,7 +89,10 @@ namespace CribbagePlayers
                     if (diff == 1) // they are consecutive
                     {
                         var val = cards[0].Value + cards[1].Value;
-                        if (val + currentCount > 31) continue;
+                        if (val + currentCount > 31)
+                        {
+                            continue;
+                        }
                         //
                         //  assume sorted
 
@@ -85,20 +101,36 @@ namespace CribbagePlayers
                             //
                             //  this means we have somehing like 3 and 4 in our hand.  if we play 7 and they play 6, we can play the 8
                             if (val + currentCount + cards[0].Value - 1 <= 31)
+                            {
                                 if (cards[0].Rank != 5)
+                                {
                                     return Task.FromResult(cards[0]);
+                                }
                                 else
+                                {
                                     return Task.FromResult(cards[1]);
+                                }
+                            }
                         }
                         else
                         {
                             var highCardVal = cards[1].Value;
-                            if (highCardVal > 10) highCardVal = 10;
+                            if (highCardVal > 10)
+                            {
+                                highCardVal = 10;
+                            }
+
                             if (val + currentCount + highCardVal <= 31)
+                            {
                                 if (cards[0].Rank != 5)
+                                {
                                     return Task.FromResult(cards[0]);
+                                }
                                 else
+                                {
                                     return Task.FromResult(cards[1]);
+                                }
+                            }
                         }
                     }
 
@@ -115,20 +147,28 @@ namespace CribbagePlayers
                 {
                     var sum = cds[0].Value + cds[1].Value;
                     if (sum + currentCount == 5) // i'll 15 them if they play a 10
+                    {
                         return Task.FromResult(cds[1]);
+                    }
 
                     if (sum + currentCount == 21) // i'll 31 them if they play a 10
+                    {
                         return Task.FromResult(cds[1]);
+                    }
                 }
             }
 
             if (maxCard.Rank == 5)
+            {
                 foreach (var c in uncountedCards)
+                {
                     if (c.Rank != 5 && c.Value + currentCount <= 31)
                     {
                         maxCard = c;
                         break;
                     }
+                }
+            }
 
             return Task.FromResult(maxCard);
         }
@@ -173,7 +213,11 @@ namespace CribbagePlayers
         {
             var crib = new List<Card>(hand);
 
-            foreach (var card in cards) crib.Remove(card);
+            foreach (var card in cards)
+            {
+                crib.Remove(card);
+            }
+
             return crib;
         }
 
