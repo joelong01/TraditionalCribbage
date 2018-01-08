@@ -91,11 +91,11 @@ namespace Cribbage
         }
 
 
-        public async Task<int> HighlightScoreAndWaitForContinue(int actualScore, bool autosetScore)
+        public async Task<int> HighlightScoreAndWaitForContinue(int actualScore, WrongScoreOption option)
         {
             var maxHighlight = 0;
 
-            if (autosetScore)
+            if (option == WrongScoreOption.SetOnce)
             {
                 HighlightScore(PlayerType.Player, _board.PlayerFrontScore + actualScore,
                     Convert.ToInt32(_tbScoreToAdd.Text),

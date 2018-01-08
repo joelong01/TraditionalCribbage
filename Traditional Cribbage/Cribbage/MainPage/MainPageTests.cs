@@ -15,21 +15,26 @@ namespace Cribbage
 
         private async void OnTestDeal(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                MyMenu.IsPaneOpen = false;
-                await OnDeal();
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Exception in OnDeal: {ex.Message}");
-            }
-            finally
-            {
-                ((Button) sender).IsEnabled = true;
-            }
 
-            ((Button) sender).IsEnabled = true;
+            WrongScoreOption option = await PromptUserForWrongScore(12);
+            this.TraceMessage($"{option}");
+            ;
+
+            //try
+            //{
+            //    MyMenu.IsPaneOpen = false;
+            //    await OnDeal();
+            //}
+            //catch (Exception ex)
+            //{
+            //    Debug.WriteLine($"Exception in OnDeal: {ex.Message}");
+            //}
+            //finally
+            //{
+            //    ((Button) sender).IsEnabled = true;
+            //}
+
+            //((Button) sender).IsEnabled = true;
         }
 
         private async Task OnDeal()

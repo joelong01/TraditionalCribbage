@@ -7,6 +7,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Cards;
 using CardView;
+using Cribbage.UxControls;
 using LongShotHelpers;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
@@ -21,6 +22,16 @@ namespace Cribbage
         Crib,
         Counted
     } // all the card lists
+
+    public enum WrongScoreOption
+    {
+        DoNothing,
+        SetOnce,
+        SetThisGame,
+        SetAlways,
+        NeverPrompt,
+        UnSet
+    }
 
     public interface IGameView
     {
@@ -64,7 +75,10 @@ namespace Cribbage
 
         void SetInstructions(string message);
 
-        Task<int> HighlightScoreAndWaitForContinue(PlayerType player, int score, bool autoEnter);
+        Task<int> HighlightScoreAndWaitForContinue(PlayerType player, int score, WrongScoreOption option);
+
+        Task<WrongScoreOption> PromptUserForWrongScore(int wrongScore);
+
     }
 
     /// <summary>
@@ -104,7 +118,7 @@ namespace Cribbage
                     tList.Add(task);
                 }
 
-                CardGrid.TransferCards(_cgComputer, _cgDiscarded, new List<CardCtrl> {card});
+                CardGrid.TransferCards(_cgComputer, _cgDiscarded, new List<CardCtrl> { card });
 
                 await Task.WhenAll(tList);
             }
@@ -222,6 +236,29 @@ namespace Cribbage
         {
             _cgPlayer.MaxSelectedCards = 2 - _cgDiscarded.Cards.Count;
         }
+
+        public async Task<WrongScoreOption> PromptUserForWrongScore(int wrongScore)
+        {
+            WrongScoreCtrl ctrl = new WrongScoreCtrl()
+            {
+                Width = 400,
+                Height = 300,
+                WrongScore = wrongScore,
+                Option=WrongScoreOption.SetOnce
+            };
+
+            LayoutRoot.Children.Add(ctrl);
+            Grid.SetColumnSpan(ctrl, 99);
+            Grid.SetRowSpan(ctrl, 99);
+            ctrl.HorizontalAlignment = HorizontalAlignment.Center;
+            ctrl.VerticalAlignment = VerticalAlignment.Center;
+            Canvas.SetZIndex(ctrl, 99999);
+
+            await ctrl.WaitForClose();
+            LayoutRoot.Children.Remove(ctrl);
+            return ctrl.Option;
+        }
+
 
 
         public void SetState(GameState state)
@@ -399,11 +436,11 @@ namespace Cribbage
             }
         }
 
-        public async Task<int> HighlightScoreAndWaitForContinue(PlayerType player, int actualScore, bool autosetScore)
+        public async Task<int> HighlightScoreAndWaitForContinue(PlayerType player, int actualScore, WrongScoreOption option)
         {
             var maxHighlight = 0;
 
-            if (autosetScore)
+            if (option == WrongScoreOption.SetOnce || option == WrongScoreOption.SetAlways || option == WrongScoreOption.SetThisGame)
             {
                 _board.HighlightScore(PlayerType.Player, _game.Player.Score, actualScore, true);
                 _tbScoreToAdd.Text = actualScore.ToString();

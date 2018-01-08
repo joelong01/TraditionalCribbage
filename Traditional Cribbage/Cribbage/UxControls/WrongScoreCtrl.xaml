@@ -5,24 +5,62 @@
     xmlns:local="using:Cribbage.UxControls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:cribbage="using:Cribbage"
     mc:Ignorable="d"
+    BorderBrush="{StaticResource LineBrush}"
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <Grid Background="{StaticResource bmCherry}">
+    <UserControl.Resources>
+        <Style x:Key="ScoreRadioButton" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="GroupName" Value="ScoreOptionGroup" />
+            <Setter Property="FocusVisualPrimaryBrush" Value="White" />
+            <Setter Property="BorderBrush" Value="White" />
+        </Style>
+
+        <cribbage:EnumBooleanConverter x:Key="EnumBooleanConverter" />
+
+
+    </UserControl.Resources>
+
+    <Grid Background="{StaticResource bmBurledMaple}" Height="300" Width="400">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="15*"/>
             <ColumnDefinition Width="168*"/>
             <ColumnDefinition Width="15*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="10*"/>
+            <RowDefinition Height="40"/>
             <RowDefinition Height="100*"/>
             <RowDefinition Height="20*"/>
         </Grid.RowDefinitions>
+        <Rectangle Fill="Transparent" Grid.ColumnSpan="3" PointerPressed="NonClientRectangle_OnPointerPressed" Stroke="{StaticResource LineBrush}" Margin="0,0,0,4" />
+        <TextBlock Text="Cribbage" Foreground="{StaticResource LineBrush}" Grid.Row="0" Grid.Column="1" FontSize="22" HorizontalAlignment="Left" VerticalAlignment="Center"/>
 
-        <TextBlock />
-        <Rectangle Grid.Row="1" Grid.Column="1" Fill="{StaticResource bmFelt}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+        <Rectangle Grid.Row="1" Grid.Column="1" Fill="{StaticResource bmCherry}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stroke="{StaticResource LineBrush}" />
+        <Grid Name="InnerGrid" Grid.Row="1" Grid.Column="1" BorderBrush="{StaticResource LineBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="100*"/>
+                <ColumnDefinition Width="10"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="100*"/>
+                <RowDefinition Height="10"/>
+            </Grid.RowDefinitions>
+            <StackPanel Name="_panelChoices"  Grid.Row="1" Grid.Column="1">
+                <TextBlock Name="_txtPrompt"  Text="That is the wrong score. " Foreground="White" Margin="0,0,0,20"/>
+                <RadioButton Content="Do Not set the score" Style="{StaticResource ScoreRadioButton}" IsChecked="{x:Bind Option, ConverterParameter=DoNothing, Mode=TwoWay, Converter={StaticResource EnumBooleanConverter}}" />
+                <RadioButton Content="Set the correct score for this turn only" Style="{StaticResource ScoreRadioButton}" IsChecked="{x:Bind Option, ConverterParameter=SetOnce, Mode=TwoWay, Converter={StaticResource EnumBooleanConverter}}"/>
+                <RadioButton Content="Set the correct score for this game only" Style="{StaticResource ScoreRadioButton}" IsChecked="{x:Bind Option, ConverterParameter=SetThisGame, Mode=TwoWay, Converter={StaticResource EnumBooleanConverter}}"/>
+                <RadioButton Content="Set the correct score always" Style="{StaticResource ScoreRadioButton}" IsChecked="{x:Bind Option, ConverterParameter=SetAlways, Mode=TwoWay, Converter={StaticResource EnumBooleanConverter}}"/>
+                <RadioButton Content="Do Not show this dialog again" Style="{StaticResource ScoreRadioButton}" IsChecked="{x:Bind Option, ConverterParameter=NeverPrompt, Mode=TwoWay, Converter={StaticResource EnumBooleanConverter}}"/>
+            </StackPanel>
+        </Grid>
+
+        <Button Name="_btnClose" Content="Close" HorizontalAlignment="Right" Grid.Row="2" Grid.Column="1" Foreground="White" Width="100" Click="OnClose" Background="{StaticResource bmCherry}" BorderBrush="{StaticResource LineBrush}"/>
 
     </Grid>
 </UserControl>

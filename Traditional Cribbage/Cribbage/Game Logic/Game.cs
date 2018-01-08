@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Cards;
 using CardView;
 using Cribbage.Players;
+using Cribbage.UxControls;
 using CribbagePlayers;
 using LongShotHelpers;
 
@@ -71,6 +72,7 @@ namespace Cribbage
 
         public Card SharedCard => _gameView.GetCards(CardType.Deck)[0].Card;
 
+        public WrongScoreOption WrongScoreOption { get; set; } = WrongScoreOption.UnSet;
 
         public List<Card> CountedCards
         {
@@ -215,8 +217,7 @@ namespace Cribbage
                             state = GameState.CountComputer;
                             if (playerCanPlay)
                             {
-                                CurrentCount = await DoCountForPlayer(Player, PlayerType.Player, CountedCards, PlayerCards,
-                                CurrentCount);
+                                CurrentCount = await DoCountForPlayer(Player, PlayerType.Player, CountedCards, PlayerCards, CurrentCount);
                             }
 
                             (computerCanPlay, playerCanPlay) = CanPlay(ComputerCards, PlayerCards, CurrentCount);
@@ -403,13 +404,21 @@ namespace Cribbage
 
             do
             {
-                enteredScore = await Player.GetScoreFromUser(playerScore, AutoEnterScore);
-                if (enteredScore != playerScore)
+                enteredScore = await Player.GetScoreFromPlayer(playerScore, WrongScoreOption);
+
+                if (enteredScore == playerScore) break;
+
+                if (WrongScoreOption == WrongScoreOption.UnSet)
                 {
-                    AutoEnterScore = await StaticHelpers.AskUserYesNoQuestion("Cribbage",
-                        $"{enteredScore} is the wrong score.\n\nWould you like the computer to set the score?", "Yes", "No");
+                    WrongScoreOption = await _gameView.PromptUserForWrongScore(enteredScore);
                 }
+
             } while (enteredScore != playerScore);
+
+            if (WrongScoreOption == WrongScoreOption.SetOnce)
+            {
+                WrongScoreOption = WrongScoreOption.UnSet;
+            }
 
             AddScore(scores, PlayerType.Player);
 
