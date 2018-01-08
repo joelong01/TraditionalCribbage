@@ -123,9 +123,9 @@ namespace CribbagePlayers
             return cardList;
         }
 
-        public async Task<int> GetScoreFromUser(int score, bool autoEnter)
+        public async Task<int> GetScoreFromPlayer(int score, WrongScoreOption option)
         {
-            return await GameView.HighlightScoreAndWaitForContinue(PlayerType.Player, score, autoEnter);
+            return await GameView.HighlightScoreAndWaitForContinue(PlayerType.Player, score, option);
         }
 
         public override void Init(string parameters)

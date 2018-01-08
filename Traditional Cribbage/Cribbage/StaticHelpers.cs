@@ -44,7 +44,7 @@ namespace LongShotHelpers
                 return double.NaN;
             }
 
-            var child = (FrameworkElement) viewbox.Child;
+            var child = (FrameworkElement)viewbox.Child;
             return viewbox.ActualWidth / child.ActualWidth;
         }
     }
@@ -303,12 +303,12 @@ namespace LongShotHelpers
 
         public static bool IsNumber(VirtualKey key)
         {
-            if ((int) key >= (int) VirtualKey.Number0 && (int) key <= (int) VirtualKey.Number9)
+            if ((int)key >= (int)VirtualKey.Number0 && (int)key <= (int)VirtualKey.Number9)
             {
                 return true;
             }
 
-            if ((int) key >= (int) VirtualKey.NumberPad0 && (int) key <= (int) VirtualKey.NumberPad9)
+            if ((int)key >= (int)VirtualKey.NumberPad0 && (int)key <= (int)VirtualKey.NumberPad9)
             {
                 return true;
             }
@@ -331,10 +331,10 @@ namespace LongShotHelpers
                 case VirtualKey.Decimal:
                 case VirtualKey.Enter:
                 case VirtualKey.Add:
-                case (VirtualKey) 187: // '+' 
-                case (VirtualKey) 189: // '-'
-                case (VirtualKey) 190: // '.'
-                case (VirtualKey) 191: // '/'
+                case (VirtualKey)187: // '+' 
+                case (VirtualKey)189: // '-'
+                case (VirtualKey)190: // '.'
+                case (VirtualKey)191: // '/'
                     return true;
                 default:
                     break;
@@ -388,7 +388,7 @@ namespace LongShotHelpers
         public static void AddDeltaToIntProperty<T>(this T t, string propName, int delta)
         {
             var propInfo = t.GetType().GetTypeInfo().GetDeclaredProperty(propName);
-            var n = (int) propInfo.GetValue(t, null);
+            var n = (int)propInfo.GetValue(t, null);
             n += delta;
             propInfo.SetValue(t, n);
         }
@@ -430,7 +430,7 @@ namespace LongShotHelpers
                 var propValue = propInfo.GetValue(t, null);
                 if (typeInfo.IsGenericType && typeInfo.GetGenericTypeDefinition() == typeof(List<>))
                 {
-                    var listInstance = (IList) propValue;
+                    var listInstance = (IList)propValue;
                     s += prop + kvpSep;
                     foreach (var o in listInstance)
                     {
@@ -497,7 +497,7 @@ namespace LongShotHelpers
             PointerEventHandler pointerMovedHandler = null;
             PointerEventHandler pointerReleasedHandler = null;
 
-            pointerMovedHandler = (s, e) =>
+            pointerMovedHandler = (object s, PointerRoutedEventArgs e) =>
             {
                 var pt = e.GetCurrentPoint(mousePositionWindow).Position;
 
@@ -520,9 +520,9 @@ namespace LongShotHelpers
                 progress?.Report(pt);
             };
 
-            pointerReleasedHandler = (s, e) =>
+            pointerReleasedHandler = (object s, PointerRoutedEventArgs e) =>
             {
-                var localControl = (UIElement) s;
+                var localControl = (UIElement)s;
                 localControl.PointerMoved -= pointerMovedHandler;
                 localControl.PointerReleased -= pointerReleasedHandler;
                 localControl.ReleasePointerCapture(origE.Pointer);
@@ -583,7 +583,7 @@ namespace LongShotHelpers
                         kvp.Value.Split(listSeperator.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
                     var listType = typeof(List<>).MakeGenericType(typeInfo.GenericTypeArguments);
-                    var listInstance = (IList) Activator.CreateInstance(listType);
+                    var listInstance = (IList)Activator.CreateInstance(listType);
 
                     var isPrimitive = elementType.GetTypeInfo().IsPrimitive;
                     var isEnum = elementType.GetTypeInfo().IsEnum;
@@ -620,7 +620,7 @@ namespace LongShotHelpers
 
         public static List<int> GetIntegerList(string s, char sep = listSeperatorChar)
         {
-            var strings = s.Split(new[] {sep}, StringSplitOptions.RemoveEmptyEntries);
+            var strings = s.Split(new[] { sep }, StringSplitOptions.RemoveEmptyEntries);
             var ret = new List<int>();
             foreach (var v in strings)
             {
@@ -697,8 +697,8 @@ namespace LongShotHelpers
 
         public static Dictionary<string, string> GetSections(string file)
         {
-            char[] sep1 = {'['};
-            char[] sep2 = {']'};
+            char[] sep1 = { '[' };
+            char[] sep2 = { ']' };
 
             var tokens = file.Split(sep1, StringSplitOptions.RemoveEmptyEntries);
             var sections = new Dictionary<string, string>();
@@ -929,7 +929,7 @@ namespace LongShotHelpers
             {
                 if (Enum.IsDefined(typeof(T), intEnumValue))
                 {
-                    returnValue = (T) (object) intEnumValue;
+                    returnValue = (T)(object)intEnumValue;
                     return true;
                 }
             }
@@ -939,7 +939,7 @@ namespace LongShotHelpers
 
         public static T ParseEnum<T>(string value)
         {
-            return (T) Enum.Parse(typeof(T), value);
+            return (T)Enum.Parse(typeof(T), value);
         }
 
         public static List<T> DeserializeList<T>(this string s, string sep = listSeperator)
@@ -949,7 +949,7 @@ namespace LongShotHelpers
             var tokens = s.Split(charSep, StringSplitOptions.RemoveEmptyEntries);
             foreach (var t in tokens)
             {
-                var value = (T) Convert.ChangeType(t, typeof(T));
+                var value = (T)Convert.ChangeType(t, typeof(T));
                 list.Add(value);
             }
 
@@ -967,7 +967,7 @@ namespace LongShotHelpers
                 var value = default(T);
                 if (Enum.IsDefined(typeof(T), t))
                 {
-                    value = (T) Enum.Parse(typeof(T), t);
+                    value = (T)Enum.Parse(typeof(T), t);
                     list.Add(value);
                 }
             }
@@ -981,7 +981,7 @@ namespace LongShotHelpers
         {
             var dictionary = new Dictionary<string, string>();
             var sep1 = lineSep.ToCharArray();
-            char[] sep2 = {'='};
+            char[] sep2 = { '=' };
 
             var tokens = section.Split(sep1, StringSplitOptions.RemoveEmptyEntries);
             foreach (var s in tokens)
@@ -1063,6 +1063,31 @@ namespace LongShotHelpers
                 }
             }
         }
+
+        public static IEnumerable<DependencyObject> FindInVisualTreeDown(DependencyObject obj, Type type)
+        {
+            if (obj != null)
+            {
+                if (obj.GetType() == type)
+                {
+                    yield return obj;
+                }
+
+                for (var i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
+                {
+                    foreach (var child in FindInVisualTreeDown(VisualTreeHelper.GetChild(obj, i), type))
+                    {
+                        if (child != null)
+                        {
+                            yield return child;
+                        }
+                    }
+                }
+            }
+
+            yield break;
+        }
+
 
         public static List<T> DestructiveIterator<T>(this List<T> list)
         {
@@ -1272,7 +1297,7 @@ namespace LongShotHelpers
                 try
                 {
                     var _Serializer = new DataContractJsonSerializer(typeof(T));
-                    return (T) _Serializer.ReadObject(_Stream);
+                    return (T)_Serializer.ReadObject(_Stream);
                 }
                 catch (Exception)
                 {
@@ -1351,9 +1376,9 @@ namespace LongShotHelpers
                 switch (location)
                 {
                     case StorageStrategies.Local:
-                        return (T) ApplicationData.Current.LocalSettings.Values[key];
+                        return (T)ApplicationData.Current.LocalSettings.Values[key];
                     case StorageStrategies.Roaming:
-                        return (T) ApplicationData.Current.RoamingSettings.Values[key];
+                        return (T)ApplicationData.Current.RoamingSettings.Values[key];
                     default:
                         throw new NotSupportedException(location.ToString());
                 }
