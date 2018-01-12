@@ -14,6 +14,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Cards;
 using CardView;
+using Cribbage.UxControls;
 using CribbagePlayers;
 using LongShotHelpers;
 
@@ -163,6 +164,10 @@ namespace Cribbage
             MyMenu.IsPaneOpen = !MyMenu.IsPaneOpen;
         }
 
+        private async void OnSetSettings(object sender, RoutedEventArgs e)
+        {
+            await Task.Delay(0);
+        }
 
         private async void OnGetSuggestion(object sender, RoutedEventArgs e)
         {
@@ -285,10 +290,35 @@ namespace Cribbage
                     return;
             }
 
-            CardScoring.ScoreHand(hand, sharedCard, handType, out var scores);
-            var message = FormatScoreMessage(scores, _game.PlayerTurn, true);
-            var dlg = new MessageDialog(message.message, "Cribbage");
-            await dlg.ShowAsync();
+            var totalScore = CardScoring.ScoreHand(hand, sharedCard, handType, out var scores);
+            var dlg = new ShowScoreDlg(hand, sharedCard, totalScore, scores);
+            Canvas.SetZIndex(dlg, 99999);
+            Grid.SetColumn(dlg, 3);
+            Grid.SetColumnSpan(dlg, 3);
+            Grid.SetRowSpan(dlg, 8);
+            Grid.SetRow(dlg, 1);
+            dlg.HorizontalAlignment = HorizontalAlignment.Center;
+            dlg.VerticalAlignment = VerticalAlignment.Center;
+            LayoutRoot.Children.Add(dlg);
+
+
+            try
+            {
+                _btnContinue.IsEnabled = false;
+                _btnShowScoreAgain.IsEnabled = false;
+                await dlg.WaitForClose();
+            }
+            finally
+            {
+                LayoutRoot.Children.Remove(dlg);
+                _btnContinue.IsEnabled = true;
+                _btnShowScoreAgain.IsEnabled = true;
+
+            }
+
+            //var message = FormatScoreMessage(scores, _game.PlayerTurn, true);
+            //var dlg = new MessageDialog(message.message, "Cribbage");
+            //await dlg.ShowAsync();
         }
 
 
@@ -396,7 +426,6 @@ namespace Cribbage
 
             try
             {
-                
                 var contents = await FileIO.ReadTextAsync(file);
                 var settings = await StaticHelpers.LoadSettingsFile(contents, file.Name);
                 if (settings["Game"]["Version"] != "1.0")

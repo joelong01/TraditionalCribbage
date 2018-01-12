@@ -34,13 +34,13 @@ namespace Cribbage
             //  assume dealer is player and then set it if it is not
             var dealersCards = playerCards;
             var nonDealerCards = computerCards;
-         
+
 
             if (dealer == PlayerType.Computer)
             {
                 dealersCards = computerCards;
                 nonDealerCards = playerCards;
-              
+
             }
 
 
@@ -64,19 +64,19 @@ namespace Cribbage
                 switch (card.Owner)
                 {
                     case Owner.Player:
-                        t = CardGrid.AnimateMoveOneCard(_cgDeck, _cgPlayer, card, (int) targetIndex, true,
+                        t = CardGrid.AnimateMoveOneCard(_cgDeck, _cgPlayer, card, (int)targetIndex, true,
                             MOVE_CARDS_ANIMATION_DURATION, beginTime);
                         targetIndex += 0.5;
                         card.Location = Location.Player;
                         break;
                     case Owner.Computer:
-                        t = CardGrid.AnimateMoveOneCard(_cgDeck, _cgComputer, card, (int) targetIndex, true,
+                        t = CardGrid.AnimateMoveOneCard(_cgDeck, _cgComputer, card, (int)targetIndex, true,
                             MOVE_CARDS_ANIMATION_DURATION, beginTime);
                         targetIndex += 0.5;
                         card.Location = Location.Computer;
                         break;
                     case Owner.Shared:
-                        continue;                    
+                        continue;
                     default:
                         throw new InvalidOperationException("Card owner not set");
                 }
@@ -133,7 +133,7 @@ namespace Cribbage
 
             var cards = _cgCrib.Cards;
 
-            
+
 
             //
             //  when that is done flip the shared card
@@ -203,26 +203,53 @@ namespace Cribbage
 
         public async Task AnimateMoveCribCardsBackToOwner(PlayerType dealer)
         {
+            //
+            //  when we open a game in the state GameState.ScorePlayerCrib, we will have already
+            //  moved the crib back to the player -- so there are no cards in the crib.
+            //  check for this and abort if there are no cards in the crib
+
+            if (_cgCrib.Cards.Count == 0) return;
+
             var taskList = new List<Task>();
             taskList.AddRange(AnimateFlipAllCards(_cgComputer.Cards, CardOrientation.FaceDown, true));
             taskList.AddRange(AnimateFlipAllCards(_cgPlayer.Cards, CardOrientation.FaceDown, true));
             await Task.WhenAll(taskList);
             taskList.Clear();
-            taskList.AddRange(CardGrid.AnimateMoveAllCards(_cgComputer, _cgDeck, MOVE_CARDS_ANIMATION_DURATION, 0,
-                AnimateMoveOptions.StackAtZero, false));
-            var ret = CardGrid.AnimateMoveAllCards(_cgPlayer, _cgDeck, MOVE_CARDS_ANIMATION_DURATION, 0,
+            var newTaskList = CardGrid.AnimateMoveAllCards(_cgComputer, _cgDeck, MOVE_CARDS_ANIMATION_DURATION, 0,
                 AnimateMoveOptions.StackAtZero, false);
-            taskList.AddRange(ret);
-            await Task.WhenAll(taskList);
-            taskList.Clear();
+            if (newTaskList != null)
+            {
+                taskList.AddRange(newTaskList);
+            }
+            newTaskList = CardGrid.AnimateMoveAllCards(_cgPlayer, _cgDeck, MOVE_CARDS_ANIMATION_DURATION, 0, AnimateMoveOptions.StackAtZero, false);
+            if (newTaskList != null)
+            {
+                taskList.AddRange(newTaskList);
+            }
+
+            if (taskList.Count > 0)
+            {
+                await Task.WhenAll(taskList);
+                taskList.Clear();
+            }
+
             var cribOwnerGrid = dealer == PlayerType.Computer ? _cgComputer : _cgPlayer;
-            taskList.AddRange(CardGrid.AnimateMoveAllCards(_cgCrib, cribOwnerGrid, MOVE_CARDS_ANIMATION_DURATION, 0,
-                AnimateMoveOptions.MoveSequentlyEndingAtZero, false));
-            await Task.WhenAll(taskList);
-            taskList.Clear();
-            taskList.AddRange(AnimateFlipAllCards(_cgCrib.Cards, CardOrientation.FaceUp,
-                true)); // moved in space, but not from grids...that happens right below
-            await Task.WhenAll(taskList);
+            taskList = CardGrid.AnimateMoveAllCards(_cgCrib, cribOwnerGrid, MOVE_CARDS_ANIMATION_DURATION, 0,
+                AnimateMoveOptions.MoveSequentlyEndingAtZero, false);
+            if (taskList != null)
+            {
+                taskList.AddRange(newTaskList);
+                await Task.WhenAll(taskList);
+                taskList.Clear();
+            }
+
+            taskList = AnimateFlipAllCards(_cgCrib.Cards, CardOrientation.FaceUp,
+                true);
+            if (taskList != null)
+            {
+                await Task.WhenAll(taskList);
+                taskList.Clear();
+            }
 
             CardGrid.TransferAllCards(_cgComputer, _cgDeck, true);
             CardGrid.TransferAllCards(_cgPlayer, _cgDeck, true);

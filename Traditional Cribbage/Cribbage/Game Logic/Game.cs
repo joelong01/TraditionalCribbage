@@ -194,7 +194,7 @@ namespace Cribbage
 
                         if (SharedCard.CardOrdinal == CardOrdinal.Jack)
                         {
-                            var score = new Score(ScoreName.HisNibs, 2);
+                            var score = new Score(ScoreName.HisNibs, 2, new List<Card>(){SharedCard});
                             AddScore(new List<Score> { score }, Dealer);
                         }
 
@@ -282,6 +282,7 @@ namespace Cribbage
                         state = Dealer == PlayerType.Computer ? GameState.ScoreComputerCrib : GameState.ScorePlayerHand;
                         break;
                     case GameState.ScoreComputerCrib:
+                        PlayerTurn = PlayerType.Computer;
                         await _gameView.ReturnCribCards(Dealer);
                         //
                         //  above moves cards from Crib to Computer
@@ -289,6 +290,7 @@ namespace Cribbage
                         state = GameState.EndOfHand;
                         break;
                     case GameState.ScorePlayerCrib:
+                        PlayerTurn = PlayerType.Player;
                         await _gameView.ReturnCribCards(Dealer);
                         //
                         //  above moves cards to Player
@@ -445,7 +447,7 @@ namespace Cribbage
         {
             var scores = new List<Score>
             {
-                new Score(ScoreName.Go, 1)
+                new Score(ScoreName.Go, 1, null)
             };
             var goPlayer = LastPlayerCounted();
             AddScore(scores, goPlayer);
@@ -489,9 +491,7 @@ namespace Cribbage
 
             if (CountedCards.Count != 0)
             {
-                var scores = new List<Score>();
-                var scoreName = ScoreName.LastCard;
-                scores.Add(new Score(scoreName, 1));
+                var scores = new List<Score> {new Score(ScoreName.LastCard, 1, new List<Card>() {CountedCards.Last()})};
                 var player = PlayerType.Computer;
 
                 if (LastCardOwner == Owner.Player)

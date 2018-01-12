@@ -53,6 +53,7 @@ namespace CardView
         public static readonly DependencyProperty CardNameProperty = DependencyProperty.Register("CardName",
             typeof(CardNames), typeof(Card), new PropertyMetadata(CardNames.AceOfSpades, CardNameChanged));
 
+        public bool UseImageCache { get; set; } = true;
 
         //
         //  these are the properties that we save/load
@@ -68,13 +69,13 @@ namespace CardView
             Selected = false;
         }
 
-        public CardCtrl(Card card)
+        public CardCtrl(Card card, bool useImageCache=true)
         {
             InitializeComponent();
+            UseImageCache = useImageCache;
             DataContext = this;
             Card = card;
             CardName = Card.CardName;
-
             Selected = false;
         }
 
@@ -254,14 +255,15 @@ namespace CardView
 
         public void SetImageForCard(CardNames cardName)
         {
-            if (CardCache.TryGetValue(cardName, out var cardCanvas) == false)
+            if (UseImageCache == false || CardCache.TryGetValue(cardName, out var cardCanvas) == false )
             {
                 var s = $"ms-appx:///Assets/Cards/xaml/{cardName}.xaml";
                 var uri = new Uri(s);
                 var file = StorageFile.GetFileFromApplicationUriAsync(uri).AsTask().Result;
                 var xaml = FileIO.ReadTextAsync(file).AsTask().Result;
                 cardCanvas = (Canvas)XamlReader.Load(xaml);
-                CardCache[cardName] = cardCanvas;
+                if (UseImageCache)
+                    CardCache[cardName] = cardCanvas;
             }
             //
             //  if this thows an "Value does not fall within the expected range." that means you didn't remove the Canvas from the CardCtrl

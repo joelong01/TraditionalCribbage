@@ -18,7 +18,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Shapes;
 using Cribbage.Annotations;
-using WinRTXamlToolkit.AwaitableUI;
+
 using LongShotHelpers;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
@@ -42,9 +42,9 @@ namespace Cribbage.UxControls
 
         public async Task WaitForClose()
         {
-            NotifyPropertyChanged(@"Option");
+            NotifyPropertyChanged(nameof(Option));
             _txtPrompt.Text = $"{WrongScore} is the wrong score.";
-            await _btnClose.WaitForClickAsync();
+            await _btnClose.WhenClicked();
         }
 
         private async void NonClientRectangle_OnPointerPressed(object sender, PointerRoutedEventArgs e)

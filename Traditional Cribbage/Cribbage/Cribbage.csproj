@@ -17,8 +17,11 @@
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WindowsXamlEnableOverview>true</WindowsXamlEnableOverview>
-    <PackageCertificateKeyFile>Cribbage_TemporaryKey.pfx</PackageCertificateKeyFile>
-    <PackageCertificateThumbprint>0593A271890318023668B0A99E20FDE20EE89928</PackageCertificateThumbprint>
+    <PackageCertificateKeyFile>Cribbage_StoreKey.pfx</PackageCertificateKeyFile>
+    <PackageCertificateThumbprint>B58F03349238BB5370A98E59A7175F85595B31A8</PackageCertificateThumbprint>
+    <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+    <AppxBundle>Always</AppxBundle>
+    <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -115,6 +118,7 @@
     <Compile Include="Players\RandomPlayer.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UxControls\RingSlice.cs" />
     <Compile Include="UxControls\ScoreViewerCtrl.xaml.cs" />
     <Compile Include="UxControls\ScrollingTextCtrl.xaml.cs" />
     <Compile Include="StaticHelpers.cs" />
@@ -123,6 +127,9 @@
     <Compile Include="UxControls\CountCtrl.xaml.cs" />
     <Compile Include="UxControls\Extensions.cs" />
     <Compile Include="UxControls\PegControl.xaml.cs" />
+    <Compile Include="UxControls\ShowScoreDlg.xaml.cs">
+      <DependentUpon>ShowScoreDlg.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UxControls\WrongScoreCtrl.xaml.cs">
       <DependentUpon>WrongScoreCtrl.xaml</DependentUpon>
     </Compile>
@@ -153,6 +160,7 @@
     <None Include="Assets\Base Vectors\shooter.ai" />
     <None Include="Assets\Base Vectors\splashscreen.afdesign" />
     <None Include="Assets\Base Vectors\splashscreen.pdf" />
+    <None Include="Cribbage_StoreKey.pfx" />
     <None Include="Cribbage_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
@@ -254,6 +262,7 @@
     <Content Include="Assets\Wide310x150Logo.scale-125.png" />
     <Content Include="Assets\Wide310x150Logo.scale-150.png" />
     <Content Include="Assets\Wide310x150Logo.scale-400.png" />
+    <None Include="Package.StoreAssociation.xml" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
@@ -276,13 +285,10 @@
       <Version>1.0.5</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>6.0.5</Version>
+      <Version>6.0.6</Version>
     </PackageReference>
     <PackageReference Include="System.ValueTuple">
       <Version>4.4.0</Version>
-    </PackageReference>
-    <PackageReference Include="winrtxamltoolkit">
-      <Version>2.3.0</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup />
@@ -530,6 +536,10 @@
     <Page Include="UxControls\PegControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UxControls\ShowScoreDlg.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UxControls\WrongScoreCtrl.xaml">
       <SubType>Designer</SubType>
