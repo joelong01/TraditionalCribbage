@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" IgnorableNamespaces="uap mp">
-  <Identity Name="6ceb1b80-fee3-4136-b876-306c8d0cadff" Publisher="CN=LongShot Software LLC" Version="1.0.0.0" />
-  <mp:PhoneIdentity PhoneProductId="6ceb1b80-fee3-4136-b876-306c8d0cadff" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
+  <Identity Name="10046JoeLong.TraditionalCribbage" Publisher="CN=0F3C1C50-2474-49FC-91E7-DA95BDB6EDB8" Version="1.1.0.0" />
+  <mp:PhoneIdentity PhoneProductId="dcce46e7-57bc-47f7-882e-e4ee67f0cd5a" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
-    <DisplayName>Cribbage</DisplayName>
-    <PublisherDisplayName>xespu</PublisherDisplayName>
+    <DisplayName>Traditional Cribbage</DisplayName>
+    <PublisherDisplayName>Joe Long</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
   <Dependencies>
@@ -15,7 +15,7 @@
   </Resources>
   <Applications>
     <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="Cribbage.App">
-      <uap:VisualElements DisplayName="Cribbage" Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png" Description="Cribbage" BackgroundColor="transparent">
+      <uap:VisualElements DisplayName="Traditional Cribbage" Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png" Description="Cribbage" BackgroundColor="transparent">
         <uap:LockScreen Notification="badgeAndTileText" BadgeLogo="Assets\BadgeLogo.png" />
         <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" Square310x310Logo="Assets\LargeTile.png" Square71x71Logo="Assets\SmallTile.png">
         </uap:DefaultTile>

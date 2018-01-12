@@ -1,4 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using CardView;
 using Cribbage;
 
 namespace Cards
@@ -25,10 +29,14 @@ namespace Cards
         {
         }
 
-        public Score(ScoreName scoreName, int value)
+        public List<Card> Cards { get; } = new List<Card>();
+
+        public Score(ScoreName scoreName, int value, List<Card> cards)
         {
             ScoreName = scoreName;
             Value = value;
+            if (cards != null)
+                Cards.AddRange(cards);
         }
 
         public ScoreName ScoreName { get; set; }
@@ -36,23 +44,29 @@ namespace Cards
 
         public override string ToString()
         {
-            return string.Format($"{CardScoring.PlayerScoreDescription[(int) ScoreName]} for {Value}");
+            return string.Format($"{CardScoring.PlayerScoreDescription[(int)ScoreName]} for {Value}");
         }
 
         public string ToString(PlayerType player)
         {
             if (player == PlayerType.Player)
             {
-                return string.Format($"{CardScoring.PlayerScoreDescription[(int) ScoreName]} for {Value}");
+                return string.Format($"{CardScoring.PlayerScoreDescription[(int)ScoreName]} for {Value}");
             }
 
-            return string.Format($"{CardScoring.ComputerScoreDescription[(int) ScoreName]} for {Value}");
+            return string.Format($"{CardScoring.ComputerScoreDescription[(int)ScoreName]} for {Value}");
         }
     }
 
     internal static class CardScoring
     {
-       
+        public static string[] ScoreDescription =
+        {
+            "fifteen", "run", "pair", "three of a kind", "four of a kind",
+            "jack of the same suit", "cut a jack", "a run", "hit 31", "hit go", "flush",
+            "last card"
+        };
+
         public static string[] PlayerScoreDescription =
         {
             "scored fifteen", "got a run", "scored a pair", "scored three of a kind", "scored four of a kind",
@@ -82,14 +96,15 @@ namespace Cards
             //  hit 15?
             if (currentCount == 15)
             {
-                scoreList.Add(new Score(ScoreName.Fifteen, 2));
+                var scr = new Score(ScoreName.Fifteen, 2, playedCards);
+                scoreList.Add(scr);
                 score += 2;
             }
 
             // hit 31?
             if (currentCount == 31)
             {
-                scoreList.Add(new Score(ScoreName.ThirtyOne, 2));
+                scoreList.Add(new Score(ScoreName.ThirtyOne, 2, playedCards));
                 score += 2;
             }
 
@@ -101,11 +116,18 @@ namespace Cards
 
             //
             //   search for 2, 3, or 4 of a kind -- this has to happen before the sort!
+            var tempList = new List<Card>();
             var samenessCount = 0;
             for (var i = allCards.Count - 1; i > 0; i--)
             {
                 if (allCards[i].Rank == allCards[i - 1].Rank)
                 {
+                    tempList.Add(allCards[i]);
+                    if (!tempList.Contains(allCards[i - 1]))
+                    {
+                        tempList.Add(allCards[i - 1]);
+                    }
+
                     samenessCount++;
                 }
                 else
@@ -117,15 +139,15 @@ namespace Cards
             switch (samenessCount)
             {
                 case 1: // pair
-                    scoreList.Add(new Score(ScoreName.Pair, 2));
+                    scoreList.Add(new Score(ScoreName.Pair, 2, tempList));
                     score += 2;
                     break;
                 case 2: // 3 of a kind
-                    scoreList.Add(new Score(ScoreName.ThreeOfaKind, 6));
+                    scoreList.Add(new Score(ScoreName.ThreeOfaKind, 6, tempList));
                     score += 6;
                     break;
                 case 3: // 4 of a kind
-                    scoreList.Add(new Score(ScoreName.FourOfAKind, 12));
+                    scoreList.Add(new Score(ScoreName.FourOfAKind, 12, tempList));
                     score += 12;
                     break;
                 default:
@@ -133,11 +155,12 @@ namespace Cards
             }
 
             // search for runs
-            var runValue = ScoreCountedRun(allCards);
-            if (runValue > 0)
+            var runs = ScoreCountedRun(allCards);
+
+            if (runs.score > 0)
             {
-                scoreList.Add(new Score(ScoreName.CountedRun, runValue));
-                score += runValue;
+                scoreList.Add(new Score(ScoreName.CountedRun, runs.score, runs.cards));
+                score += runs.score;
             }
 
             return score;
@@ -145,7 +168,7 @@ namespace Cards
 
         //
         //  just call ScoreRuns to get ths list..
-        private static int ScoreRuns(List<Card> list)
+        private static (int Score, List<Score> scoreList) ScoreRuns(List<Card> list)
         {
             var cardLists = DemuxPairs(list);
             var runs = new List<List<Card>>();
@@ -184,21 +207,22 @@ namespace Cards
                 }
             }
 
+            var scores = new List<Score>();
 
             //
             //  runs now how the list of cards that have runs in them
             var score = 0;
+            foreach (var cards in runs)
             {
-                foreach (var cards in runs)
+                if (cards.Count > 2)
                 {
-                    if (cards.Count > 2)
-                    {
-                        score += cards.Count;
-                    }
+                    scores.Add(new Score(ScoreName.Run, cards.Count, cards));
+                    score += cards.Count;
                 }
             }
 
-            return score;
+
+            return (score, scores);
         }
 
         private static bool Is3CardRun(Card card1, Card card2, Card card3)
@@ -342,28 +366,64 @@ namespace Cards
 
 
         // assumes a sorted list
-        private static int ScorePairs(List<Card> list)
+        //
+        //  you can have 4 different kinds of hands
+        //  
+        //  4 of a kind:  J, J, J, J, A
+        //  3 of a kind  J, J, J, A, 2
+        //  3 of a kind with a pair: J, J, J, A, A
+        //  1 or 2 other pairs: J, J, Q, Q, A
+
+        [SuppressMessage("ReSharper", "InvertIf")]
+        private static (int Score, List<Score> ScoreList) ScorePairs(List<Card> list)
         {
-            var score = 0;
-            var pairs = 0;
+
+            var retList = new List<List<Card>>();
             for (var i = 0; i < list.Count; i++)
             {
+                var cardList = new List<Card> { list[i] };
                 for (var j = i + 1; j < list.Count; j++)
                 {
-                    if (list[i].Rank == list[j].Rank) // pair
-                {
-                    score += 2;
-                    pairs++;
+                    if (list[i].Rank == list[j].Rank)
+                    {
+                        cardList.Add(list[j]);
+                    }
                 }
+                if (cardList.Count != 1) retList.Add(cardList);
+                i += cardList.Count - 1;
+            }
+
+            var score = 0;
+            var scoreList = new List<Score>();
+            foreach (var lst in retList)
+            {
+                switch (lst.Count)
+                {
+                    case 4:
+                        scoreList.Add(new Score(ScoreName.FourOfAKind, 12, lst));
+                        score += 12;
+                        break;
+                    case 3:
+                        scoreList.Add(new Score(ScoreName.ThreeOfaKind, 6, lst));
+                        score += 6;
+                        break;
+                    case 2:
+                        scoreList.Add(new Score(ScoreName.Pair, 2, lst));
+                        score += 2;
+                        break;
+                    default:
+                        Debug.Assert(false, "You have a bug in your ScorePairs function!");
+                        break;
                 }
             }
 
-            return score;
+            return (score, scoreList);
         }
 
-        private static int ScoreFifteens(List<Card> list)
+        private static (int Score, List<List<Card>> CardList) ScoreFifteens(List<Card> list)
         {
             var score = 0;
+            var fifteenList = new List<List<Card>>();
             for (var i = 0; i < list.Count; i++)
             {
                 var iVal = list[i].Value;
@@ -377,6 +437,12 @@ namespace Cards
 
                     if (ijVal == 15)
                     {
+                        var twoCards = new List<Card>()
+                        {
+                            list[i],
+                            list[j]
+                        };
+                        fifteenList.Add(twoCards);
                         score += 2;
                     }
                     else
@@ -391,6 +457,13 @@ namespace Cards
 
                             if (ijkVal == 15)
                             {
+                                var threeCards = new List<Card>()
+                                {
+                                    list[i],
+                                    list[j],
+                                    list[k]
+                                };
+                                fifteenList.Add(threeCards);
                                 score += 2;
                             }
                             else
@@ -405,22 +478,30 @@ namespace Cards
 
                                     if (ijkxVal == 15)
                                     {
+                                        var fourCards = new List<Card>()
+                                        {
+                                            list[i],
+                                            list[j],
+                                            list[k],
+                                            list[x]
+                                        };
+                                        fifteenList.Add(fourCards);
                                         score += 2;
                                     }
 
-                                    if (list.Count == 5) // if the shared card is passed in...
-                                    {
-                                        var sumAll = ijkVal + list[3].Value + list[4].Value;
-                                        if (sumAll == 15) // takes all 5...
-                                        {
-                                            score += 2;
-                                            return score;
-                                        }
+                                    if (list.Count != 5) continue;
 
-                                        if (sumAll < 15) // not enough points to get to 15 with all 5 cards
-                                        {
-                                            return 0;
-                                        }
+                                    var sumAll = ijkVal + list[3].Value + list[4].Value;
+                                    if (sumAll == 15) // takes all 5...
+                                    {
+                                        score += 2;
+                                        fifteenList.Add(new List<Card>(list));
+                                        return (score, fifteenList);
+                                    }
+
+                                    if (sumAll < 15) // not enough points to get to 15 with all 5 cards
+                                    {
+                                        return (0, null);
                                     }
                                 }
                             }
@@ -429,61 +510,66 @@ namespace Cards
                 }
             }
 
-            return score;
+            return (score, fifteenList);
         }
 
         //
         //  call this to see if a run is in the cards based on the rules of counting
-        private static int ScoreCountedRun(List<Card> playedCards)
+        private static (int score, List<Card> cards) ScoreCountedRun(IReadOnlyList<Card> playedCards)
         {
             var n = 3;
             var count = playedCards.Count;
             var score = 0;
 
-            if (count > 2) // don't bother if there aren't enough cards
+            if (count <= 2) return (score, null);
+
+            var cards = new List<Card>();
+            var retList = new List<Card>();
+            var longestRun = 0;
+            do
             {
-                var cards = new List<Card>();
-                var longestRun = 0;
-                do
+                cards.Clear();
+                //
+                //  add the last n cards ... starting with 3
+                var i = 0;
+                for (i = 0; i < n; i++)
                 {
-                    cards.Clear();
-                    //
-                    //  add the last n cards ... starting with 3
-                    var i = 0;
-                    for (i = 0; i < n; i++)
-                    {
-                        cards.Add(playedCards[count - i - 1]);
-                    }
-                    //
-                    //  sort them
-                    cards.Sort(Card.CompareCardsByRank);
-
-                    //
-                    //  check to see if they are in order
-                    for (i = 0; i < n - 1; i++)
-                    {
-                        if (cards[i].Rank != cards[i + 1].Rank - 1)
-                        {
-                            break;
-                        }
-                    }
-
-                    if (i >= n - 1)
-                    {
-                        longestRun = i;
-                    }
-                    //
-                    //  if we have enough cards, look for the next longest run
-                    n++;
-                } while (n <= playedCards.Count);
-
-                if (longestRun > 1)
-                {
-                    score += longestRun + 1;
+                    cards.Add(playedCards[count - i - 1]);
                 }
+                //
+                //  sort them
+                cards.Sort(Card.CompareCardsByRank);
+
+                //
+                //  check to see if they are in order
+                for (i = 0; i < n - 1; i++)
+                {
+                    if (cards[i].Rank != cards[i + 1].Rank - 1)
+                    {
+                        break;
+                    }
+                }
+
+                if (i >= n - 1)
+                {
+                    longestRun = i;
+                }
+                //
+                //  if we have enough cards, look for the next longest run
+                n++;
+            } while (n <= playedCards.Count);
+
+            if (longestRun > 1)
+            {
+                score += longestRun + 1;
             }
 
-            return score;
+            for (var i = 0; i < score; i++)
+            {
+                retList.Add(playedCards[count - i - 1]);
+            }
+
+            return (score, retList);
         }
 
         private static int ScoreNobs(Card sharedCard, out List<Score> scoreList)
@@ -491,22 +577,23 @@ namespace Cards
             scoreList = new List<Score>();
             if (sharedCard.CardOrdinal == CardOrdinal.Jack)
             {
-                scoreList.Add(new Score(ScoreName.HisNobs, 2));
+                scoreList.Add(new Score(ScoreName.HisNobs, 2, new List<Card>() { sharedCard }));
                 return 2;
             }
 
             return 0;
         }
 
+        [SuppressMessage("ReSharper", "InvertIf")]
         public static int ScoreHand(List<Card> hand, Card sharedCard, HandType handType, out List<Score> scoreList)
         {
             var score = 0;
             scoreList = new List<Score>();
-            score += ScoreNibs(hand,
-                sharedCard); // this is the only one where it matters which particular card is shared
-            if (score > 0)
+            var retNibs = ScoreNibs(hand, sharedCard); // this is the only one where it matters which particular card is shared
+            if (retNibs.Score > 0)
             {
-                scoreList.Add(new Score(ScoreName.HisNibs, 1));
+                scoreList.Add(new Score(ScoreName.HisNibs, 1, new List<Card>() { retNibs.Card, sharedCard }));
+                score += 1;
             }
 
             //
@@ -518,52 +605,43 @@ namespace Cards
             }
 
             cards.Sort(Card.CompareCardsByRank);
-            var tempScore = 0;
-
-            tempScore = ScoreFifteens(cards);
-            if (tempScore > 0)
+            var tempScore = ScoreFifteens(cards);
+            if (tempScore.Score > 0)
             {
-                scoreList.Add(new Score(ScoreName.Fifteen, tempScore));
-                score += tempScore;
-            }
-
-            tempScore = ScorePairs(cards);
-            if (tempScore > 0)
-            {
-                var scoreName = ScoreName.Pair;
-                if (tempScore == 6)
+                foreach (var cList in tempScore.CardList)
                 {
-                    scoreName = ScoreName.ThreeOfaKind;
+                    scoreList.Add(new Score(ScoreName.Fifteen, 2, cList));
                 }
 
-                if (tempScore == 12)
-                {
-                    scoreName = ScoreName.FourOfAKind;
-                }
-
-                scoreList.Add(new Score(scoreName, tempScore));
-                score += tempScore;
+                score += tempScore.Score;
             }
 
-            tempScore = ScoreRuns(cards);
-            if (tempScore > 0)
+            var scorePairs = ScorePairs(cards);
+            if (scorePairs.Score > 0)
             {
-                scoreList.Add(new Score(ScoreName.Run, tempScore));
-                score += tempScore;
+                score += scorePairs.Score;
+                scoreList.AddRange(scorePairs.ScoreList);
             }
 
-            tempScore = ScoreFlush(cards, handType);
-            if (tempScore > 0)
+            var scoreRuns = ScoreRuns(cards);
+            if (scoreRuns.Score > 0)
             {
-                scoreList.Add(new Score(ScoreName.Flush, tempScore));
-                score += tempScore;
+                scoreList.AddRange(scoreRuns.scoreList);
+                score += scoreRuns.Score;
+            }
+
+            var scoreFlush = ScoreFlush(cards, handType);
+            if (scoreFlush.scoreValue > 0)
+            {
+                scoreList.Add(scoreFlush.Score);
+                score += scoreFlush.scoreValue;
             }
 
 
             return score;
         }
 
-        private static int ScoreFlush(List<Card> cards, HandType handType)
+        private static (int scoreValue, Score Score) ScoreFlush(List<Card> cards, HandType handType)
         {
             cards.Sort(Card.CompareCardsBySuit);
             var max = 0;
@@ -585,24 +663,34 @@ namespace Cards
                 }
             }
 
-            if (handType == HandType.Crib && max == 5)
+            if (run > max)
             {
-                return max;
+                max = run;
             }
 
-            if (handType == HandType.Hand && max > 3)
+            if (max < 4) return (0, null);
+
+            if (handType == HandType.Crib && max < 5)
             {
-                return max;
+
+                return (0, null);
+
             }
 
-            return 0;
+            var flushCards = new List<Card>();
+            for (var i = 0; i < max; i++)
+            {
+                flushCards.Add(cards[i]);
+            };
+
+            return (max, new Score(ScoreName.Flush, max, flushCards));
         }
 
-        private static int ScoreNibs(List<Card> hand, Card sharedCard)
+        private static (int Score, Card Card) ScoreNibs(List<Card> hand, Card sharedCard)
         {
             if (sharedCard == null)
             {
-                return 0;
+                return (0, null);
             }
 
             for (var i = 0; i < 4; i++)
@@ -611,18 +699,18 @@ namespace Cards
                 {
                     if (hand[i].Suit == sharedCard.Suit)
                     {
-                        return 1;
+                        return (1, hand[i]);
                     }
                 }
             }
 
-            return 0;
+            return (0, null);
         }
     }
 
     internal static class CribbageStats
     {
-        public static int[,] TwoCard = {{0, 1}, {0, 2}, {0, 3}, {0, 4}, {1, 2}, {1, 3}, {1, 4}, {2, 3}, {3, 4}, {3, 4}};
+        public static int[,] TwoCard = { { 0, 1 }, { 0, 2 }, { 0, 3 }, { 0, 4 }, { 1, 2 }, { 1, 3 }, { 1, 4 }, { 2, 3 }, { 3, 4 }, { 3, 4 } };
 
         public static int[,,] ThreeCard =
         {
@@ -632,9 +720,9 @@ namespace Cards
             }
         };
 
-        public static int[,,,] FourCard = {{{{0, 1, 2, 3}, {0, 1, 2, 4}, {1, 2, 3, 4}}}};
-        public static int[] FiveCard = {0, 1, 2, 3, 4};
-        public static int[] TwoCardList = {0, 1, 0, 2, 0, 3, 0, 4, 1, 2, 1, 3, 1, 4, 2, 3, 3, 4};
+        public static int[,,,] FourCard = { { { { 0, 1, 2, 3 }, { 0, 1, 2, 4 }, { 1, 2, 3, 4 } } } };
+        public static int[] FiveCard = { 0, 1, 2, 3, 4 };
+        public static int[] TwoCardList = { 0, 1, 0, 2, 0, 3, 0, 4, 1, 2, 1, 3, 1, 4, 2, 3, 3, 4 };
 
         public static double[,] DropTable =
         {
