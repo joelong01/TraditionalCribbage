@@ -39,19 +39,21 @@ namespace CardView
     {
         Unintialized,
         Deck,
-        Discarded,
+        Counted,
         Computer,
         Player,
-        Crib
+        Crib,
+        Shared
+
     }
 
 
     public sealed partial class CardCtrl : INotifyPropertyChanged
     {
-        private static readonly Dictionary<CardNames, Canvas> CardCache = new Dictionary<CardNames, Canvas>();
+        private static readonly Dictionary<CardName, Canvas> CardCache = new Dictionary<CardName, Canvas>();
 
         public static readonly DependencyProperty CardNameProperty = DependencyProperty.Register("CardName",
-            typeof(CardNames), typeof(Card), new PropertyMetadata(CardNames.AceOfSpades, CardNameChanged));
+            typeof(CardName), typeof(Card), new PropertyMetadata(CardName.AceOfSpades, CardNameChanged));
 
         public bool UseImageCache { get; set; } = true;
 
@@ -83,19 +85,19 @@ namespace CardView
         public Card Card { get; }
 
 
-        public CardNames CardName
+        public CardName CardName
         {
             get
             {
                 if (Card != null)
                 {
-                    if ((CardNames)GetValue(CardNameProperty) != Card.CardName)
+                    if ((CardName)GetValue(CardNameProperty) != Card.CardName)
                     {
                         CardName = Card.CardName;
                     }
                 }
 
-                return (CardNames)GetValue(CardNameProperty);
+                return (CardName)GetValue(CardNameProperty);
             }
             set => SetValue(CardNameProperty, value);
         }
@@ -233,14 +235,14 @@ namespace CardView
 
         public static void InitCardCache()
         {
-            foreach (CardNames cardName in Enum.GetValues(typeof(CardNames)))
+            foreach (CardName cardName in Enum.GetValues(typeof(CardName)))
             {
-                if (cardName == CardNames.Uninitialized)
+                if (cardName == CardName.Uninitialized)
                 {
                     continue;
                 }
 
-                if (cardName == CardNames.BackOfCard)
+                if (cardName == CardName.BackOfCard)
                 {
                     continue;
                 }
@@ -253,7 +255,7 @@ namespace CardView
             }
         }
 
-        public void SetImageForCard(CardNames cardName)
+        public void SetImageForCard(CardName cardName)
         {
             if (UseImageCache == false || CardCache.TryGetValue(cardName, out var cardCanvas) == false )
             {
@@ -283,7 +285,7 @@ namespace CardView
         private static void CardNameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var cardCtrl = d as CardCtrl;
-            var cardName = (CardNames)e.NewValue;
+            var cardName = (CardName)e.NewValue;
 
             cardCtrl?.SetImageForCard(cardName);
         }
@@ -651,6 +653,31 @@ namespace CardView
             }
         }
 
+        public void HighlightCard(double newScale, double opacity, double msDuration)
+        {
+            _daScaleCardX.To = newScale;
+            _daScaleCardY.To = newScale;
+            _daScaleCardX.Duration = new Duration(TimeSpan.FromMilliseconds(msDuration));
+            _daScaleCardY.Duration = new Duration(TimeSpan.FromMilliseconds(msDuration));
+            _sbScaleCard.Begin();
+
+            _daOpacity.To = opacity;
+            _daOpacity.Duration = new Duration(TimeSpan.FromMilliseconds(msDuration));
+            _sbOpacity.Begin();
+
+        }
+
+        public double Scale
+        {
+            get => _daScaleCardX.To ?? 1.0;
+            set
+            {
+                _daScaleCardX.To = value;
+                _daScaleCardY.To = value;
+                _sbScaleCard.Duration = new Duration(TimeSpan.FromMilliseconds(500));
+                _sbScaleCard.Begin();
+            }
+        }
 
         internal void Reset()
         {

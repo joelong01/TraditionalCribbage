@@ -39,9 +39,9 @@ namespace Cards
             }
         }
 
-        public CardNames CardName
+        public CardName CardName
         {
-            get => (CardNames) ((int) (Suit - 1) * 13 + Rank - 1);
+            get => (CardName) ((int) (Suit - 1) * 13 + Rank - 1);
             set
             {
                 //

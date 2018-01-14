@@ -52,6 +52,7 @@ namespace Cribbage
         //  called in Count state
         Task MoveCardsToCrib();
 
+        Task AnimateMoveComputerCardstoCrib(List<CardCtrl> computerCribCards, bool transferCardsCuzTheyAreOwnedByTheComputer);
         //
         //  Count Computer Card - animate the right card and update the current count
         Task CountCard(PlayerType playerTurn, CardCtrl card, int newCount);
@@ -151,6 +152,7 @@ namespace Cribbage
 
         public async Task SendCardsBackToOwner()
         {
+            _cgDiscarded.SetCardsOrientation(CardOrientation.FaceUp, 500, 0);
             await AnimateSendCardsBackToOwner();
         }
 
@@ -244,7 +246,7 @@ namespace Cribbage
                 Width = 400,
                 Height = 300,
                 WrongScore = wrongScore,
-                Option=WrongScoreOption.SetOnce
+                Option = WrongScoreOption.SetOnce
             };
 
             LayoutRoot.Children.Add(ctrl);
@@ -349,17 +351,14 @@ namespace Cribbage
             await WaitForContinue(playerType, "Press Continue");
 
 
-            foreach (var card in _cgDiscarded.Cards)
-            {
-                card.Opacity = 0.50;
-                card.Counted = true;
-            }
-
+            _cgDiscarded.SetCardsOrientation(CardOrientation.FaceDown, 500, 0);
 
             _cgPlayer.MaxSelectedCards = 1;
 
             SetCount(0);
         }
+
+
 
         public int AddScore(List<Score> scores, PlayerType playerTurn)
         {

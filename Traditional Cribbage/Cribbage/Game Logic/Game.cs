@@ -18,6 +18,7 @@ namespace Cribbage
         Start,
         Deal,
         PlayerSelectsCribCards,
+        ComputerGiveToCrib,
         GiveToCrib,
         Count,
         CountPlayer,
@@ -179,6 +180,13 @@ namespace Cribbage
                             CurrentCount = 0;
                             state = GameState.PlayerSelectsCribCards;
                         }
+                        break;
+                    case GameState.ComputerGiveToCrib:
+                        //
+                        //  this is for a generated game - we don't get here normally.
+                        var cribCards = Computer.SelectCribCards(ComputerCards, Dealer == PlayerType.Computer).Result;
+                        await _gameView.AnimateMoveComputerCardstoCrib(CardsToCardCtrl(cribCards), true);
+                        state = GameState.PlayerSelectsCribCards;
                         break;
                     case GameState.PlayerSelectsCribCards:
                         var playerCrib =

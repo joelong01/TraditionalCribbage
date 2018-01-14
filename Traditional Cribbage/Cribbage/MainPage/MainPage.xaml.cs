@@ -40,9 +40,11 @@ namespace Cribbage
 
             SetState(GameState.GameOver);
             Loaded += MainPage_Loaded;
+
         }
 
         public ObservableCollection<CardCtrl> PlayerCards { get; set; } = new ObservableCollection<CardCtrl>();
+
 
         private void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
@@ -313,6 +315,7 @@ namespace Cribbage
                 LayoutRoot.Children.Remove(dlg);
                 _btnContinue.IsEnabled = true;
                 _btnShowScoreAgain.IsEnabled = true;
+                _tbScoreToAdd.Text = totalScore.ToString();
 
             }
 
@@ -628,6 +631,11 @@ namespace Cribbage
             _daAnimateShowScoreControls.To = opacity;
             _daAnimateShowScoreControls.Duration = TimeSpan.FromMilliseconds(100);
             _sbAnimateShowScoreControls.Begin();
+        }
+
+        private void OnCreateGames(object sender, RoutedEventArgs e)
+        {
+            this.Frame.Navigate(typeof(GameGeneratorPage), this);
         }
     }
 }

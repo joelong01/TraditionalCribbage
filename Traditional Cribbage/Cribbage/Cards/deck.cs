@@ -10,9 +10,17 @@ namespace Cards
 
         private readonly int[] _randomIndeces = new int[52];
 
-        public Deck(int seed)
+        public Deck(int seed, bool shuffle = true)
         {
-            Shuffle(seed);
+            for (var i = 0; i < 52; i++)
+            {
+                _randomIndeces[i] = i;
+            }
+
+            if (shuffle)
+            {
+                Shuffle(seed);
+            }
         }
 
         public void Shuffle(int seed)
@@ -40,7 +48,7 @@ namespace Cards
             var cards = new List<Card>();
             for (var i = _index; i < number + _index; i++)
             {
-                var c = new Card((CardNames) _randomIndeces[i])
+                var c = new Card((CardName) _randomIndeces[i])
                 {
                     Owner = owner
                 };

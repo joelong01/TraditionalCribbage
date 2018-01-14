@@ -10,6 +10,14 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
+    <UserControl.Resources>
+        <Storyboard x:Name="_sbOpacity">
+            <DoubleAnimation x:Name="_daOpacity" Duration="0:0:0.250" To="1"
+                             Storyboard.TargetProperty="(UIElement.Opacity)"
+                             Storyboard.TargetName="_tbScore" />
+        </Storyboard>
+
+    </UserControl.Resources>
     <Grid Background="{StaticResource bmCherry}">
         <Grid.RowDefinitions>
             <RowDefinition Height="20"/>
@@ -39,8 +47,8 @@
 
             <Button Name="_btnPrev" Content="&#xE00E;" FontFamily="Segoe MDL2 Assets" Grid.Row="2" Foreground="White" HorizontalAlignment="Right" FontSize="24" Click="OnPreviousScore" />
             <Button Name="_btnNext" Content="&#xE00F;" FontFamily="Segoe MDL2 Assets" Grid.Row="2" Foreground="White" HorizontalAlignment="Left" FontSize="24" Grid.Column="2" Click="OnNextScore"/>
-            <GridView Name="_gvCards" Grid.Row="1" Grid.ColumnSpan="3" Grid.Column="0" ItemsSource="{x:Bind _cardList}"/>
-            <TextBlock Name="_tbScore" Text="Fifteen" Foreground="White" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <GridView Name="_gvCards" Grid.Row="1" Grid.ColumnSpan="3" Grid.Column="0" ItemsSource="{x:Bind _cardList}" VerticalAlignment="Bottom"/>
+            <TextBlock Name="_tbScore" Text="" Foreground="White" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" />
             <TextBlock Name="_tbTotalScore" Text="Total: 29" Foreground="White" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,2,0" />
         </Grid>
     </Grid>

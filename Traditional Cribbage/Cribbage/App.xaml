@@ -2,6 +2,7 @@
     x:Class="Cribbage.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:cribbage="using:Cribbage"
     RequestedTheme="Light">
     <Application.Resources>
         <ResourceDictionary>
@@ -9,6 +10,8 @@
             <SolidColorBrush x:Key="LineBrushLowOpacity" Color="#AA621C02" />
             <SolidColorBrush x:Key="CardColor" Color="#FF2C5687" />
             <SolidColorBrush x:Key="SelectColor" Color="Indigo" />
+
+            <cribbage:IntToStringConverter x:Key="IntToStringConverter" />
 
             <Style x:Key="CardGridBorderStyle" TargetType="Border">
                 <Setter Property="BorderBrush" Value="{StaticResource LineBrush}" />
