@@ -67,13 +67,13 @@ namespace Cribbage
                         t = CardGrid.AnimateMoveOneCard(_cgDeck, _cgPlayer, card, (int)targetIndex, true,
                             MOVE_CARDS_ANIMATION_DURATION, beginTime);
                         targetIndex += 0.5;
-                        card.Location = Location.Player;
+                        card.Location = CardView.Location.Player;
                         break;
                     case Owner.Computer:
                         t = CardGrid.AnimateMoveOneCard(_cgDeck, _cgComputer, card, (int)targetIndex, true,
                             MOVE_CARDS_ANIMATION_DURATION, beginTime);
                         targetIndex += 0.5;
-                        card.Location = Location.Computer;
+                        card.Location = CardView.Location.Computer;
                         break;
                     case Owner.Shared:
                         continue;
@@ -96,7 +96,19 @@ namespace Cribbage
             //
             //  move computer cards to the crib.  do it slow the first time so that the user can learn where to place the cards
             //
-            beginTime = 0;
+            // don't Transfer the cards because they all still belong to the deck -- we'll transfer below
+            await AnimateMoveComputerCardstoCrib(discardedComputerCards, false);
+            //
+            //  Now put the cards where they belong - they are all currently owned by the deck...
+            CardGrid.TransferCards(_cgDeck, _cgComputer, computerCards);
+            CardGrid.TransferCards(_cgDeck, _cgPlayer, playerCards);
+            CardGrid.TransferCards(_cgComputer, _cgCrib, discardedComputerCards);
+        }
+
+        public async Task AnimateMoveComputerCardstoCrib(List<CardCtrl> computerCribCards, bool moveCards = true)
+        {
+            double beginTime = 0;
+            var taskList = new List<Task>();
             var animationDuration = FlipAnimationDuration;
             if (_firstDeal)
             {
@@ -104,7 +116,7 @@ namespace Cribbage
                 _firstDeal = false;
             }
 
-            var tList = CardGrid.MoveListOfCards(_cgComputer, _cgCrib, discardedComputerCards, animationDuration,
+            var tList = CardGrid.MoveListOfCards(_cgComputer, _cgCrib, computerCribCards, animationDuration,
                 beginTime);
             if (tList != null)
             {
@@ -112,12 +124,10 @@ namespace Cribbage
             }
 
             await Task.WhenAll(taskList);
-
-            //
-            //  Now put the cards where they belong - they are all currently owned by the deck...
-            CardGrid.TransferCards(_cgDeck, _cgComputer, computerCards);
-            CardGrid.TransferCards(_cgDeck, _cgPlayer, playerCards);
-            CardGrid.TransferCards(_cgComputer, _cgCrib, discardedComputerCards);
+            if (moveCards)
+            {
+                CardGrid.TransferCards(_cgComputer, _cgCrib, computerCribCards);
+            }
         }
 
         /// <summary>

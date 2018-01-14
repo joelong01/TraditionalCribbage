@@ -1,19 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
 using Cards;
 using CardView;
 using LongShotHelpers;
@@ -22,11 +12,12 @@ using LongShotHelpers;
 
 namespace Cribbage.UxControls
 {
-    public sealed partial class ShowScoreDlg : UserControl
+    public sealed partial class ShowScoreDlg
     {
-        ObservableCollection<CardCtrl> _cardList = new ObservableCollection<CardCtrl>();
-        private List<Score> _scores = null;
-        private int _scoreCount = 0;
+        private const double ANIMATION_SPEED = 250;
+        private readonly ObservableCollection<CardCtrl> _cardList = new ObservableCollection<CardCtrl>();
+        private readonly List<Score> _scores;
+        private int _scoreCount;
         public ShowScoreDlg()
         {
             this.InitializeComponent();
@@ -37,13 +28,14 @@ namespace Cribbage.UxControls
             this.InitializeComponent();
             foreach (var card in hand)
             {
-                _cardList.Add(new CardCtrl(card, false));
+                var newCard = new CardCtrl(card, false);
+                _cardList.Add(newCard);
 
             }
-
             _cardList.Add(new CardCtrl(sharedCard, false));
+
             _scores = scores;
-            HighlightCardForScore();
+            var ignored = HighlightCardForScore(true);
             _tbTotalScore.Text = $"Total Score: {total}";
         }
 
@@ -52,29 +44,57 @@ namespace Cribbage.UxControls
             await _btnClose.WhenClicked();
         }
 
-        private void OnPreviousScore(object sender, RoutedEventArgs e)
+        private async void OnPreviousScore(object sender, RoutedEventArgs e)
         {
-            _scoreCount = Math.Max(0, _scoreCount - 1);
-            HighlightCardForScore();
+            try
+            {
+                ((Button)sender).IsEnabled = false;
+                _scoreCount = Math.Max(0, _scoreCount - 1);
+                await HighlightCardForScore(false);
+            }
+            finally
+            {
+                EnableOrDisableButtons();
+            }
         }
 
-        private void HighlightCardForScore()
+        private async void OnNextScore(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                ((Button)sender).IsEnabled = false;
+                _scoreCount = Math.Min(_scores.Count - 1, _scoreCount + 1);
+                await HighlightCardForScore(true);
+            }
+            finally
+            {
+                EnableOrDisableButtons();
+            }
+        }
+
+        private void EnableOrDisableButtons()
+        {
+            _btnPrev.IsEnabled = (_scoreCount != 0);
+            _btnNext.IsEnabled = (_scoreCount != _scores.Count - 1);
+        }
+
+        private async Task HighlightCardForScore(bool next)
         {
             if (_scores.Count > 0)
             {
                 foreach (var c in _cardList)
                 {
-                    c.Selected = false;
+                    c.HighlightCard(.8, .5, ANIMATION_SPEED);
                 }
 
                 var score = _scores[_scoreCount];
 
                 foreach (var card in score.Cards)
                 {
-                    CardNameToCard(card.CardName).Selected = true;
+                    CardNameToCard(card.CardName).HighlightCard(1.0, 1.0, ANIMATION_SPEED);
                 }
 
-                SetScoreMessage(score);
+                await SetScoreMessage(score, next);
                 _btnPrev.IsEnabled = (_scoreCount != 0);
                 _btnNext.IsEnabled = (_scoreCount != _scores.Count - 1);
             }
@@ -86,7 +106,7 @@ namespace Cribbage.UxControls
             }
 
         }
-        private CardCtrl CardNameToCard(CardNames name)
+        private CardCtrl CardNameToCard(CardName name)
         {
             foreach (var card in _cardList)
             {
@@ -97,15 +117,39 @@ namespace Cribbage.UxControls
             throw new Exception("why isn't this card here?");
         }
 
-        private void OnNextScore(object sender, RoutedEventArgs e)
-        {
-            _scoreCount = Math.Min(_scores.Count - 1, _scoreCount + 1);
-            HighlightCardForScore();
-        }
 
-        private void SetScoreMessage(Score score)
+        private Score _lastScore;
+        private int _runningScore;
+
+        private async Task SetScoreMessage(Score score, bool next)
         {
-            _tbScore.Text = $"{CardScoring.ScoreDescription[(int)score.ScoreName]} for {score.Value}";
+            if (next)
+            {
+                _runningScore += score.Value;
+            }
+            else
+            {
+                _runningScore -= _lastScore.Value;
+
+            }
+
+            _daOpacity.To = 0;
+            _daOpacity.Duration = TimeSpan.FromMilliseconds(ANIMATION_SPEED);
+            await _sbOpacity.ToTask();
+            switch (score.ScoreName)
+            {
+                case ScoreName.Run:
+                case ScoreName.Flush:
+                    _tbScore.Text = $"{CardScoring.ScoreDescription[(int)score.ScoreName]} of {score.Value} for {_runningScore}";
+                    break;
+                default:
+                    _tbScore.Text = $"{CardScoring.ScoreDescription[(int)score.ScoreName]} for {_runningScore}";
+                    break;
+            }
+
+            _daOpacity.To = 1.0;
+            _sbOpacity.Begin();
+            _lastScore = score;
         }
     }
 }

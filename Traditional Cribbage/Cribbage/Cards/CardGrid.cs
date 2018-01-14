@@ -349,7 +349,7 @@ namespace CardView
                     return (false, token);
                 }
 
-                if (Enum.TryParse(subTokens[0], out CardNames cardName))
+                if (Enum.TryParse(subTokens[0], out CardName cardName))
                 {
                     if (Enum.TryParse(subTokens[1], out Owner owner))
                     {
@@ -968,22 +968,13 @@ namespace CardView
             return taskList;
         }
 
-        public static void SetCardsToOrientation(IEnumerable<CardCtrl> cardList, CardOrientation orientation,
-            double msDuration, double msBeginTime)
+        public void SetCardsOrientation( CardOrientation orientation, double msDuration, double msBeginTime)
         {
-            var taskList = new List<Task>();
 
-            foreach (var card in cardList)
+            foreach (var card in Cards)
             {
-                var t = card.SetOrientationTask(orientation, msDuration, msBeginTime);
-                if (t != null)
-                {
-                    taskList.Add(t);
-                }
+                card.SetOrientationAsync(orientation, msDuration, msBeginTime);
             }
-
-
-            Task.WaitAll(taskList.ToArray());
         }
 
 

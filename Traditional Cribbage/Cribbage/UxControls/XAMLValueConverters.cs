@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Windows.Foundation;
 using Windows.UI.Xaml;
@@ -7,6 +8,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Shapes;
 using Cribbage.Annotations;
 
+// ReSharper disable once CheckNamespace
 namespace Cribbage
 {
     public class EnumBooleanConverter : IValueConverter
@@ -36,20 +38,20 @@ namespace Cribbage
         }
         #endregion
 
-       
+
     }
     public class AddConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            var d = (double) value;
+            var d = (double)value;
             var m = System.Convert.ToDouble(parameter);
             return d + m;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)
         {
-            var d = (double) value;
+            var d = (double)value;
             var m = System.Convert.ToDouble(parameter);
             return d - m;
         }
@@ -59,7 +61,7 @@ namespace Cribbage
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            var input = (Thickness) value;
+            var input = (Thickness)value;
             var t = new Thickness(-input.Left, -input.Top, -input.Right, -input.Bottom);
             return t;
         }
@@ -74,7 +76,7 @@ namespace Cribbage
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            var input = (Thickness) value;
+            var input = (Thickness)value;
             return input.Left;
         }
 
@@ -88,8 +90,8 @@ namespace Cribbage
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            var to = (Ellipse) value;
-            var from = (Ellipse) parameter;
+            var to = (Ellipse)value;
+            var from = (Ellipse)parameter;
             var center = new Point(0, 0);
             var gt = to.TransformToVisual(from);
             center = gt.TransformPoint(new Point(0, 0));
@@ -147,7 +149,7 @@ namespace Cribbage
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            var el = (FrameworkElement) value;
+            var el = (FrameworkElement)value;
             el.UpdateLayout();
             var rect = new Rect
             {
@@ -169,14 +171,14 @@ namespace Cribbage
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            var d = (double) value;
+            var d = (double)value;
             var m = System.Convert.ToDouble(parameter);
             return d * m;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)
         {
-            var ret = (double) value / System.Convert.ToDouble(parameter);
+            var ret = (double)value / System.Convert.ToDouble(parameter);
             return ret;
         }
     }
@@ -186,7 +188,7 @@ namespace Cribbage
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            var containerWidth = (double) value;
+            var containerWidth = (double)value;
             var width = containerWidth * .0625;
             var ret = containerWidth * 0.5 - width * 0.5;
             return ret;
@@ -195,6 +197,22 @@ namespace Cribbage
         public object ConvertBack(object value, Type targetType, object parameter, string language)
         {
             throw new NotImplementedException();
+        }
+    }
+
+    public class IntToStringConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+
+            return value.ToString();
+
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            Debug.Assert(value is string, "bad convert in IntToString");
+            return int.Parse((string) value);
         }
     }
 }

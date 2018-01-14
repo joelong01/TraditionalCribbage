@@ -2,7 +2,7 @@
 
 namespace Cards
 {
-    public enum CardNames
+    public enum CardName
     {
         AceOfClubs = 0,
         TwoOfClubs = 1,
@@ -96,7 +96,7 @@ namespace Cards
 
     public partial class Card
     {
-        public Card(CardNames name)
+        public Card(CardName name)
         {
             CardName = name;
         }
@@ -199,7 +199,7 @@ namespace Cards
             return (int) y.Suit - (int) x.Suit;
         }
 
-        public static int CompareCardNamesByValue(CardNames x, CardNames y)
+        public static int CompareCardNamesByValue(CardName x, CardName y)
         {
             return (int) x - (int) y;
         }

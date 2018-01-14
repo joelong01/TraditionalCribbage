@@ -26,6 +26,12 @@
                              Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleY)"
                              Storyboard.TargetName="LayoutRoot" />
         </Storyboard>
+        <Storyboard x:Name="_sbOpacity">
+            <DoubleAnimation x:Name="_daOpacity" Duration="0:0:0" To="0.98"
+                             Storyboard.TargetProperty="(UIElement.Opacity)"
+                             Storyboard.TargetName="LayoutRoot" />
+            
+        </Storyboard>
         <Storyboard x:Name="_sbRotateCard">
             <DoubleAnimation x:Name="_daRotate" Duration="0" From="-90" To="-86.54"
                              Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.Rotation)"
