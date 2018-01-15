@@ -8,66 +8,83 @@
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:cardView="using:CardView"
     NavigationCacheMode="Required"
-    d:DesignWidth="2184"
-    d:DesignHeight="1080"
+    d:DesignWidth="1750"
+    d:DesignHeight="793"
     mc:Ignorable="d" >
 
 
-    <Grid Background="Black"  Margin="0,0,0,0">
+    <Grid Background="{StaticResource bmFelt}"  >
         <Grid.RowDefinitions>
-            <RowDefinition Height="10*"/>
-            <RowDefinition Height="181*"/>
-            <RowDefinition Height="0*"/>
-            <RowDefinition Height="0*"/>
-            <RowDefinition Height="10*"/>
-            <RowDefinition Height="181*"/>
-            <RowDefinition Height="10*"/>
-            <RowDefinition Height="181*"/>
-            <RowDefinition Height="200*" />
+            <RowDefinition Height="10"/>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="161"/>
+            <RowDefinition Height="10"/>
+            <RowDefinition Height="0"/>
+            <RowDefinition Height="0"/>
+            <RowDefinition Height="181"/>
+            <RowDefinition Height="10"/>
+            <RowDefinition Height="181"/>
+            <RowDefinition Height="10"/>
+            <RowDefinition Height="180" />
+            <RowDefinition Height="20" />
+            <RowDefinition Height="10"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="10*"/>
-            <ColumnDefinition Width="600*"/>
-            <ColumnDefinition Width="10*"/>
-            <ColumnDefinition Width="150*"/>
-            <ColumnDefinition Width="10*"/>
-            <ColumnDefinition Width="1000*"/>
-            <ColumnDefinition Width="10*"/>
-            <ColumnDefinition Width="150*"/>
-            <ColumnDefinition Width="10*"/>
-            <ColumnDefinition Width="150*"/>
-            <ColumnDefinition Width="10*"/>
+
+
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="160"/>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="485"/>
+            <ColumnDefinition Width="300"/>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="150"/>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="600"/>
+            <ColumnDefinition Width="10"/>
         </Grid.ColumnDefinitions>
 
-        <ListView Name="_lvDeck"  Grid.Row="1" Grid.Column="1" Grid.RowSpan="8" ItemsSource="{x:Bind DeckCards}" VerticalAlignment="Stretch" Background="Indigo" Grid.ColumnSpan="1" CanDragItems="True" AllowDrop="True" DragEnter="ListView_DragEnter" DragLeave="ListView_DragLeave" Drop="ListView_Drop" DragOver="ListView_DragOver" >
-            <ListView.ItemsPanel>
+        <ListView BorderBrush="{StaticResource LineBrush}" BorderThickness="2" Name="_lvDeck"  Grid.Row="1" Grid.Column="8" Grid.RowSpan="11" ItemsSource="{x:Bind DeckCards}" VerticalAlignment="Stretch" Background="Transparent" Grid.ColumnSpan="1" CanDragItems="True" AllowDrop="True" DragEnter="ListView_DragEnter" DragLeave="ListView_DragLeave" Drop="ListView_Drop" DragOver="ListView_DragOver" >
+            <ListView.ItemsPanel >
                 <ItemsPanelTemplate>
                     <local:UniformGrid Columns="4" RequestedTheme="Dark" AllowDrop="True" CanDrag="True" FocusVisualPrimaryThickness="0,0,0,0" FocusVisualSecondaryThickness="0,0,0,0" Margin="0" />
                 </ItemsPanelTemplate>
             </ListView.ItemsPanel>
         </ListView>
+
+
+        <Grid Grid.Row="2" Grid.Column="1" Grid.RowSpan="9" BorderBrush="{StaticResource LineBrush}" BorderThickness="2">
+            <TextBlock Visibility="Visible" Text="Crib" Foreground="White" FontSize="30" VerticalAlignment="Center" HorizontalAlignment="Center" />
+            <ListView Name="_lvCrib" Visibility="Visible" ItemsSource="{x:Bind CribCards}" Background="Transparent" CanDragItems="True"  AllowDrop="True" DragEnter="ListView_DragEnter" DragLeave="ListView_DragLeave" Drop="ListView_Drop" DragOver="ListView_DragOver" ScrollViewer.VerticalScrollBarVisibility="Disabled"/>
+        </Grid>
+        <Grid Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="2" BorderBrush="{StaticResource LineBrush}" BorderThickness="2" Grid.RowSpan="2" >
+            <TextBlock Text="Computer"  Foreground="White" FontSize="30" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False" />
+            <GridView Name="_lvComputer" ItemsSource="{x:Bind ComputerCards}" CanDragItems="True" AllowDrop="True" DragEnter="ListView_DragEnter" DragLeave="ListView_DragLeave" Drop="ListView_Drop" DragOver="ListView_DragOver" ScrollViewer.VerticalScrollBarVisibility="Disabled" />
+        </Grid>
         
-
-        <TextBlock Text="Computer:" Grid.Row="1" Grid.Column="3" Foreground="White" FontSize="30" VerticalAlignment="Center" HorizontalAlignment="Right" />
-        <TextBlock Visibility="Collapsed" Text="Crib:" Grid.Row="3" Grid.Column="3" Foreground="White" FontSize="30" VerticalAlignment="Center" HorizontalAlignment="Right" />
-        <TextBlock Visibility="Collapsed"  Text="Counted:" Grid.Row="5" Grid.Column="3" Foreground="White" FontSize="30" VerticalAlignment="Center" HorizontalAlignment="Right" />
-        <TextBlock Text="Player:" Grid.Row="7" Grid.Column="3" Foreground="White" FontSize="30" VerticalAlignment="Center" HorizontalAlignment="Right"/>
-        <TextBlock Text="Shared:" Grid.Row="3" Grid.Column="7" Foreground="White" FontSize="30" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
-
-        <GridView Name="_lvComputer" ItemsSource="{x:Bind ComputerCards}" Grid.Row="1" Grid.Column="5" Background="Indigo" CanDragItems="True" AllowDrop="True" DragEnter="ListView_DragEnter" DragLeave="ListView_DragLeave" Drop="ListView_Drop" DragOver="ListView_DragOver" ScrollViewer.VerticalScrollBarVisibility="Disabled" />
-        <GridView Name="_lvCrib" Visibility="Collapsed" ItemsSource="{x:Bind CribCards}" Grid.Row="3" Grid.Column="5" Background="Indigo" CanDragItems="True"  AllowDrop="False" DragEnter="ListView_DragEnter" DragLeave="ListView_DragLeave" Drop="ListView_Drop" DragOver="ListView_DragOver" ScrollViewer.VerticalScrollBarVisibility="Disabled"/>
-        <GridView Name="_lvSharedCard" ShowsScrollingPlaceholders="False" ItemsSource="{x:Bind SharedCard}" Grid.Row="5" Grid.Column="7" Background="Indigo" CanDragItems="True"  AllowDrop="True" DragEnter="ListView_DragEnter" DragLeave="ListView_DragLeave" Drop="ListView_Drop" DragOver="ListView_DragOver" ScrollViewer.VerticalScrollBarVisibility="Disabled"/>
-        <GridView Name="_lvCountedCards" Visibility="Collapsed"  ItemsSource="{x:Bind CountedCards}" Grid.Row="5" Grid.Column="5" Background="Indigo" CanDragItems="True"  AllowDrop="false" DragEnter="ListView_DragEnter" DragLeave="ListView_DragLeave" Drop="ListView_Drop" DragOver="ListView_DragOver" ScrollViewer.VerticalScrollBarVisibility="Disabled"/>
-        <GridView Name="_lvPlayer" ItemsSource="{x:Bind PlayerCards}" Grid.Row="7" Grid.Column="5" Background="Indigo" CanDragItems="True"  AllowDrop="True" DragEnter="ListView_DragEnter" DragLeave="ListView_DragLeave" Drop="ListView_Drop" DragOver="ListView_DragOver" ScrollViewer.VerticalScrollBarVisibility="Disabled"/>
-        <Grid Grid.Column="5" Grid.Row="8" Background="Gray">
+        <Grid Grid.Row="5" Grid.Column="6" BorderBrush="{StaticResource LineBrush}" BorderThickness="2" Grid.RowSpan="2">
+            <TextBlock Text="Shared" Foreground="White" FontSize="30" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <GridView Name="_lvSharedCard" ShowsScrollingPlaceholders="False" ItemsSource="{x:Bind SharedCard}"  Background="Transparent" CanDragItems="True"  AllowDrop="True" DragEnter="ListView_DragEnter" DragLeave="ListView_DragLeave" Drop="ListView_Drop" DragOver="ListView_DragOver" ScrollViewer.VerticalScrollBarVisibility="Disabled"/>
+        </Grid>
+        <Grid Grid.Row="5" Grid.Column="3" Grid.ColumnSpan="2" BorderBrush="{StaticResource LineBrush}" BorderThickness="2" Grid.RowSpan="2">
+            <TextBlock Visibility="Visible"  Text="Counted" Foreground="White" FontSize="30" VerticalAlignment="Center" HorizontalAlignment="Center" />
+            <GridView Name="_lvCountedCards" Visibility="Visible"  ItemsSource="{x:Bind CountedCards}"  Background="Transparent" 
+                      CanDragItems="True"  AllowDrop="True" DragEnter="ListView_DragEnter" DragLeave="ListView_DragLeave" Drop="ListView_Drop" DragOver="ListView_DragOver" 
+                      ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto"/>
+        </Grid>
+        <Grid Grid.Row="8" Grid.Column="3" Grid.ColumnSpan="2" BorderBrush="{StaticResource LineBrush}" BorderThickness="2">
+            <TextBlock Text="Player" Foreground="White" FontSize="30" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <GridView Name="_lvPlayer" ItemsSource="{x:Bind PlayerCards}"  Background="Transparent" CanDragItems="True"  AllowDrop="True" DragEnter="ListView_DragEnter" DragLeave="ListView_DragLeave" Drop="ListView_Drop" DragOver="ListView_DragOver" ScrollViewer.VerticalScrollBarVisibility="Disabled"/>
+        </Grid>
+        <Grid Grid.Column="3" Grid.Row="10" Grid.ColumnSpan="4" Grid.RowSpan="2" Background="Gray" BorderBrush="{StaticResource LineBrush}" BorderThickness="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="100*"/>
                 <ColumnDefinition Width="100*"/>
                 <ColumnDefinition Width="100*"/>
-                
+
 
             </Grid.ColumnDefinitions>
-            <StackPanel Grid.Column="0" Orientation="Horizontal">
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,10,0,0">
                 <StackPanel Orientation="Vertical">
                     <TextBlock Text="Current Count: " HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="16" Margin="10,3,5,0" />
                     <TextBlock Text="Player Back Score: " HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="16" Margin="10,10,5,0" />
@@ -76,7 +93,7 @@
                     <TextBlock Text="Computer Last Score: " HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="16" Margin="10,10,5,0"/>
                     
                 </StackPanel>
-                <StackPanel Orientation="Vertical" Grid.Column="1">
+                <StackPanel Orientation="Vertical" Grid.Column="1" Margin="0,0,0,0">
                     <TextBox Text="{x:Bind CurrentCount, Converter={StaticResource IntToStringConverter}, Mode=TwoWay}"  />
                     <TextBox Text="{x:Bind PlayerBackScore, Converter={StaticResource IntToStringConverter}, Mode=TwoWay}"  />
                     <TextBox Text="{x:Bind PlayerScoreDelta, Converter={StaticResource IntToStringConverter}, Mode=TwoWay}"  />
@@ -84,26 +101,32 @@
                     <TextBox Text="{x:Bind ComputerScoreDelta, Converter={StaticResource IntToStringConverter}, Mode=TwoWay}"  />
                     
                 </StackPanel>
-                
+
             </StackPanel>
-            <StackPanel Grid.Column="1" Orientation="Horizontal">
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="0,10,0,0">
                 <StackPanel Orientation="Vertical">
-                    <TextBlock Text="Game State: " HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="16" Margin="10,2,0,0"/>
-                    <TextBlock Text="Auto Set Score: " HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="16" Margin="8,14,5,0"/>
-                    <TextBlock Text="Dealer: " HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="16" Margin="8,14,5,0"/>
+                    <TextBlock Text="Game State: " HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="16" Margin="10,0,5,0"/>
+                    <TextBlock Text="Auto Set Score: " HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="16" Margin="10,20,5,0"/>
+                    <TextBlock Text="Dealer: " HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="16" Margin="10,10,5,0"/>
+                    <Button Content="Back" Grid.Row="7" Grid.Column="7" VerticalAlignment="Bottom" HorizontalAlignment="Center" Width="100" Foreground="White" Click="OnBack" Margin="0,16,0,0"/>
+                    <Button Content="Save" Grid.Row="7" Grid.Column="7" VerticalAlignment="Bottom" HorizontalAlignment="Center" Width="100" Foreground="White" Click="OnSave" Margin="0,5,0,0"/>
                 </StackPanel>
-                <StackPanel Orientation="Vertical" Grid.Column="1">
-                    <ComboBox Name="_cmbGameState"  ItemsSource="{x:Bind GameStates, Mode=OneWay}"  />
-                    <ToggleSwitch HorizontalAlignment="Left" VerticalAlignment="Center"  RequestedTheme="Dark" IsOn="{x:Bind AutoSetScore, Mode=OneWay}"   />
-                    <!--<ComboBox Name="_cmbDealer"  ItemsSource="{x:Bind Dealer, Mode=OneWay}"  />-->
+                <StackPanel Orientation="Vertical" Grid.Column="1" >
+                    <ComboBox Name="_cmbGameState"  ItemsSource="{x:Bind GameStates, Mode=OneWay}" SelectedItem="{x:Bind State, Mode=TwoWay}" />
+                    <ToggleSwitch HorizontalAlignment="Left" VerticalAlignment="Center"  RequestedTheme="Dark" IsOn="{x:Bind AutoSetScore, Mode=TwoWay}"   />
+                    <ComboBox Name="_cmbDealer"  SelectedItem="{x:Bind Dealer, Mode=OneWay}" SelectionChanged="OnDealerChanged"  />
+                    <Button Content="Reset" Grid.Row="7" Grid.Column="7" VerticalAlignment="Bottom" Width="100" HorizontalAlignment="Center" Foreground="White" Click="OnReset" Margin="0,8,0,0"/>
                 </StackPanel>
             </StackPanel>
 
-            <StackPanel Grid.Column="2" Orientation="Horizontal">
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="0,10,0,0">
                 <StackPanel Orientation="Vertical" Grid.Column="1">
-                    <Button Content="Back" Grid.Row="7" Grid.Column="7" VerticalAlignment="Bottom" Width="100" Foreground="White" Click="OnBack" Margin="0,10"/>
-                    <Button Content="Save" Grid.Row="7" Grid.Column="7" VerticalAlignment="Bottom" Width="100" Foreground="White" Click="OnSave" Margin="0,10"/>
-
+                    <TextBlock Text="Card Owner:" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="16" Margin="10,3,5,0" />
+                    <TextBlock Text="Card Location:" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="16" Margin="10,10,5,0" />
+                </StackPanel>
+                <StackPanel Orientation="Vertical">
+                    <ComboBox Name="_cmbOwner"  SelectedItem="{x:Bind SelectedCard.Owner, Mode=TwoWay}"  />
+                    <ComboBox Name="_cmbLocation"  SelectedItem="{x:Bind SelectedCard.Location, Mode=TwoWay}"  />
                 </StackPanel>
             </StackPanel>
         </Grid>
